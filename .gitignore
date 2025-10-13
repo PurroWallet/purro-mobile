@@ -1,10 +1,33 @@
-# OSX
-#
-.DS_Store
 
-# Xcode
-#
-build/
+# =========================================
+# React Native Base .gitignore
+# =========================================
+
+# Node modules
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+yarn.lock
+
+# Build directories
+/android/app/build/
+/android/.gradle/
+/android/.idea/
+/android/local.properties
+/android/.cxx/
+/android/app/.cxx/
+/android/.project
+/android/.settings
+/android/build/
+/ios/build/
+/ios/DerivedData/
+/ios/Pods/
+/ios/*.xcworkspace
+
+# Xcode user data
 *.pbxuser
 !default.pbxuser
 *.mode1v3
@@ -13,67 +36,113 @@ build/
 !default.mode2v3
 *.perspectivev3
 !default.perspectivev3
-xcuserdata
-*.xccheckout
-*.moved-aside
-DerivedData
-*.hmap
-*.ipa
-*.xcuserstate
-**/.xcode.env.local
+xcuserdata/
 
-# Android/IntelliJ
-#
-build/
-.idea
-.gradle
-local.properties
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Logs
+*.log
+log.txt
+
+# Metro bundler
+.bundle
+.expo
+.expo-shared
+.expo-dev-client
+dist/
+web-build/
+
+# Buck build system
+buck-out/
+.buckconfig.local
+
+# Watchman
+.watchmanconfig
+
+# Android Studio
 *.iml
-*.hprof
+.idea/
+.gradle
+/local.properties
+captures/
+output.json
+
+# NDK / CMake
 .cxx/
+.externalNativeBuild/
+*.so
+
+# Misc build
+tmp/
+temp/
+*.tmp
+*.temp
+*.bak
+
+# VSCode
+.vscode/
+.history/
+*.code-workspace
+
+# Environment / config files
+.env
+.env.*
+.env.local
+.env.development
+.env.production
+.env.staging
+.env.test
+
+# React Native specific
+react-native.config.js
+metro.config.js
+babel.config.js
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+# CocoaPods
+Podfile.lock
+
+# App Center / CodePush
+appcenter-config.json
+CodePush/
+*.p8
+*.mobileprovision
+*.pem
+*.key
 *.keystore
-!debug.keystore
-.kotlin/
 
-# node.js
-#
-node_modules/
-npm-debug.log
-yarn-error.log
+# Expo EAS
+eas.json
+*.tar.gz
 
-# fastlane
-#
-# It is recommended to not store the screenshots in the git repo. Instead, use fastlane to re-generate the
-# screenshots whenever they are needed.
-# For more information about the recommended setup visit:
-# https://docs.fastlane.tools/best-practices/source-control/
+# Jest / testing
+coverage/
+jest-cache/
+jest-html-reporters-*
+*.test.js.snap
 
-**/fastlane/report.xml
-**/fastlane/Preview.html
-**/fastlane/screenshots
-**/fastlane/test_output
+# Firebase / Google services
+google-services.json
+GoogleService-Info.plist
 
-# Bundle artifact
-*.jsbundle
+# Temporary files
+*.swp
+*.swo
+*.orig
 
-# Ruby / CocoaPods
-**/Pods/
-/vendor/bundle/
+# Lint / TypeScript
+.eslintcache
+tsconfig.tsbuildinfo
 
-# Temporary files created by Metro to check the health of the file watcher
-.metro-health-check*
-
-# testing
-/coverage
-
-# Yarn
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
-!.yarn/versions
-
-# ignore folder ios/Android
-ios/
-android/
+# Project-specific cache
+.cache/
+.tmp/
+coverage/

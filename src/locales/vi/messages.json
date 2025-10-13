@@ -1,0 +1,86 @@
+{
+  "welcome": {
+    "title": "Chào mừng đến với Purro Wallet",
+    "subtitle": "Cánh cổng của bạn đến với Hyperliquid",
+    "createWallet": "Tạo ví",
+    "importWallet": "Nhập ví",
+    "termsText": "Tôi đồng ý với Điều khoản Dịch vụ và Chính sách Bảo mật",
+    "termsRequired": {
+      "title": "Yêu cầu chấp thuận điều khoản",
+      "message": "Vui lòng chấp nhận Điều khoản Dịch vụ và Chính sách Bảo mật để tiếp tục.",
+      "ok": "Đồng ý"
+    }
+  },
+  "seedPhrase": {
+    "display": {
+      "title": "Cụm từ khôi phục của bạn",
+      "confirmation": "Tôi đã lưu cụm từ khôi phục",
+      "warning": "Hãy lưu trữ cụm từ khôi phục ở nơi an toàn và ngoại tuyến, không chia sẻ với bất kỳ ai. Đây là cách duy nhất để khôi phục ví của bạn.",
+      "continue": "Tiếp tục"
+    },
+    "verify": {
+      "title": "Xác minh cụm từ khôi phục",
+      "subtitle": "Cánh cổng của bạn đến với Hyperliquid",
+      "wordLabel": "Từ số {{number}}",
+      "placeholder": "Nhập từ",
+      "continue": "Tiếp tục"
+    }
+  },
+  "password": {
+    "create": {
+      "title": "Tạo mật khẩu",
+      "subtitle": "Cánh cổng của bạn đến với Hyperliquid",
+      "passwordLabel": "Mật khẩu",
+      "confirmLabel": "Xác nhận mật khẩu",
+      "passwordPlaceholder": "Nhập mật khẩu",
+      "confirmPlaceholder": "Nhập lại mật khẩu",
+      "requirement": "Ít nhất 8 ký tự",
+      "enableBiometrics": "Bật xác thực sinh trắc học",
+      "continue": "Tiếp tục",
+      "validation": {
+        "tooShort": "Mật khẩu phải có ít nhất 8 ký tự",
+        "mismatch": "Mật khẩu không khớp"
+      }
+    }
+  },
+  "unlock": {
+    "title": "Mở khóa",
+    "subtitle": "Nhập mật khẩu của bạn",
+    "passwordPlaceholder": "Mật khẩu",
+    "unlock": "Mở khóa",
+    "forgotPassword": "Quên mật khẩu?",
+    "errors": {
+      "incorrect": "Mật khẩu không đúng",
+      "failed": "Không thể mở khóa ví"
+    }
+  },
+  "home": {
+    "title": "Trang chủ",
+    "balance": "Số dư",
+    "send": "Gửi",
+    "receive": "Nhận"
+  },
+  "settings": {
+    "title": "Cài đặt",
+    "security": "Bảo mật",
+    "about": "Giới thiệu"
+  },
+  "errors": {
+    "generic": {
+      "title": "Lỗi",
+      "message": "Đã xảy ra lỗi. Vui lòng thử lại.",
+      "ok": "Đồng ý"
+    },
+    "wallet": {
+      "createFailed": "Không thể tạo ví. Vui lòng thử lại.",
+      "importFailed": "Không thể nhập ví. Vui lòng thử lại."
+    }
+  },
+  "common": {
+    "ok": "Đồng ý",
+    "cancel": "Hủy",
+    "continue": "Tiếp tục",
+    "back": "Quay lại",
+    "next": "Tiếp theo"
+  }
+}

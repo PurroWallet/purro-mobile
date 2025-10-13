@@ -1,0 +1,55 @@
+import React from 'react';
+import { View, Text, SafeAreaView, TouchableOpacity } from 'react-native';
+import type { WalletSuccessScreenProps } from '@/types/navigation';
+
+/**
+ * Wallet Success Screen
+ * Shown after successful wallet creation
+ * Following Figma design: node-id=260-1901
+ */
+const WalletSuccessScreen: React.FC<WalletSuccessScreenProps> = ({
+  navigation,
+}) => {
+  const handleGetStarted = () => {
+    // Navigate to Home screen
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Home' }],
+    });
+  };
+
+  return (
+    <SafeAreaView className="flex-1 bg-background-primary">
+      {/* Content */}
+      <View className="flex-1 items-center justify-center gap-8 px-5">
+        {/* Success Icon */}
+        <View className="items-center justify-center">
+          <View className="h-[120px] w-[120px] items-center justify-center rounded-full bg-background-secondary">
+            <Text className="text-[48px] font-semibold text-brand-primary">✓</Text>
+          </View>
+        </View>
+
+        {/* Success Message */}
+        <View className="items-center gap-4">
+          <Text className="text-center text-h4 text-text-primary">
+            Your wallet is{'\n'}successfully created.
+          </Text>
+          <Text className="text-center text-button text-text-secondary">
+            Get started now.
+          </Text>
+        </View>
+      </View>
+
+      {/* Get Started Button */}
+      <TouchableOpacity
+        className="absolute bottom-10 left-5 right-5 h-14 items-center justify-center rounded-xl bg-brand-primary px-6 py-[18px]"
+        onPress={handleGetStarted}
+        activeOpacity={0.8}
+      >
+        <Text className="text-button text-button-primary-text">Get started</Text>
+      </TouchableOpacity>
+    </SafeAreaView>
+  );
+};
+
+export default WalletSuccessScreen;

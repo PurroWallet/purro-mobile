@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --color-background-primary: 249 250 251;
+  --color-background-secondary: 229 231 235;
+  --color-background-tertiary: 209 213 219;
+
+  --color-text-primary: 22 22 22;
+  --color-text-secondary: 75 85 99;
+  --color-text-tertiary: 107 114 128;
+  --color-text-disabled: 156 163 175;
+
+  --color-brand-primary: 5 146 136;
+  --color-brand-secondary: 3 114 106;
+  --color-brand-disabled: 10 101 97;
+  --color-brand-light: 230 247 246;
+
+  --color-button-primary: 5 146 136;
+  --color-button-primary-text: 249 249 249;
+  --color-button-primary-disabled: 10 101 97;
+  --color-button-primary-disabled-text: 156 163 175;
+  --color-button-secondary: 229 231 235;
+  --color-button-secondary-text: 22 22 22;
+
+  --color-overlay-dark: 0 0 0 / 0.4;
+  --color-overlay-light: 255 255 255 / 0.6;
+  --color-overlay-card: 37 39 44 / 0.08;
+
+  --color-border-primary: 209 213 219;
+  --color-border-secondary: 229 231 235;
+
+  --color-system-white: 255 255 255;
+  --color-system-black: 0 0 0;
+  --color-system-success: 52 199 89;
+  --color-system-warning: 235 171 22;
+  --color-system-error: 255 59 48;
+  --color-system-info: 90 200 250;
+}
+
+.dark {
+  color-scheme: dark;
+  --color-background-primary: 22 22 22;
+  --color-background-secondary: 37 39 44;
+  --color-background-tertiary: 73 79 91;
+
+  --color-text-primary: 249 249 249;
+  --color-text-secondary: 106 114 130;
+  --color-text-tertiary: 237 238 241;
+  --color-text-disabled: 0 51 51;
+
+  --color-brand-primary: 5 146 136;
+  --color-brand-secondary: 3 114 106;
+  --color-brand-disabled: 10 101 97;
+  --color-brand-light: 230 247 246;
+
+  --color-button-primary: 5 146 136;
+  --color-button-primary-text: 249 249 249;
+  --color-button-primary-disabled: 10 101 97;
+  --color-button-primary-disabled-text: 0 51 51;
+  --color-button-secondary: 37 39 44;
+  --color-button-secondary-text: 237 238 241;
+
+  --color-overlay-dark: 0 0 0 / 0.5;
+  --color-overlay-light: 255 255 255 / 0.1;
+  --color-overlay-card: 37 39 44 / 0.6;
+
+  --color-border-primary: 56 56 58;
+  --color-border-secondary: 72 72 74;
+
+  --color-system-white: 255 255 255;
+  --color-system-black: 0 0 0;
+  --color-system-success: 52 199 89;
+  --color-system-warning: 235 171 22;
+  --color-system-error: 255 59 48;
+  --color-system-info: 90 200 250;
+}

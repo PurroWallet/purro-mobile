@@ -1,0 +1,86 @@
+{
+  "welcome": {
+    "title": "Welcome to Purro Wallet",
+    "subtitle": "Your Gateway to Hyperliquid",
+    "createWallet": "Create Wallet",
+    "importWallet": "Import Wallet",
+    "termsText": "I accept the Terms of Service and Privacy Policy",
+    "termsRequired": {
+      "title": "Terms Required",
+      "message": "Please accept the Terms of Service and Privacy Policy to continue.",
+      "ok": "OK"
+    }
+  },
+  "seedPhrase": {
+    "display": {
+      "title": "Your Seed Phrase",
+      "confirmation": "I've saved my seed phrase",
+      "warning": "Store your seed phrase in a safe & offline place, never share it with anyone. This is the only way to recover your wallet.",
+      "continue": "Continue"
+    },
+    "verify": {
+      "title": "Verify seed phrase",
+      "subtitle": "Your Gateway to Hyperliquid",
+      "wordLabel": "Word #{{number}}",
+      "placeholder": "Enter word",
+      "continue": "Continue"
+    }
+  },
+  "password": {
+    "create": {
+      "title": "Create Password",
+      "subtitle": "Your Gateway to Hyperliquid",
+      "passwordLabel": "Password",
+      "confirmLabel": "Confirm Password",
+      "passwordPlaceholder": "Enter password",
+      "confirmPlaceholder": "Re-enter password",
+      "requirement": "At least 8 characters",
+      "enableBiometrics": "Enable biometric authentication",
+      "continue": "Continue",
+      "validation": {
+        "tooShort": "Password must be at least 8 characters",
+        "mismatch": "Passwords do not match"
+      }
+    }
+  },
+  "unlock": {
+    "title": "Unlock",
+    "subtitle": "Enter your password",
+    "passwordPlaceholder": "Password",
+    "unlock": "Unlock",
+    "forgotPassword": "Forgot Password?",
+    "errors": {
+      "incorrect": "Incorrect password",
+      "failed": "Failed to unlock wallet"
+    }
+  },
+  "home": {
+    "title": "Home",
+    "balance": "Balance",
+    "send": "Send",
+    "receive": "Receive"
+  },
+  "settings": {
+    "title": "Settings",
+    "security": "Security",
+    "about": "About"
+  },
+  "errors": {
+    "generic": {
+      "title": "Error",
+      "message": "Something went wrong. Please try again.",
+      "ok": "OK"
+    },
+    "wallet": {
+      "createFailed": "Failed to create wallet. Please try again.",
+      "importFailed": "Failed to import wallet. Please try again."
+    }
+  },
+  "common": {
+    "ok": "OK",
+    "cancel": "Cancel",
+    "continue": "Continue",
+    "back": "Back",
+    "next": "Next"
+  }
+}
