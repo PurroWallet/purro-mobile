@@ -2,14 +2,14 @@ import type { FC } from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import { FormProvider } from 'react-hook-form';
-import { Colors } from '@/constants/colors';
-import { PasswordInputForm } from '@/components';
-import KeyboardAvoidingView from '@/components/KeyboardAvoidingView';
-import { apisKeychain, apisLock } from '@/core/apis';
-import { useBiometrics } from '@/hooks/biometrics';
-import { useUnlockForm } from '@/hooks/form/useUnlockForm';
-import { useTranslation } from '@/utils/i18n';
-import type { UnlockScreenProps } from '@/types/navigation';
+import { Colors } from '../constants/colors';
+import { PasswordInputForm } from '../components';
+import KeyboardAvoidingView from '../components/KeyboardAvoidingView';
+import { apisKeychain, apisLock } from '../core/apis';
+import { useBiometrics } from '../hooks/biometrics';
+import { useUnlockForm } from '../hooks/form/useUnlockForm';
+import { useTranslation } from '../utils/i18n';
+import type { UnlockScreenProps } from '../types/navigation';
 
 const UnlockScreen: FC<UnlockScreenProps> = ({ navigation }) => {
   useTranslation();

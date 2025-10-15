@@ -10,12 +10,12 @@ import {
   Alert,
 } from 'react-native';
 import { Colors } from '@/constants/colors';
-import { Icon } from '@/components/Icon';
 import { useTranslation } from '@/utils/i18n';
 import { useBiometrics } from '@/hooks/biometrics';
 import { apisLock, apisWallet, apisKeychain } from '@/core/apis';
 import { KEYCHAIN_AUTH_TYPES } from '@/core/services/keychain';
 import type { SettingsScreenProps } from '@/types/navigation';
+import { Icon } from '@/components/Icon';
 
 // Setting Item Component
 interface SettingItemProps {

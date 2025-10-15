@@ -1,3 +1,5 @@
+import { usePreventScreenshot } from '@/hooks/native/security';
+import { SeedPhraseDisplayScreenProps } from '@/types/navigation';
 import React, { useState } from 'react';
 import {
   View,
@@ -7,8 +9,6 @@ import {
   TouchableOpacity,
   Pressable,
 } from 'react-native';
-import { usePreventScreenshot } from '@/hooks/native/security';
-import type { SeedPhraseDisplayScreenProps } from '@/types/navigation';
 
 const ProgressIndicator = () => (
   <View className="mb-14 w-[240px]">

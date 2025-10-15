@@ -22,26 +22,6 @@ DerivedData
 *.xcuserstate
 **/.xcode.env.local
 
-# Environment variables
-.env
-.env.local
-.env.*.local
-
-# Credentials and sensitive files
-google-service-account.json
-*.p12
-*.mobileprovision
-*.keystore
-!debug.keystore
-
-# Expo
-.expo/
-
-# EAS credentials
-.easignore
-credentials.json
-credentials/
-
 # Android/IntelliJ
 #
 build/
@@ -93,5 +73,3 @@ yarn-error.log
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
-.env
-test-results

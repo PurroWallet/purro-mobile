@@ -1,29 +1,24 @@
-module.exports = (api) => {
-  api.cache(true);
-  return {
-    presets: [["babel-preset-expo", { jsxImportSource: "nativewind" }], "nativewind/babel"],
-    plugins: [
-      [
-        "module-resolver",
-        {
-          root: ["./src"],
-          alias: {
-            "@": "./src",
-            "@/components": "./src/components",
-            "@/screens": "./src/screens",
-            "@/utils": "./src/utils",
-            "@/services": "./src/services",
-            "@/store": "./src/store",
-            "@/hooks": "./src/hooks",
-            "@/types": "./src/types",
-            "@/assets": "./src/assets",
-            "@/mock": "./src/mock",
-            "@/navigation": "./src/navigation",
-            "@/providers": "./src/providers",
-          },
+module.exports = {
+  presets: ['module:@react-native/babel-preset', 'nativewind/babel'],
+  plugins: [
+    '@babel/plugin-transform-export-namespace-from',
+    [
+      'module-resolver',
+      {
+        root: ['./'],
+        alias: {
+          '@': './src',
+          '@/atoms': './src/atoms',
+          '@/components': './src/components',
+          '@/core': './src/core',
+          '@/hooks': './src/hooks',
+          '@/navigation': './src/navigation',
+          '@/providers': './src/providers',
+          '@/screens': './src/screens',
+          '@/types': './src/types',
+          '@/utils': './src/utils',
         },
-      ],
-      "react-native-reanimated/plugin",
+      },
     ],
-  };
+  ],
 };

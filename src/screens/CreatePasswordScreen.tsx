@@ -4,13 +4,13 @@ import { StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import * as bip39 from '@scure/bip39';
 import { HDKey } from '@scure/bip32';
 import { FormProvider } from 'react-hook-form';
-import { PasswordInputForm } from '@/components';
-import KeyboardAvoidingView from '@/components/KeyboardAvoidingView';
-import { apisLock } from '@/core/apis';
-import { useCreatePasswordForm } from '@/hooks/form/useCreatePasswordForm';
-import { useProtectedScreen } from '@/hooks/security';
-import { useTranslation } from '@/utils/i18n';
-import type { CreatePasswordScreenProps } from '@/types/navigation';
+import { PasswordInputForm } from '../components';
+import KeyboardAvoidingView from '../components/KeyboardAvoidingView';
+import { apisLock } from '../core/apis';
+import { useCreatePasswordForm } from '../hooks/form/useCreatePasswordForm';
+import { useProtectedScreen } from '../hooks/security';
+import { useTranslation } from '../utils/i18n';
+import type { CreatePasswordScreenProps } from '../types/navigation';
 
 // Progress Indicator Component
 const ProgressIndicator = () => (

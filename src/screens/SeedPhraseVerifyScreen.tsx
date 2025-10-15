@@ -6,7 +6,7 @@ import sortBy from 'lodash/sortBy';
 import range from 'lodash/range';
 import { FormInput } from '@/components';
 import { useProtectedScreen } from '@/hooks/security';
-import type { SeedPhraseVerifyScreenProps } from '@/types/navigation';
+import { SeedPhraseVerifyScreenProps } from '@/types/navigation';
 
 const ProgressIndicator = () => (
   <View className="mb-14 w-[240px]">

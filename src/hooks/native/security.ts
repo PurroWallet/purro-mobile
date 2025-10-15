@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from 'react';
 import { atom, useAtom } from 'jotai';
-import { IS_IOS } from '@/core/native/utils';
+import { Platform } from 'react-native';
 
 // Mock RNScreenshotPrevent for compatibility
 const RNScreenshotPrevent = {
@@ -49,7 +49,7 @@ export function usePreventScreenshot(prevent = true, { isTop = false } = {}) {
 }
 
 const iosScreenCaptureAtom = atom({
-  isBeingCaptured: IS_IOS ? RNScreenshotPrevent.iosIsBeingCaptured() : false,
+  isBeingCaptured: Platform.OS === 'ios' ? RNScreenshotPrevent.iosIsBeingCaptured() : false,
   isScreenshotJustNow: false,
 });
 
@@ -72,7 +72,7 @@ export function useIOSScreenRecording(options?: {
 
   useEffect(() => {
     if (!isTop) return;
-    if (!IS_IOS) return;
+    if (Platform.OS !== 'ios') return;
 
     const { remove } = RNScreenshotPrevent.iosOnScreenCaptureChanged(ctx => {
       setIOSScreenCapture(prev => ({
@@ -108,7 +108,7 @@ export function useIOSScreenshotted(options?: {
   }, [setIOSScreenCapture]);
 
   useEffect(() => {
-    if (!IS_IOS) return;
+    if (Platform.OS !== 'ios') return;
 
     const { remove } = RNScreenshotPrevent.iosOnUserDidTakeScreenshot(() => {
       const setScreenshotted = (val?: boolean) =>

@@ -1,3 +1,9 @@
+import { Icon } from '@/components/Icon';
+import { Colors } from '@/constants/colors';
+import { apisWallet } from '@/core/apis';
+import { useMarketTokens } from '@/hooks/market/useMarketTokens';
+import { HomeScreenProps } from '@/types/navigation';
+import { formatChangePercent, formatPriceUSD } from '@/utils/number';
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -9,12 +15,6 @@ import {
   Image,
   ActivityIndicator,
 } from 'react-native';
-import { apisWallet } from '@/core/apis/wallet';
-import { Colors } from '@/constants/colors';
-import type { HomeScreenProps } from '@/types/navigation';
-import { useMarketTokens } from '@/hooks/market/useMarketTokens';
-import { formatPriceUSD, formatChangePercent } from '@/utils/number';
-import { Icon } from '@/components/Icon';
 
 /**
  * HomeScreen - Main wallet screen following Figma design
@@ -30,7 +30,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
   const loadWalletData = async () => {
     try {
-      const accounts = apisWallet.getAllAccounts();
+      const accounts = await apisWallet.getAllAccounts(); 
       if (accounts && accounts.length > 0) {
         setCurrentAccount({
           address: accounts[0],

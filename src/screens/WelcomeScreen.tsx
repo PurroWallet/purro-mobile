@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { useTranslation } from '@/utils/i18n';
 import { useCreateWallet } from '@/hooks/wallet/useCreateWallet';
+// import { useSocialLogin } from '@/hooks/auth/useSocialLogin';
 import type { WelcomeScreenProps } from '@/types/navigation';
 
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
@@ -16,14 +17,24 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const { getSeedPhrase } = useCreateWallet();
+  // const { loginWithGoogle, loginWithFacebook, isLoading, loadingProvider } =
+  //   useSocialLogin();
 
-  const handleCreateWallet = async () => {
+  const ensureTermsAccepted = useCallback(() => {
     if (!acceptedTerms) {
       Alert.alert(
         t('welcome.termsRequired.title'),
         t('welcome.termsRequired.message'),
         [{ text: t('welcome.termsRequired.ok'), style: 'default' }],
       );
+      return false;
+    }
+
+    return true;
+  }, [acceptedTerms, t]);
+
+  const handleCreateWallet = async () => {
+    if (!ensureTermsAccepted()) {
       return;
     }
 
@@ -40,12 +51,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
   };
 
   const handleImportWallet = () => {
-    if (!acceptedTerms) {
-      Alert.alert(
-        t('welcome.termsRequired.title'),
-        t('welcome.termsRequired.message'),
-        [{ text: t('welcome.termsRequired.ok'), style: 'default' }],
-      );
+    if (!ensureTermsAccepted()) {
       return;
     }
 
@@ -55,6 +61,33 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
       [{ text: t('common.ok'), style: 'default' }],
     );
   };
+
+  // const handleSocialLogin = useCallback(
+  //   async (provider: any) => {
+  //     if (!ensureTermsAccepted()) {
+  //       return;
+  //     }
+
+  //     try {
+  //       const result =
+  //         provider === LOGIN_PROVIDER.GOOGLE
+  //           ? await loginWithGoogle()
+  //           : await loginWithFacebook();
+
+  //       const displayName = result.userInfo.name || result.userInfo.email;
+  //       Alert.alert(
+  //         'Login successful',
+  //         displayName
+  //           ? `Welcome back, ${displayName}!`
+  //           : 'You have successfully signed in.',
+  //       );
+  //     } catch (error) {
+  //       console.error('Social login failed:', error);
+  //       Alert.alert('Login failed', 'Unable to continue with social login.');
+  //     }
+  //   },
+  //   [ensureTermsAccepted, loginWithFacebook, loginWithGoogle],
+  // );
 
   const toggleTermsAcceptance = () => {
     setAcceptedTerms(!acceptedTerms);
@@ -119,6 +152,34 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
             </Text>
           </TouchableOpacity>
         </View>
+
+        {/* <View className="gap-2">
+          <TouchableOpacity
+            className={`w-full min-h-12 items-center justify-center rounded-xl border border-background-tertiary px-6 py-4 ${acceptedTerms ? 'bg-background-secondary' : 'bg-background-secondary opacity-60'}`}
+            onPress={() => handleSocialLogin(LOGIN_PROVIDER.GOOGLE)}
+            disabled={!acceptedTerms || isLoading}
+            activeOpacity={0.8}
+          >
+            <Text className="text-button text-text-primary">
+              {loadingProvider === LOGIN_PROVIDER.GOOGLE
+                ? 'Signing in with Google…'
+                : 'Continue with Google'}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            className={`w-full min-h-12 items-center justify-center rounded-xl border border-background-tertiary px-6 py-4 ${acceptedTerms ? 'bg-background-secondary' : 'bg-background-secondary opacity-60'}`}
+            onPress={() => handleSocialLogin(LOGIN_PROVIDER.FACEBOOK)}
+            disabled={!acceptedTerms || isLoading}
+            activeOpacity={0.8}
+          >
+            <Text className="text-button text-text-primary">
+              {loadingProvider === LOGIN_PROVIDER.FACEBOOK
+                ? 'Signing in with Facebook…'
+                : 'Continue with Facebook'}
+            </Text>
+          </TouchableOpacity>
+        </View> */}
       </View>
     </SafeAreaView>
   );

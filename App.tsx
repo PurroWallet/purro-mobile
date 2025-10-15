@@ -9,8 +9,7 @@ import "./global.css";
 import { useAtom } from "jotai";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
-import { currentRoute, walletExists, walletUnlocked } from "@/atoms/app";
-// Screenshot protection components (Rabby pattern)
+import { currentRoute, walletExists, walletUnlocked } from "@/atoms";
 import { BackgroundSecureBlurView } from "@/components/customized/BlurViews";
 import { PrivacyBlur } from "@/components/PrivacyBlur";
 import { GlobalSecurityTipStubModal } from "@/components/SecurityTipStubModal";
@@ -18,16 +17,16 @@ import { apisWallet } from "@/core/apis/wallet";
 import { screenProtection } from "@/core/services/screenProtection";
 import { excludeFilesFromBackup } from "@/core/utils/appFS";
 import { useAppPreventScreenshotOnScreen } from "@/hooks/native/security";
-import CreatePasswordScreen from "./src/screens/CreatePasswordScreen";
-import HomeScreen from "./src/screens/HomeScreen";
-import SeedPhraseDisplayScreen from "./src/screens/SeedPhraseDisplayScreen";
-import SeedPhraseVerifyScreen from "./src/screens/SeedPhraseVerifyScreen";
-import SettingsScreen from "./src/screens/SettingsScreen";
-import UnlockScreen from "./src/screens/UnlockScreen";
-import WalletSuccessScreen from "./src/screens/WalletSuccessScreen";
+import CreatePasswordScreen from "@/screens/CreatePasswordScreen";
+import HomeScreen from "@/screens/HomeScreen";
+import SeedPhraseDisplayScreen from "@/screens/SeedPhraseDisplayScreen";
+import SeedPhraseVerifyScreen from "@/screens/SeedPhraseVerifyScreen";
+import SettingsScreen from "@/screens/SettingsScreen";
+import UnlockScreen from "@/screens/UnlockScreen";
+import WalletSuccessScreen from "@/screens/WalletSuccessScreen";
 // Import screens
-import WelcomeScreen from "./src/screens/WelcomeScreen";
-import type { RootStackParamList } from "./src/types/navigation";
+import WelcomeScreen from "@/screens/WelcomeScreen";
+import type { RootStackParamList } from "@/types/navigation";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
