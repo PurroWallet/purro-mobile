@@ -1,4 +1,120 @@
 {
-  "name": "PurroMobile",
-  "displayName": "PurroMobile"
+  "expo": {
+    "name": "PurroWallet",
+    "slug": "purro-wallet-app",
+    "version": "1.0.2",
+    "orientation": "portrait",
+    "icon": "./src/assets/common/icon.png",
+    "userInterfaceStyle": "automatic",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.purrowalletapp", 
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app uses the camera to capture identity documents for verification.",
+        "NSPhotoLibraryUsageDescription": "This app accesses your photo library to upload identity documents.",
+        "NSMicrophoneUsageDescription": "This app uses the microphone for voice verification features.",
+        "NSFaceIDUsageDescription": "Use Face ID to authenticate and secure your account access.",
+        "NSLocationWhenInUseUsageDescription": "Location access is required for enhanced security verification.",
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "associatedDomains": [
+        "applinks:purrowallet.com",
+        "applinks:www.purrowallet.com"
+      ]
+    },
+    "android": {
+      "package": "com.purrowalletapp",
+      "versionCode": 1,
+      "compileSdkVersion": 34,
+      "targetSdkVersion": 34,
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.INTERNET",
+        "android.permission.USE_FINGERPRINT",
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.VIBRATE",
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.WAKE_LOCK"
+      ],
+      "adaptiveIcon": {
+        "foregroundImage": "./src/assets/common/adaptive-icon.png",
+        "backgroundColor": "#8B5CF6"
+      },
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "purrowallet.com"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
+    },
+    "web": {
+      "favicon": "./src/assets/common/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-secure-store",
+      "expo-dev-client",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to let you upload identity documents.",
+          "cameraPermission": "The app accesses your camera to let you take photos for identity verification."
+        }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Allow $(PRODUCT_NAME) to use Face ID for secure authentication."
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access camera for document verification."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./src/assets/common/adaptive-icon.png",
+          "color": "#8B5CF6"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": false
+    },
+    "extra": {
+      "eas": {
+        "projectId": "92a503ce-ae2f-4278-84a4-a0693ef189fc"
+      }
+    },
+    "updates": {
+      "requestHeaders": {
+        "expo-channel-name": "production"
+      },
+      "fallbackToCacheTimeout": 0
+    },
+    "runtimeVersion": "1.0.0",
+    "scheme": "purrowallet"
+  }
 }
