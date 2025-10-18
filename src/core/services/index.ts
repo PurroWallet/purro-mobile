@@ -1,24 +1,29 @@
-/**
- * Services Index
- * Central export point for all core services
- */
+// Import and initialize services
+import { WalletService } from './WalletService';
+import { KeyringService } from './KeyringService';
+import { LockService } from './LockService';
+import { ContactBookService } from './ContactBookService';
+import { EncryptionService } from './EncryptionService';
+import { PasswordService } from './PasswordService';
 
-export { appEncryptor, Encryptor } from './encryptor';
-export type { EncryptorAdapter } from './encryptor';
+// Export all services
+export * from './WalletService';
+export * from './KeyringService';
+export * from './LockService';
+export * from './ContactBookService';
+export * from './EncryptionService';
+export * from './PasswordService';
 
-export { HDKeyring, validateMnemonic, generateMnemonic } from './hdKeyring';
-export type { HDKeyringOptions, HDKeyringData } from './hdKeyring';
+// Create service instances (ORDER MATTERS!)
+export const keyringService = new KeyringService();
+export const lockService = new LockService();
+export const contactBookService = new ContactBookService();
+export const encryptionService = new EncryptionService();
+export const passwordService = new PasswordService();
 
-export { keyringService } from './keyring';
-export type { KeyringData } from './keyring';
-
-export {
-  secureKeychain,
-  KEYCHAIN_AUTH_TYPES,
-  isAuthenticatedByBiometrics,
-} from './keychain';
-
-export { lockService } from './lock';
-export type { UnlockResult } from './lock';
-
-export { screenProtection } from './screenProtection';
+// WalletService must use the same keyringService instance
+export const walletService = new WalletService(
+  keyringService,
+  lockService,
+  contactBookService,
+);

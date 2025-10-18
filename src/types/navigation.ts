@@ -1,62 +1,94 @@
-/**
- * Navigation types for React Navigation
- */
-
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { NavigationProp as BaseNavigationProp } from '@react-navigation/native';
 
 export type RootStackParamList = {
-  // Onboarding flow
   Welcome: undefined;
   SeedPhraseDisplay: { mnemonic: string };
   SeedPhraseVerify: { mnemonic: string };
-  CreatePassword: { mnemonic: string };
-  WalletSuccess: undefined;
-
-  // Auth flow
+  SeedPhraseBackup: undefined;
+  CreatePassword: { 
+    mnemonic?: string; 
+    isImport?: boolean;
+    isPrivateKeyImport?: boolean;
+  };
+  WalletSuccess: { 
+    addresses: string[]; 
+    isImport?: boolean;
+  };
+  ImportWallet: undefined;
+  ImportMethods: undefined;
+  ImportSeedPhrase: undefined;
+  ImportPrivateKey: undefined;
   Unlock: undefined;
-
-  // Main app flow
   Home: undefined;
   Settings: undefined;
 };
 
+export type NavigationProp<T extends keyof RootStackParamList> = BaseNavigationProp<RootStackParamList, T> & {
+  navigate<K extends keyof RootStackParamList>(screen: K, params?: RootStackParamList[K]): void;
+  replace<K extends keyof RootStackParamList>(screen: K, params?: RootStackParamList[K]): void;
+};
+
 // Screen props types
-export type WelcomeScreenProps = NativeStackScreenProps<
-  RootStackParamList,
-  'Welcome'
->;
+export type WelcomeScreenProps = {
+  navigation: NavigationProp<'Welcome'>;
+};
 
-export type SeedPhraseDisplayScreenProps = NativeStackScreenProps<
-  RootStackParamList,
-  'SeedPhraseDisplay'
->;
+export type SeedPhraseDisplayScreenProps = {
+  navigation: NavigationProp<'SeedPhraseDisplay'>;
+  route: {
+    params: RootStackParamList['SeedPhraseDisplay'];
+  };
+};
 
-export type SeedPhraseVerifyScreenProps = NativeStackScreenProps<
-  RootStackParamList,
-  'SeedPhraseVerify'
->;
+export type SeedPhraseVerifyScreenProps = {
+  navigation: NavigationProp<'SeedPhraseVerify'>;
+  route: {
+    params: RootStackParamList['SeedPhraseVerify'];
+  };
+};
 
-export type CreatePasswordScreenProps = NativeStackScreenProps<
-  RootStackParamList,
-  'CreatePassword'
->;
+export type SeedPhraseBackupScreenProps = {
+  navigation: NavigationProp<'SeedPhraseBackup'>;
+};
 
-export type UnlockScreenProps = NativeStackScreenProps<
-  RootStackParamList,
-  'Unlock'
->;
+export type CreatePasswordScreenProps = {
+  navigation: NavigationProp<'CreatePassword'>;
+  route: {
+    params: RootStackParamList['CreatePassword'];
+  };
+};
 
-export type HomeScreenProps = NativeStackScreenProps<
-  RootStackParamList,
-  'Home'
->;
+export type WalletSuccessScreenProps = {
+  navigation: NavigationProp<'WalletSuccess'>;
+  route: {
+    params: RootStackParamList['WalletSuccess'];
+  };
+};
 
-export type SettingsScreenProps = NativeStackScreenProps<
-  RootStackParamList,
-  'Settings'
->;
+export type ImportWalletScreenProps = {
+  navigation: NavigationProp<'ImportWallet'>;
+};
 
-export type WalletSuccessScreenProps = NativeStackScreenProps<
-  RootStackParamList,
-  'WalletSuccess'
->;
+export type ImportMethodsScreenProps = {
+  navigation: NavigationProp<'ImportMethods'>;
+};
+
+export type ImportSeedPhraseScreenProps = {
+  navigation: NavigationProp<'ImportSeedPhrase'>;
+};
+
+export type ImportPrivateKeyScreenProps = {
+  navigation: NavigationProp<'ImportPrivateKey'>;
+};
+
+export type UnlockScreenProps = {
+  navigation: NavigationProp<'Unlock'>;
+};
+
+export type HomeScreenProps = {
+  navigation: NavigationProp<'Home'>;
+};
+
+export type SettingsScreenProps = {
+  navigation: NavigationProp<'Settings'>;
+};

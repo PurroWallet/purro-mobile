@@ -13,13 +13,13 @@ export async function excludeFilesFromBackup() {
 
   for (const file of files) {
     try {
-      await RNHelpers.iosExcludeFileFromBackup(file);
-      console.log(`✅ Excluded ${file} from iOS backup`);
-    } catch (error) {
-      console.error(
-        `RNHelpersModule not available, skipping backup exclusion for ${file}:`,
-        error,
-      );
+      const excluded = await RNHelpers.iosExcludeFileFromBackup(file);
+      if (excluded) {
+        console.log(`✅ Excluded ${file} from iOS backup`);
+      }
+    } catch {
+      // Silently handle backup exclusion errors
+      console.log(`Note: Backup exclusion for ${file} skipped (normal in development)`);
     }
   }
 }

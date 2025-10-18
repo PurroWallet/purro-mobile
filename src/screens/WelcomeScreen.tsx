@@ -2,14 +2,15 @@ import React, { useCallback, useState } from 'react';
 import {
   View,
   Text,
-  SafeAreaView,
   TouchableOpacity,
   Pressable,
   Alert,
 } from 'react-native';
 import { useTranslation } from '@/utils/i18n';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCreateWallet } from '@/hooks/wallet/useCreateWallet';
 // import { useSocialLogin } from '@/hooks/auth/useSocialLogin';
+import { Icon } from '@/components/Icon';
 import type { WelcomeScreenProps } from '@/types/navigation';
 
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
@@ -55,11 +56,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
       return;
     }
 
-    Alert.alert(
-      t('welcome.importWallet'),
-      'Import wallet feature coming soon',
-      [{ text: t('common.ok'), style: 'default' }],
-    );
+    navigation.navigate('ImportMethods');
   };
 
   // const handleSocialLogin = useCallback(
@@ -97,7 +94,9 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
     <SafeAreaView className="flex-1 bg-background-primary">
       <View className="flex-1 items-center justify-center px-5">
         <View className="mb-8">
-          <View className="h-[120px] w-[120px] rounded-full bg-background-secondary" />
+          <View className="h-[120px] w-[120px] items-center justify-center rounded-full bg-background-secondary">
+            <Icon name="RabbyLogo" size={60} color="#ffffff" />
+          </View>
         </View>
 
         <View className="items-center gap-4">

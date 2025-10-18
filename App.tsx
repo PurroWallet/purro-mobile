@@ -1,32 +1,49 @@
-import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import type React from "react";
-import { useEffect, useState } from "react";
-import { ActivityIndicator, Platform, StatusBar, View } from "react-native";
-import "react-native-gesture-handler";
-import "./global.css";
+import React, { useEffect, useState } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { Platform, StatusBar, ActivityIndicator, View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
+import './global.css';
+// Disable DevTools to prevent crypto polyfill issues
+if (__DEV__) {
+  // @ts-ignore
+  globalThis.__REACT_DEVTOOLS_GLOBAL_HOOK__?.shutdown?.();
+  console.log('[App] DevTools hook disabled for crypto compatibility');
 
-import { useAtom } from "jotai";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { KeyboardProvider } from "react-native-keyboard-controller";
-import { currentRoute, walletExists, walletUnlocked } from "@/atoms";
-import { BackgroundSecureBlurView } from "@/components/customized/BlurViews";
-import { PrivacyBlur } from "@/components/PrivacyBlur";
-import { GlobalSecurityTipStubModal } from "@/components/SecurityTipStubModal";
-import { apisWallet } from "@/core/apis/wallet";
-import { screenProtection } from "@/core/services/screenProtection";
-import { excludeFilesFromBackup } from "@/core/utils/appFS";
-import { useAppPreventScreenshotOnScreen } from "@/hooks/native/security";
-import CreatePasswordScreen from "@/screens/CreatePasswordScreen";
-import HomeScreen from "@/screens/HomeScreen";
-import SeedPhraseDisplayScreen from "@/screens/SeedPhraseDisplayScreen";
-import SeedPhraseVerifyScreen from "@/screens/SeedPhraseVerifyScreen";
-import SettingsScreen from "@/screens/SettingsScreen";
-import UnlockScreen from "@/screens/UnlockScreen";
-import WalletSuccessScreen from "@/screens/WalletSuccessScreen";
+  // Import reset vault utility for debugging
+  import('@/utils/resetVault').catch(() => {});
+}
+
+import { useAtom } from 'jotai';
+import { currentRoute, walletExists, walletUnlocked } from '@/atoms/app';
+import { apisWallet } from '@/core/apis/wallet';
+import { screenProtection } from '@/core/services/screenProtection';
+import { excludeFilesFromBackup } from '@/core/utils/appFS';
+import { PrivacyBlur } from '@/components/PrivacyBlur';
+
+// Screenshot protection components (Rabby pattern)
+import { BackgroundSecureBlurView } from '@/components/customized/BlurViews';
+import { GlobalSecurityTipStubModal } from '@/components/SecurityTipStubModal';
+import { useAppPreventScreenshotOnScreen } from '@/hooks/native/security';
+
 // Import screens
-import WelcomeScreen from "@/screens/WelcomeScreen";
-import type { RootStackParamList } from "@/types/navigation";
+import WelcomeScreen from './src/screens/WelcomeScreen';
+import SeedPhraseDisplayScreen from './src/screens/SeedPhraseDisplayScreen';
+import SeedPhraseVerifyScreen from './src/screens/SeedPhraseVerifyScreen';
+import CreatePasswordScreen from './src/screens/CreatePasswordScreen';
+import WalletSuccessScreen from './src/screens/WalletSuccessScreen';
+import UnlockScreen from './src/screens/UnlockScreen';
+import HomeScreen from './src/screens/HomeScreen';
+import SettingsScreen from './src/screens/SettingsScreen';
+import ImportMethodsScreen from './src/screens/ImportMethodsScreen';
+import ImportSeedPhraseScreen from './src/screens/ImportSeedPhraseScreen';
+import ImportPrivateKeyScreen from './src/screens/ImportPrivateKeyScreen';
+import SeedPhraseBackupScreen from './src/screens/SeedPhraseBackupScreen';
+import ImportWalletScreen from './src/screens/ImportWalletScreen';
+
+import type { RootStackParamList } from './src/types/navigation';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -41,20 +58,20 @@ const App: React.FC = () => {
 
   // Initialize app on mount - OPTIMIZED
   useEffect(() => {
-    console.log("[App] Initializing app...");
+    console.log('[App] Initializing app...');
     const startTime = Date.now();
 
     // Set status bar style (non-blocking)
-    if (Platform.OS === "ios") {
-      StatusBar.setBarStyle("light-content", true);
+    if (Platform.OS === 'ios') {
+      StatusBar.setBarStyle('light-content', true);
     }
 
     // Initialize screen protection service
     screenProtection.init();
 
     // Exclude sensitive files from backup (iOS)
-    excludeFilesFromBackup().catch((error) => {
-      console.warn("[App] Failed to exclude files from backup:", error);
+    excludeFilesFromBackup().catch(error => {
+      console.warn('[App] Failed to exclude files from backup:', error);
     });
 
     // Determine initial route BEFORE rendering navigator to avoid race with
@@ -64,23 +81,23 @@ const App: React.FC = () => {
       const hasWallet = apisWallet.hasWallet();
       setWalletExists(hasWallet);
 
-      let decidedRoute: string = "Welcome";
+      let decidedRoute: string = 'Welcome';
 
       if (hasWallet) {
         const isLocked = apisWallet.isLocked();
         setWalletUnlocked(!isLocked);
 
-        decidedRoute = isLocked ? "Unlock" : "Home";
+        decidedRoute = isLocked ? 'Unlock' : 'Home';
       } else {
-        decidedRoute = "Welcome";
+        decidedRoute = 'Welcome';
       }
 
       setRoute(decidedRoute);
       setInitialRoute(decidedRoute);
     } catch (error) {
-      console.error("[App] Initialization error:", error);
-      setRoute("Welcome");
-      setInitialRoute("Welcome");
+      console.error('[App] Initialization error:', error);
+      setRoute('Welcome');
+      setInitialRoute('Welcome');
     }
 
     console.log(`[App] Initialization took ${Date.now() - startTime}ms`);
@@ -102,73 +119,99 @@ const App: React.FC = () => {
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <KeyboardProvider>
-        <PrivacyBlur>
-          <NavigationContainer>
-            <StatusBar barStyle="light-content" backgroundColor="#161616" />
-            <Stack.Navigator
-              initialRouteName={initialRoute as keyof RootStackParamList}
-              screenOptions={{
-                headerShown: false,
-                animation: "simple_push",
-                contentStyle: {
-                  backgroundColor: "#161616",
-                },
-              }}
-            >
-              {/* Onboarding Flow */}
-              <Stack.Screen name="Welcome" component={WelcomeScreen} />
-              <Stack.Screen
-                name="SeedPhraseDisplay"
-                component={SeedPhraseDisplayScreen}
-                options={{
-                  gestureEnabled: false, // Prevent swipe back on seed phrase screen
+    <KeyboardProvider>
+      <GestureHandlerRootView className="flex-1">
+        <BottomSheetModalProvider>
+          <PrivacyBlur>
+            <NavigationContainer>
+              <StatusBar barStyle="light-content" backgroundColor="#161616" />
+              <Stack.Navigator
+                initialRouteName={initialRoute as keyof RootStackParamList}
+                screenOptions={{
+                  headerShown: false,
+                  animation: 'simple_push',
+                  contentStyle: {
+                    backgroundColor: '#161616',
+                  },
                 }}
-              />
-              <Stack.Screen
-                name="SeedPhraseVerify"
-                component={SeedPhraseVerifyScreen}
-                options={{
-                  gestureEnabled: false,
-                }}
-              />
-              <Stack.Screen
-                name="CreatePassword"
-                component={CreatePasswordScreen}
-                options={{
-                  gestureEnabled: false,
-                }}
-              />
-              <Stack.Screen
-                name="WalletSuccess"
-                component={WalletSuccessScreen}
-                options={{
-                  gestureEnabled: false,
-                }}
-              />
+              >
+                {/* Onboarding Flow */}
+                <Stack.Screen name="Welcome" component={WelcomeScreen} />
+                <Stack.Screen
+                  name="SeedPhraseDisplay"
+                  component={SeedPhraseDisplayScreen}
+                  options={{
+                    gestureEnabled: false, // Prevent swipe back on seed phrase screen
+                  }}
+                />
+                <Stack.Screen
+                  name="SeedPhraseVerify"
+                  component={SeedPhraseVerifyScreen}
+                  options={{
+                    gestureEnabled: false,
+                  }}
+                />
+                <Stack.Screen
+                  name="CreatePassword"
+                  component={CreatePasswordScreen}
+                  options={{
+                    gestureEnabled: false,
+                  }}
+                />
+                <Stack.Screen
+                  name="WalletSuccess"
+                  component={WalletSuccessScreen}
+                  options={{
+                    gestureEnabled: false,
+                  }}
+                />
 
-              {/* Auth Flow */}
-              <Stack.Screen
-                name="Unlock"
-                component={UnlockScreen}
-                options={{
-                  gestureEnabled: false, // Prevent swipe back on unlock screen
-                }}
-              />
+                {/* Auth Flow */}
+                <Stack.Screen
+                  name="Unlock"
+                  component={UnlockScreen}
+                  options={{
+                    gestureEnabled: false, // Prevent swipe back on unlock screen
+                  }}
+                />
 
-              {/* Main App Flow */}
-              <Stack.Screen name="Home" component={HomeScreen} />
-              <Stack.Screen name="Settings" component={SettingsScreen} />
-            </Stack.Navigator>
-          </NavigationContainer>
+                {/* Import Flow */}
+                <Stack.Screen
+                  name="ImportMethods"
+                  component={ImportMethodsScreen}
+                />
+                <Stack.Screen
+                  name="ImportSeedPhrase"
+                  component={ImportSeedPhraseScreen}
+                />
+                <Stack.Screen
+                  name="ImportPrivateKey"
+                  component={ImportPrivateKeyScreen}
+                />
+                <Stack.Screen
+                  name="ImportWallet"
+                  component={ImportWalletScreen}
+                />
 
-          {/* Screenshot protection components (Rabby pattern) */}
-          <BackgroundSecureBlurView />
-          <GlobalSecurityTipStubModal />
-        </PrivacyBlur>
-      </KeyboardProvider>
-    </GestureHandlerRootView>
+                {/* Backup Flow */}
+                <Stack.Screen
+                  name="SeedPhraseBackup"
+                  component={SeedPhraseBackupScreen}
+                />
+
+                {/* Main App Flow */}
+                <Stack.Screen name="Home" component={HomeScreen} />
+                <Stack.Screen name="Settings" component={SettingsScreen} />
+              </Stack.Navigator>
+
+              {/* Screenshot protection components (Rabby pattern) */}
+              <BackgroundSecureBlurView />
+              <GlobalSecurityTipStubModal />
+            </NavigationContainer>
+          </PrivacyBlur>
+        </BottomSheetModalProvider>
+      </GestureHandlerRootView>
+    </KeyboardProvider>
   );
 };
 

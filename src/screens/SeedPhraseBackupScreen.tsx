@@ -1,0 +1,132 @@
+import { apisWallet } from '@/core/apis';
+import { SeedPhraseBackupScreenProps } from '@/types/navigation';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  StatusBar,
+  TouchableOpacity,
+  Alert,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { PasswordInputForm } from '@/components';
+import { z } from 'zod';
+import { useZodForm, ZodFormValues } from '@/hooks/form/useZodForm';
+import { FormProvider } from 'react-hook-form';
+
+const unlockSchema = z.object({
+  password: z.string().min(1, 'Password is required'),
+});
+
+type UnlockFormValues = ZodFormValues<typeof unlockSchema>;
+
+const SeedPhraseBackupScreen: React.FC<SeedPhraseBackupScreenProps> = ({
+  navigation,
+}) => {
+  const [isUnlocking, setIsUnlocking] = useState(false);
+  
+  const form = useZodForm(unlockSchema, {
+    defaultValues: {
+      password: '',
+    },
+    mode: 'onChange',
+  });
+
+  const isValid = form.formState.isValid;
+
+  const handleUnlock = async (values: UnlockFormValues) => {
+    if (isUnlocking) return;
+    
+    setIsUnlocking(true);
+    
+    try {
+      // Try to unlock wallet with password
+      await apisWallet.unlockWallet(values.password);
+      
+      // Get mnemonic for backup
+      const mnemonic = await apisWallet.exportMnemonic();
+      
+      // Navigate to seed phrase display
+      navigation.navigate('SeedPhraseDisplay', { mnemonic });
+    } catch (error) {
+      console.error('Error unlocking wallet:', error);
+      Alert.alert(
+        'Error',
+        error instanceof Error ? error.message : 'Failed to unlock wallet. Please try again.',
+      );
+    } finally {
+      setIsUnlocking(false);
+    }
+  };
+
+  const handleSubmit = () => {
+    form.handleSubmit(handleUnlock)();
+  };
+
+  return (
+    <SafeAreaView className="flex-1 bg-background-primary">
+      <StatusBar barStyle="light-content" backgroundColor="#161616" />
+
+      <View className="flex-1 items-center justify-between px-5 py-5">
+        <View className="w-full gap-8 pt-16">
+          <View className="items-center gap-4">
+            <Text className="w-[335px] text-center text-h4 text-text-primary">
+              Backup Seed Phrase
+            </Text>
+            <Text className="w-[335px] text-center text-button text-text-secondary">
+              Enter your password to access your seed phrase
+            </Text>
+          </View>
+
+          <FormProvider {...form}>
+            <View className="w-full gap-4">
+              <PasswordInputForm
+                name="password"
+                label="Password"
+                placeholder="Enter your password"
+                secureTextEntry
+                autoCapitalize="none"
+                textContentType="password"
+                returnKeyType="done"
+                onSubmitEditing={handleSubmit}
+              />
+            </View>
+          </FormProvider>
+
+          <View className="rounded-xl bg-[rgba(255,107,107,0.1)] p-4">
+            <Text className="mb-2 text-[14px] font-semibold text-[#FF6B6B]">
+              ⚠️ Security Warning
+            </Text>
+            <Text className="text-[14px] leading-[20px] text-text-secondary">
+              • Never share your seed phrase with anyone{'\n'}
+              • Store it in a safe & offline place{'\n'}
+              • This is the only way to recover your wallet
+            </Text>
+          </View>
+        </View>
+
+        <View className="w-full gap-4">
+          <TouchableOpacity
+            className={`w-full min-h-12 items-center justify-center rounded-xl px-6 py-4 ${
+              !isValid || isUnlocking ? 'bg-button-primary-disabled' : 'bg-brand-primary'
+            }`}
+            onPress={handleSubmit}
+            disabled={!isValid || isUnlocking}
+          >
+            <Text
+              className={`text-button ${
+                !isValid || isUnlocking
+                  ? 'text-button-primary-disabled-text'
+                  : 'text-button-primary-text'
+              }`}
+            >
+              {isUnlocking ? 'Unlocking...' : 'Unlock'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </SafeAreaView>
+  );
+};
+
+export default SeedPhraseBackupScreen;

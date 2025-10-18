@@ -36,7 +36,7 @@ const UnlockScreen: FC<UnlockScreenProps> = ({ navigation }) => {
         console.time('🔥 Vault Pre-warm');
         try {
           await apisLock.unlockWallet('');
-        } catch (error) {
+        } catch {
           console.log('✅ Vault pre-warmed (expected failure)');
         }
         console.timeEnd('🔥 Vault Pre-warm');
@@ -52,7 +52,6 @@ const UnlockScreen: FC<UnlockScreenProps> = ({ navigation }) => {
 
             if (passwordFromKeychain) {
               apisLock.markAsUnlocked();
-              await apisLock.updateUnlockTime();
               reset({ password: '' });
               navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
               return;
@@ -90,7 +89,7 @@ const UnlockScreen: FC<UnlockScreenProps> = ({ navigation }) => {
   ]);
 
   const onSubmit = useCallback(() => {
-    void handleSubmit();
+     handleSubmit();
   }, [handleSubmit]);
 
   const isDisabled = !passwordValue.trim() || isUnlocking;

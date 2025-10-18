@@ -2,18 +2,20 @@ import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
-  SafeAreaView,
   StatusBar,
   TouchableOpacity,
   ScrollView,
   Switch,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from '@/constants/colors';
 import { useTranslation } from '@/utils/i18n';
 import { useBiometrics } from '@/hooks/biometrics';
 import { apisLock, apisWallet, apisKeychain } from '@/core/apis';
 import { KEYCHAIN_AUTH_TYPES } from '@/core/services/keychain';
+import { useAtom } from 'jotai';
+import { walletExists } from '@/atoms/app';
 import type { SettingsScreenProps } from '@/types/navigation';
 import { Icon } from '@/components/Icon';
 
@@ -65,6 +67,7 @@ const SectionHeader: React.FC<{ title: string }> = ({ title }) => (
 
 const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
   useTranslation();
+  const [, setWalletExists] = useAtom(walletExists);
   const {
     computed: { isBiometricsEnabled, defaultTypeLabel, couldSetupBiometrics },
     toggleBiometrics,
@@ -107,7 +110,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
           try {
             walletPassword = await apisKeychain.requestGenericPassword();
             console.log('🔐 Got password from keychain:', !!walletPassword);
-          } catch (error) {
+          } catch {
             console.log(
               '🔐 No existing keychain password, will prompt for Face ID',
             );
@@ -115,7 +118,8 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
 
           // If no password from keychain, get from keyring (password unlock)
           if (!walletPassword) {
-            const { keyringService } = await import('@/core/services/keyring');
+            const { keyringService } = await import('@/core/services/KeyringService');
+
             if (!keyringService.isUnlocked()) {
               Alert.alert(
                 'Error',
@@ -139,7 +143,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
           try {
             await apisKeychain.resetGenericPassword();
             console.log('🔐 Cleared existing keychain data');
-          } catch (error) {
+          } catch {
             console.log('🔐 No existing keychain data to clear');
           }
 
@@ -219,9 +223,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
   };
 
   const handleBackupWallet = () => {
-    Alert.alert('Backup Wallet', 'Backup wallet feature coming soon', [
-      { text: 'OK', style: 'default' },
-    ]);
+    navigation.navigate('SeedPhraseBackup');
   };
 
   const handleResetWallet = () => {
@@ -238,8 +240,28 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
           style: 'destructive',
           onPress: async () => {
             try {
+              console.log('🔄 Resetting wallet...');
+              
+              // Reset wallet data
               apisWallet.resetWallet();
+              
+              // Lock wallet
               await apisLock.lockWallet();
+              
+              // Clear keychain data
+              try {
+                await apisKeychain.resetGenericPassword();
+                console.log('🔑 Keychain data cleared');
+              } catch (error) {
+                console.log('🔑 No keychain data to clear:', error);
+              }
+              
+              // Update wallet exists state
+              setWalletExists(false);
+              
+              console.log('✅ Wallet reset complete, navigating to Welcome screen');
+              
+              // Navigate to Welcome screen
               navigation.reset({
                 index: 0,
                 routes: [{ name: 'Welcome' }],
@@ -278,8 +300,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ navigation }) => {
       </View>
 
       <ScrollView
-        className="flex-1"
-        contentContainerStyle={{ paddingBottom: 40 }}
+        className="flex-1 pb-10"
       >
         {/* Security Section */}
         <SectionHeader title="Security" />

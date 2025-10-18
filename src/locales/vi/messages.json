@@ -58,7 +58,38 @@
     "title": "Trang chủ",
     "balance": "Số dư",
     "send": "Gửi",
-    "receive": "Nhận"
+    "receive": "Nhận",
+    "swap": "Swap",
+    "bridge": "Bridge",
+    "totalBalance": "Tổng số dư",
+    "defaultAccountName": "Tài khoản",
+    "verified": "Đã xác minh",
+    "perps": "Perps",
+    "viewMore": "Xem thêm",
+    "evm": {
+      "spot": "Spot",
+      "perpetuals": "Perpetuals"
+    },
+    "totalTokens": "Tổng token",
+    "addTestnetToken": "Thêm token Testnet"
+  },
+  "accountBottomSheet": {
+    "yourAccounts": "Tài khoản của bạn",
+    "addAccount": "Thêm tài khoản",
+    "account": "Tài khoản",
+    "current": "Hiện tại",
+    "settings": "Cài đặt",
+    "editAccount": "Chỉnh sửa tài khoản",
+    "deleteAccount": "Xóa tài khoản",
+    "accountName": "Tên tài khoản",
+    "showPrivateKey": "Hiển thị Private Key",
+    "seedPhrase": "Cụm từ khôi phục",
+    "createNewAccount": "Tạo tài khoản mới",
+    "importRecoveryPhrase": "Nhập cụm từ khôi phục",
+    "importPrivateKey": "Nhập Private Key",
+    "importWatchOnlyWallet": "Nhập ví chỉ xem",
+    "aliasUpdateFailed": "Không thể cập nhật tên tài khoản",
+    "addAccountFailed": "Không thể thêm tài khoản"
   },
   "settings": {
     "title": "Cài đặt",
@@ -76,11 +107,18 @@
       "importFailed": "Không thể nhập ví. Vui lòng thử lại."
     }
   },
+  "networks": {
+    "hyperliquid": "Hyperliquid",
+    "ethereum": "Ethereum",
+    "arbitrum": "Arbitrum",
+    "base": "Base"
+  },
   "common": {
     "ok": "Đồng ý",
     "cancel": "Hủy",
     "continue": "Tiếp tục",
     "back": "Quay lại",
-    "next": "Tiếp theo"
+    "next": "Tiếp theo",
+    "error": "Lỗi"
   }
 }
