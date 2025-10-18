@@ -1,0 +1,204 @@
+import React, { useCallback, useState } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  TextInput,
+} from 'react-native';
+import { BottomSheetView } from '@gorhom/bottom-sheet';
+import { FormProvider } from 'react-hook-form';
+import { Eye, EyeOff } from 'lucide-react-native';
+import { apisLock } from '@/core/apis';
+import { useZodForm, ZodFormValues } from '@/hooks/form/useZodForm';
+import { z } from 'zod';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { AccountStackParamList } from '../AccountStackNavigator';
+import SheetHeader from '../components/SheetHeader';
+import { walletController } from '@/core/controllers/WalletController';
+
+const unlockSchema = z.object({
+  password: z.string().min(1, 'Password is required'),
+});
+
+type UnlockFormValues = ZodFormValues<typeof unlockSchema>;
+
+type Props = NativeStackScreenProps<AccountStackParamList, 'Unlock'> & {
+  onClose: () => void;
+  parentNavigation: any;
+};
+
+interface RouteParams {
+  mnemonic?: string;
+  isImport?: boolean;
+  isPrivateKeyImport?: boolean;
+  isNewAccount?: boolean;
+}
+
+const UnlockScreen: React.FC<Props> = ({
+  navigation,
+  onClose: _onClose,
+  parentNavigation: _parentNavigation,
+  route,
+}) => {
+  const { mnemonic, isImport, isPrivateKeyImport, isNewAccount } =
+    (route.params || {}) as RouteParams;
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [isUnlocking, setIsUnlocking] = useState(false);
+
+  const form = useZodForm(unlockSchema, {
+    defaultValues: {
+      password: '',
+    },
+    mode: 'onChange',
+  });
+
+  const passwordValue = form.watch('password') ?? '';
+  const isValid = form.formState.isValid;
+
+  const handleUnlock = useCallback(
+    async (values: UnlockFormValues) => {
+      if (isUnlocking) return;
+
+      setIsUnlocking(true);
+      try {
+        // Unlock wallet with password
+        await apisLock.unlockWallet(values.password);
+
+        if (isNewAccount) {
+          // Create new account
+          await walletController.addNewAccount();
+        } else if (isImport && mnemonic) {
+          // Import wallet
+          if (isPrivateKeyImport) {
+            // Handle private key import
+            await walletController.importWalletWithPrivateKey(mnemonic);
+          } else {
+            // Handle mnemonic import
+            await walletController.importWalletWithMnemonic(mnemonic, values.password);
+          }
+        }
+
+        // Navigate to success screen
+        navigation.navigate('Success', {
+          title: isNewAccount ? 'Account Created' : 'Wallet Imported',
+          message: isNewAccount
+            ? 'Your new account has been created successfully.'
+            : 'Your wallet has been imported successfully.',
+        });
+      } catch (error) {
+        console.error('Error unlocking wallet:', error);
+        form.setError('password', {
+          message: 'Incorrect password. Please try again.',
+        });
+      } finally {
+        setIsUnlocking(false);
+      }
+    },
+    [
+      isUnlocking,
+      isNewAccount,
+      isImport,
+      isPrivateKeyImport,
+      mnemonic,
+      form,
+      navigation,
+    ],
+  );
+
+  const handleSubmit = () => {
+    form.handleSubmit(handleUnlock)();
+  };
+
+  const isDisabled = !passwordValue.trim() || !isValid || isUnlocking;
+
+  return (
+    <BottomSheetView className="flex-1">
+      <KeyboardAvoidingView
+        className="flex-1"
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        {/* Header */}
+        <SheetHeader title="Unlock Wallet" onBack={() => navigation.goBack()} />
+        <View className="mb-4" />
+
+        <View className="flex-1 px-5 justify-between">
+          <View className="flex-1">
+            <Text className="text-lg text-[#F9F9F9] mb-2">Enter Password</Text>
+            <Text className="text-sm text-[#8D94A3] mb-6">
+              {isNewAccount
+                ? 'Enter your password to create a new account'
+                : isImport
+                ? 'Enter your password to import your wallet'
+                : 'Enter your password to unlock your wallet'}
+            </Text>
+
+            <FormProvider {...form}>
+              <View className="mb-5">
+                <Text className="text-sm text-[#F9F9F9] mb-2">Password</Text>
+                <View className="flex-row items-center rounded-xl border border-[#494F5B] px-4 py-4">
+                  <TextInput
+                    className="flex-1 text-lg text-[#F9F9F9]"
+                    value={passwordValue}
+                    onChangeText={text => form.setValue('password', text)}
+                    placeholder="Enter your password"
+                    placeholderTextColor="#8D94A3"
+                    secureTextEntry={!showPassword}
+                    autoCapitalize="none"
+                    autoComplete="password"
+                    textContentType="password"
+                    returnKeyType="done"
+                    onSubmitEditing={handleSubmit}
+                  />
+                  <TouchableOpacity
+                    className="ml-2"
+                    onPress={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeOff size={20} color="#8D94A3" />
+                    ) : (
+                      <Eye size={20} color="#8D94A3" />
+                    )}
+                  </TouchableOpacity>
+                </View>
+                {form.formState.errors.password && (
+                  <Text className="mt-2 text-sm text-[#FF6B6B]">
+                    {form.formState.errors.password.message}
+                  </Text>
+                )}
+              </View>
+            </FormProvider>
+          </View>
+        </View>
+        <View className="absolute bottom-10 w-full px-6">
+          <TouchableOpacity
+            className={`w-full min-h-12 items-center justify-center rounded-xl px-6 py-4 ${
+              !passwordValue.trim() || isUnlocking
+                ? 'bg-[#373B43]'
+                : 'bg-[#059288]'
+            }`}
+            onPress={handleSubmit}
+            disabled={!passwordValue.trim() || isUnlocking}
+          >
+            {isUnlocking ? (
+              <ActivityIndicator size="small" color="#FFFFFF" />
+            ) : (
+              <Text className="text-base font-medium text-[#F9F9F9]">
+                {isNewAccount
+                  ? 'Create Account'
+                  : isImport
+                  ? 'Import Wallet'
+                  : 'Unlock'}
+              </Text>
+            )}
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
+    </BottomSheetView>
+  );
+};
+
+export default UnlockScreen;

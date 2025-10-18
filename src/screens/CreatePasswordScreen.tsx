@@ -1,135 +1,198 @@
-import type { FC } from 'react';
-import { useEffect } from 'react';
-import { StatusBar, Text, TouchableOpacity, View } from 'react-native';
-import * as bip39 from '@scure/bip39';
-import { HDKey } from '@scure/bip32';
-import { FormProvider } from 'react-hook-form';
-import { PasswordInputForm } from '../components';
-import KeyboardAvoidingView from '../components/KeyboardAvoidingView';
-import { apisLock } from '../core/apis';
-import { useCreatePasswordForm } from '../hooks/form/useCreatePasswordForm';
-import { useProtectedScreen } from '../hooks/security';
-import { useTranslation } from '../utils/i18n';
-import type { CreatePasswordScreenProps } from '../types/navigation';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from '@/utils/i18n';
+import { walletController } from '@/core/controllers/WalletController';
+import { Icon } from '@/components/Icon';
+import type { CreatePasswordScreenProps } from '@/types/navigation';
 
-// Progress Indicator Component
-const ProgressIndicator = () => (
-  <View className="mt-5 w-[240px]">
-    <View className="h-[3px] flex-row gap-1 rounded-full">
-      <View className="h-[3px] flex-1 rounded-full bg-brand-primary" />
-      <View className="h-[3px] flex-1 rounded-full bg-brand-primary" />
-      <View className="h-[3px] flex-1 rounded-full bg-brand-primary" />
-      <View className="h-[3px] flex-1 rounded-full bg-background-tertiary" />
-    </View>
-  </View>
-);
-
-const CreatePasswordScreen: FC<CreatePasswordScreenProps> = ({
-  route,
+const CreatePasswordScreen: React.FC<CreatePasswordScreenProps> = ({
   navigation,
+  route,
 }) => {
-  useTranslation();
-  const { mnemonic } = route.params;
+  const { t } = useTranslation();
+  const { mnemonic, isImport } = route.params || {};
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const { form, handleSubmit, isCreating, isValid } = useCreatePasswordForm({
-    mnemonic,
-    onSuccess: () => navigation.navigate('WalletSuccess'),
-  });
+  const validatePassword = (pwd: string): boolean => {
+    // Basic password validation
+    return pwd.length >= 8;
+  };
 
-  const { setFocus } = form;
+  const handleCreateWallet = async () => {
+    if (!validatePassword(password)) {
+      Alert.alert(t('errors.generic.title'), t('password.create.validation.tooShort'));
+      return;
+    }
 
-  const passwordValue = form.watch('password') ?? '';
+    if (password !== confirmPassword) {
+      Alert.alert(t('errors.generic.title'), t('password.create.validation.mismatch'));
+      return;
+    }
 
-  // Enable screenshot prevention for this screen
-  useProtectedScreen('CreateWallet');
+    try {
+      setIsLoading(true);
 
-  // Pre-warm vault và HD operations ngay khi component mount
-  useEffect(() => {
-    const preWarmOperations = async () => {
-      try {
-        // Pre-warm vault
-        await apisLock.unlockWallet('');
-      } catch (e) {
-        // Expected to fail, but vault is now warmed up
+      let addresses: string[] = [];
+
+      if (isImport && mnemonic) {
+        // Import existing wallet
+        addresses = await walletController.importWalletWithMnemonic(
+          mnemonic,
+          password
+        );
+      } else {
+        // Create new wallet
+        const result = await walletController.createWallet(password);
+        addresses = result.addresses;
       }
 
-      try {
-        // Pre-warm HD operations bằng cách tạo dummy HD key
-        const dummyMnemonic =
-          'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
-        const seed = bip39.mnemonicToSeedSync(dummyMnemonic);
-        HDKey.fromMasterSeed(seed);
-        console.log('✅ HD operations pre-warmed');
-      } catch (e) {
-        // Ignore errors, just for warming up
-      }
-    };
-
-    preWarmOperations();
-  }, []);
+      // Navigate to success screen
+      navigation.replace('WalletSuccess', {
+        addresses,
+        isImport,
+      });
+    } catch (error) {
+      console.error('Failed to create wallet:', error);
+      Alert.alert(
+        t('errors.generic.title'),
+        t('errors.wallet.createFailed')
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
-    <KeyboardAvoidingView>
-      <StatusBar barStyle="light-content" backgroundColor="#161616" />
-
-      <View className="flex-1 items-center justify-between px-5 pb-10 pt-5">
-        <ProgressIndicator />
-
-        <View className="items-center gap-4">
-          <Text className="w-[335px] text-h4 text-text-primary">
-            Create password
-          </Text>
-          <Text className="w-[335px] text-center text-button text-text-secondary">
-            Your Gateway to Hyperliquid
-          </Text>
-        </View>
-
-        <FormProvider {...form}>
-          <View className="w-full gap-4">
-            <PasswordInputForm
-              name="password"
-              label="Password"
-              placeholder="Enter password"
-              autoCapitalize="none"
-              textContentType="password"
-              helperText={passwordValue.length === 0 ? 'Minimum 8 characters' : undefined}
-              returnKeyType="next"
-              onSubmitEditing={() => setFocus('confirmPassword')}
-            />
-
-            <PasswordInputForm
-              name="confirmPassword"
-              label="Confirm password"
-              placeholder="Confirm password"
-              autoCapitalize="none"
-              textContentType="password"
-              returnKeyType="done"
-              onSubmitEditing={() => void handleSubmit()}
-            />
+    <SafeAreaView className="flex-1 bg-background-primary">
+      <KeyboardAvoidingView
+        className="flex-1"
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <View className="flex-1 px-5 justify-between">
+          <View className="flex-row items-center justify-between mb-6">
+            <TouchableOpacity
+              className="p-2"
+              onPress={() => navigation.goBack()}
+            >
+              <Icon name="ChevronLeft" size={24} color="#007AFF" />
+            </TouchableOpacity>
+            <Text className="text-h4 text-text-primary">
+              {isImport
+                ? t('welcome.importWallet')
+                : t('welcome.createWallet')
+              }
+            </Text>
+            <View className="w-10" />
           </View>
-        </FormProvider>
-      </View>
 
-      <View className="px-5 pb-5">
-        <TouchableOpacity
-          className={`w-full min-h-12 items-center justify-center rounded-xl px-6 py-4 ${
-            !isValid || isCreating ? 'bg-button-primary-disabled' : 'bg-brand-primary'
-          }`}
-          onPress={() => void handleSubmit()}
-          disabled={!isValid || isCreating}
-        >
-          <Text
-            className={`text-button ${
-              !isValid || isCreating
-                ? 'text-button-primary-disabled-text'
-                : 'text-button-primary-text'
-            }`}
-          >
-            {isCreating ? 'Creating Wallet...' : 'Continue'}
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </KeyboardAvoidingView>
+          <View className="flex-1">
+            <Text className="text-button text-text-secondary mb-8">
+              {t('password.create.subtitle')}
+            </Text>
+
+            <View className="mb-5">
+              <Text className="text-button text-text-primary mb-2">
+                {t('password.create.passwordLabel')}
+              </Text>
+              <View className="flex-row items-center bg-[rgba(255,255,255,0.05)] rounded-xl border border-[rgba(255,255,255,0.1)]">
+                <TextInput
+                  className="flex-1 h-12 px-4 text-base text-text-primary"
+                  value={password}
+                  onChangeText={setPassword}
+                  placeholder={t('password.create.passwordPlaceholder')}
+                  placeholderTextColor="#8E8E93"
+                  secureTextEntry={!showPassword}
+                  autoCapitalize="none"
+                  autoComplete="password"
+                  textContentType="password"
+                />
+                <TouchableOpacity
+                  className="p-3"
+                  onPress={() => setShowPassword(!showPassword)}
+                >
+                  <Icon
+                    name={showPassword ? 'EyeOff' : 'Eye'}
+                    size={20}
+                    color="#8E8E93"
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <View className="mb-5">
+              <Text className="text-button text-text-primary mb-2">
+                {t('password.create.confirmLabel')}
+              </Text>
+              <View className="flex-row items-center bg-[rgba(255,255,255,0.05)] rounded-xl border border-[rgba(255,255,255,0.1)]">
+                <TextInput
+                  className="flex-1 h-12 px-4 text-base text-text-primary"
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                  placeholder={t('password.create.confirmPlaceholder')}
+                  placeholderTextColor="#8E8E93"
+                  secureTextEntry={!showConfirmPassword}
+                  autoCapitalize="none"
+                  autoComplete="password"
+                  textContentType="password"
+                />
+                <TouchableOpacity
+                  className="p-3"
+                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  <Icon
+                    name={showConfirmPassword ? 'EyeOff' : 'Eye'}
+                    size={20}
+                    color="#8E8E93"
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <Text className="text-[14px] leading-[20px] text-text-secondary mt-2">
+              {t('password.create.requirement')}
+            </Text>
+          </View>
+
+          <View className="px-5 pb-5">
+            <TouchableOpacity
+              className={`w-full min-h-12 items-center justify-center rounded-xl px-6 py-4 ${
+                (!password || !confirmPassword || isLoading)
+                  ? 'bg-button-primary-disabled'
+                  : 'bg-brand-primary'
+              }`}
+              onPress={handleCreateWallet}
+              disabled={!password || !confirmPassword || isLoading}
+            >
+              <Text
+                className={`text-button ${
+                  (!password || !confirmPassword || isLoading)
+                    ? 'text-button-primary-disabled-text'
+                    : 'text-button-primary-text'
+                }`}
+              >
+                {isLoading
+                  ? t('common.loading')
+                  : t('password.create.continue')
+                }
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 

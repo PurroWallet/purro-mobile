@@ -4,11 +4,11 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
-  SafeAreaView,
   StatusBar,
   TouchableOpacity,
   Pressable,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const ProgressIndicator = () => (
   <View className="mb-14 w-[240px]">
@@ -44,6 +44,7 @@ const SeedPhraseDisplayScreen: React.FC<SeedPhraseDisplayScreenProps> = ({
       return;
     }
 
+    // Navigate to seed phrase verification
     navigation.navigate('SeedPhraseVerify', { mnemonic });
   };
 

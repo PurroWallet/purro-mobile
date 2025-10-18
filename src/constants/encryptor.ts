@@ -4,12 +4,6 @@
  */
 
 /**
- * Built-in password for keyring encryption
- * This is used as the default password before user sets their own
- */
-export const RABBY_MOBILE_KR_PWD = 'PURRO_MOBILE_DEFAULT_PWD_2024';
-
-/**
  * Generate a random salt for encryption
  */
 export function generateSalt(): string {

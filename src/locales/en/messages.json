@@ -58,12 +58,48 @@
     "title": "Home",
     "balance": "Balance",
     "send": "Send",
-    "receive": "Receive"
+    "receive": "Receive",
+    "swap": "Swap",
+    "bridge": "Bridge",
+    "totalBalance": "Total Balance",
+    "defaultAccountName": "Account",
+    "verified": "Verified",
+    "perps": "Perps",
+    "viewMore": "View more",
+    "evm": {
+      "spot": "Spot",
+      "perpetuals": "Perpetuals"
+    },
+    "totalTokens": "Total tokens",
+    "addTestnetToken": "Add Testnet token"
+  },
+  "accountBottomSheet": {
+    "yourAccounts": "Your Accounts",
+    "addAccount": "Add account",
+    "account": "Account",
+    "current": "Current",
+    "settings": "Settings",
+    "editAccount": "Edit Account",
+    "deleteAccount": "Delete Account",
+    "accountName": "Account Name",
+    "showPrivateKey": "Show Private Key",
+    "seedPhrase": "Seed phrase",
+    "createNewAccount": "Create New Account",
+    "importRecoveryPhrase": "Import Recovery Phrase",
+    "importPrivateKey": "Import Private Key",
+    "importWatchOnlyWallet": "Import Watch-Only Wallet",
+    "aliasUpdateFailed": "Failed to update account name",
+    "addAccountFailed": "Failed to add account"
   },
   "settings": {
     "title": "Settings",
-    "security": "Security",
-    "about": "About"
+    "notifications": "Notifications",
+    "biometric": "Biometric Authentication",
+    "darkMode": "Dark Mode",
+    "changePassword": "Change Password",
+    "exportWallet": "Export Wallet",
+    "about": "About",
+    "help": "Help"
   },
   "errors": {
     "generic": {
@@ -76,11 +112,18 @@
       "importFailed": "Failed to import wallet. Please try again."
     }
   },
+  "networks": {
+    "hyperliquid": "Hyperliquid",
+    "ethereum": "Ethereum",
+    "arbitrum": "Arbitrum",
+    "base": "Base"
+  },
   "common": {
     "ok": "OK",
     "cancel": "Cancel",
     "continue": "Continue",
     "back": "Back",
-    "next": "Next"
+    "next": "Next",
+    "error": "Error"
   }
 }

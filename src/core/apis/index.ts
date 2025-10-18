@@ -4,7 +4,7 @@
  */
 
 export { apisWallet } from './wallet';
-export type { WalletAccount } from './wallet';
+// export type { WalletAccount } from './wallet';
 
 // Re-export legacy lock APIs if needed
 export { apisLock } from './lock';

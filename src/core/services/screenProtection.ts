@@ -1,5 +1,5 @@
 import { AppState, AppStateStatus } from 'react-native';
-import { lockService } from './lock';
+import { lockService } from './LockService';
 
 class ScreenProtectionService {
   private appStateSubscription: any;

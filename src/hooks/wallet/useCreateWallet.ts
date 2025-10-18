@@ -1,5 +1,5 @@
 import { atom, useAtom } from 'jotai';
-import { apisWallet } from '@/core/services/wallet';
+import { apisWallet } from '@/core/apis/wallet';
 
 export enum WalletCreationType {
   Create = 1,
@@ -39,24 +39,25 @@ const createWalletProcess = atom<CreateWalletProcess>(
 export function useCreateWallet() {
   const [walletProc, setWalletProc] = useAtom(createWalletProcess);
 
-  const preGenerateSeedPhrase = () => {
+  const preGenerateSeedPhrase = async () => {
     if (walletProc.seedPhrase) {
       return;
     }
 
     try {
-      const mnemonic = apisWallet.generateMnemonic();
+      const mnemonic = await apisWallet.generateMnemonic();
       setWalletProc(prev => ({
         ...prev,
         seedPhrase: mnemonic,
         isGenerating: false,
         error: null,
       }));
-    } catch (error) {
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       setWalletProc(prev => ({
         ...prev,
         isGenerating: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: errorMessage,
       }));
     }
   };
@@ -77,21 +78,23 @@ export function useCreateWallet() {
     }));
 
     try {
-      const mnemonic = apisWallet.generateMnemonic();
+      const mnemonic = await apisWallet.generateMnemonic();
       setWalletProc(prev => ({
         ...prev,
         seedPhrase: mnemonic,
         isGenerating: false,
+        error: null,
       }));
 
       return { mnemonic };
-    } catch (error) {
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       setWalletProc(prev => ({
         ...prev,
         isGenerating: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: errorMessage,
       }));
-      throw error;
+      throw new Error(errorMessage);
     }
   };
 
