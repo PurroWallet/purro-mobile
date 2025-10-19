@@ -6,6 +6,7 @@ import type { AccountStackParamList } from '../AccountStackNavigator';
 import type { NavigationProp } from '@react-navigation/native';
 import SheetHeader from '../components/SheetHeader';
 import { Icon } from '@/components/Icon';
+import { useTranslation } from '@/utils/i18n';
 
 type Props = NativeStackScreenProps<AccountStackParamList, 'AddAccount'> & {
   onClose: () => void;
@@ -25,6 +26,8 @@ const AddAccountScreen: React.FC<Props> = ({
   onClose: _onClose,
   parentNavigation: _parentNavigation,
 }) => {
+  const { t } = useTranslation();
+
   const handleBack = () => {
     console.log('AddAccountScreen - Back button pressed via handleBack');
     console.log('AddAccountScreen - Navigation state:', navigation.getState());
@@ -54,22 +57,22 @@ const AddAccountScreen: React.FC<Props> = ({
   const options: AccountOption[] = [
     {
       id: 'create',
-      title: 'Create New Account',
-      subtitle: 'Add a new account to your wallet',
+      title: 'accountBottomSheet.createNewAccount',
+      subtitle: 'accountBottomSheet.createAccountDescription',
       icon: 'PlusCircle',
       action: handleCreateNew,
     },
     {
       id: 'import-seed',
-      title: 'Import Recovery Phrase',
-      subtitle: 'Import an existing wallet using recovery phrase',
+      title: 'accountBottomSheet.importRecoveryPhrase',
+      subtitle: 'accountBottomSheet.importRecoveryPhraseDescription',
       icon: 'FileText',
       action: handleImportSeedPhrase,
     },
     {
       id: 'import-key',
-      title: 'Import Private Key',
-      subtitle: 'Import an existing wallet using private key',
+      title: 'accountBottomSheet.importPrivateKey',
+      subtitle: 'accountBottomSheet.importPrivateKeyDescription',
       icon: 'Key',
       action: handleImportPrivateKey,
     },
@@ -79,7 +82,7 @@ const AddAccountScreen: React.FC<Props> = ({
     <BottomSheetScrollView className="flex-1 bg-[#161616]">
       {/* Header */}
       <SheetHeader
-        title="Add Account"
+        title={t('accountBottomSheet.addAccount')}
         onBack={handleBack}
       />
       <View className="mb-6" />
@@ -97,9 +100,9 @@ const AddAccountScreen: React.FC<Props> = ({
                 <Icon name={option.icon} size={24} color="#F9F9F9" />
               </View>
               <View className="flex-1">
-                <Text className="text-lg text-[#F9F9F9]">{option.title}</Text>
+                <Text className="text-lg text-[#F9F9F9]">{t(option.title)}</Text>
                 <Text className="text-sm text-[#8D94A3]">
-                  {option.subtitle}
+                  {t(option.subtitle)}
                 </Text>
               </View>
             </TouchableOpacity>

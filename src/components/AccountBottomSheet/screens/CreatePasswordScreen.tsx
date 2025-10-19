@@ -15,6 +15,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AccountStackParamList } from '../AccountStackNavigator';
 import SheetHeader from '../components/SheetHeader';
 import { PasswordInputForm } from '@/components';
+import { useTranslation } from '@/utils/i18n';
 import z from 'zod';
 
 type Props = NativeStackScreenProps<AccountStackParamList, 'CreatePassword'> & {
@@ -32,15 +33,17 @@ const passwordSchema = z
   .object({
     password: z
       .string()
-      .min(8, 'Password must be at least 8 characters long')
+      .min(8, 'password.create.validation.tooShort')
       .regex(
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-        'Password must contain at least one uppercase letter, one lowercase letter, and one number'
+        'password.create.validation.requirement'
       ),
-    confirmPassword: z.string().min(1, 'Please confirm your password'),
+    confirmPassword: z
+      .string()
+      .min(1, 'password.create.validation.confirmRequired'),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
+    message: 'password.create.validation.mismatch',
     path: ['confirmPassword'],
   });
 
@@ -54,6 +57,7 @@ const CreatePasswordScreen: React.FC<Props> = ({
 }) => {
   const { mnemonic, isPrivateKeyImport, isNewAccount } = (route.params || {}) as RouteParams;
   const [isLoading, setIsLoading] = useState(false);
+  const { t } = useTranslation();
 
   const {
     control,
@@ -91,14 +95,19 @@ const CreatePasswordScreen: React.FC<Props> = ({
 
       // Navigate to success screen
       navigation.navigate('Success', {
-        title: isNewAccount ? 'Account Created' : 'Wallet Imported',
+        title: isNewAccount
+          ? t('accountBottomSheet.success.accountCreated.title')
+          : t('accountBottomSheet.success.walletImported.title'),
         message: isNewAccount
-          ? 'Your new account has been created successfully.'
-          : 'Your wallet has been imported successfully.',
+          ? t('accountBottomSheet.success.accountCreated.message')
+          : t('accountBottomSheet.success.walletImported.message'),
       });
     } catch (error) {
       console.error('Failed to create wallet:', error);
-      Alert.alert('Error', 'Failed to import wallet');
+      Alert.alert(
+        t('errors.generic.title'),
+        t('accountBottomSheet.errors.importWalletFailed'),
+      );
     } finally {
       setIsLoading(false);
     }
@@ -112,7 +121,7 @@ const CreatePasswordScreen: React.FC<Props> = ({
       >
         {/* Header */}
         <SheetHeader 
-          title="Create Password"
+          title={t('accountBottomSheet.createPassword.title')}
           onBack={() => navigation.goBack()}
         />
         <View className="mb-4" />
@@ -120,26 +129,26 @@ const CreatePasswordScreen: React.FC<Props> = ({
         <View className="flex-1 px-5 justify-between">
           <View className="flex-1">
             <Text className="mb-2 text-lg text-text-primary">
-              Create Password
+              {t('accountBottomSheet.createPassword.title')}
             </Text>
             <Text className="mb-6 text-sm text-text-secondary">
-              Set a password to secure your wallet
+              {t('accountBottomSheet.createPassword.subtitle')}
             </Text>
 
             <PasswordInputForm
               name="password"
-              label="Password"
-              placeholder="Enter your password"
+              label={t('accountBottomSheet.createPassword.passwordLabel')}
+              placeholder={t('accountBottomSheet.createPassword.passwordPlaceholder')}
             />
 
             <PasswordInputForm
               name="confirmPassword"
-              label="Confirm Password"
-              placeholder="Confirm your password"
+              label={t('accountBottomSheet.createPassword.confirmLabel')}
+              placeholder={t('accountBottomSheet.createPassword.confirmPlaceholder')}
             />
 
             <Text className="mt-2 text-sm leading-5 text-text-secondary">
-              Password must be at least 8 characters long and contain uppercase, lowercase, and numbers
+              {t('accountBottomSheet.createPassword.requirement')}
             </Text>
           </View>
 
@@ -160,7 +169,9 @@ const CreatePasswordScreen: React.FC<Props> = ({
                     : 'text-button-primary-text'
                 }`}
               >
-                {isLoading ? 'Importing...' : 'Import Wallet'}
+                {isLoading
+                  ? t('accountBottomSheet.createPassword.actions.loading')
+                  : t('accountBottomSheet.createPassword.actions.submit')}
               </Text>
             </TouchableOpacity>
           </View>

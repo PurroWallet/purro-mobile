@@ -1,17 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Alert,
-  ScrollView,
-} from 'react-native';
+import { View, Text, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { BottomSheetView } from '@gorhom/bottom-sheet';
 import Clipboard from '@react-native-clipboard/clipboard';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AccountStackParamList } from '../AccountStackNavigator';
 import SheetHeader from '../components/SheetHeader';
 import { walletController } from '@/core/controllers/WalletController';
+import { useTranslation } from '@/utils/i18n';
 
 type Props = NativeStackScreenProps<AccountStackParamList, 'SeedPhraseBackup'> & {
   onClose: () => void;
@@ -21,26 +16,30 @@ const SeedPhraseBackupScreen: React.FC<Props> = ({ navigation, onClose }) => {
   const [seedPhrase, setSeedPhrase] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isRevealed, setIsRevealed] = useState<boolean>(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const loadSeedPhrase = async () => {
       try {
         setIsLoading(true);
-        // Get the primary account (first account)
         const accounts = await walletController.getAllAccounts();
         if (accounts.length === 0) {
-          Alert.alert('Error', 'No accounts found');
+          Alert.alert(
+            t('errors.generic.title'),
+            t('accountBottomSheet.errors.noAccountsFound'),
+          );
           onClose();
           return;
         }
 
-        // Get the mnemonic from the first account (primary account)
-        const primaryAccount = accounts[0];
         const mnemonic = await walletController.exportMnemonic();
         setSeedPhrase(mnemonic || '');
       } catch (error) {
         console.error('Error loading seed phrase:', error);
-        Alert.alert('Error', 'Failed to load seed phrase');
+        Alert.alert(
+          t('errors.generic.title'),
+          t('accountBottomSheet.errors.loadSeedPhraseFailed'),
+        );
         onClose();
       } finally {
         setIsLoading(false);
@@ -48,11 +47,14 @@ const SeedPhraseBackupScreen: React.FC<Props> = ({ navigation, onClose }) => {
     };
 
     loadSeedPhrase();
-  }, [onClose]);
+  }, [onClose, t]);
 
   const handleCopyToClipboard = () => {
     Clipboard.setString(seedPhrase);
-    Alert.alert('Copied', 'Seed phrase copied to clipboard');
+    Alert.alert(
+      t('accountBottomSheet.alerts.copiedTitle'),
+      t('accountBottomSheet.alerts.seedPhraseCopied'),
+    );
   };
 
   const handleReveal = () => {
@@ -62,7 +64,7 @@ const SeedPhraseBackupScreen: React.FC<Props> = ({ navigation, onClose }) => {
   if (isLoading) {
     return (
       <BottomSheetView className="flex-1 items-center justify-center">
-        <Text className="text-lg text-[#F9F9F9]">Loading...</Text>
+        <Text className="text-lg text-[#F9F9F9]">{t('common.loading')}</Text>
       </BottomSheetView>
     );
   }
@@ -70,8 +72,8 @@ const SeedPhraseBackupScreen: React.FC<Props> = ({ navigation, onClose }) => {
   return (
     <BottomSheetView className="flex-1">
       {/* Header */}
-      <SheetHeader 
-        title="Backup Wallet"
+      <SheetHeader
+        title={t('accountBottomSheet.backupWallet')}
         onBack={() => navigation.goBack()}
       />
       <View className="mb-4" />
@@ -79,10 +81,10 @@ const SeedPhraseBackupScreen: React.FC<Props> = ({ navigation, onClose }) => {
       <ScrollView className="flex-1 px-5">
         <View className="py-2">
           <Text className="text-lg text-[#F9F9F9] mb-2">
-            Your Recovery Phrase
+            {t('accountBottomSheet.recoveryPhraseTitle')}
           </Text>
           <Text className="text-sm text-[#8D94A3] mb-6">
-            This phrase is the only way to recover your wallet. Keep it safe and never share it with anyone.
+            {t('accountBottomSheet.recoveryPhraseDescription')}
           </Text>
 
           <View className="mb-6 rounded-xl bg-[#373B43]/60 p-4">
@@ -92,7 +94,7 @@ const SeedPhraseBackupScreen: React.FC<Props> = ({ navigation, onClose }) => {
                 className="items-center justify-center py-8"
               >
                 <Text className="text-lg text-[#059288] font-medium">
-                  Tap to reveal recovery phrase
+                  {t('accountBottomSheet.revealRecoveryPhrase')}
                 </Text>
               </TouchableOpacity>
             ) : (
@@ -105,7 +107,7 @@ const SeedPhraseBackupScreen: React.FC<Props> = ({ navigation, onClose }) => {
                   className="self-center rounded-lg bg-[#059288] px-4 py-2"
                 >
                   <Text className="text-sm text-[#F9F9F9] font-medium">
-                    Copy to Clipboard
+                    {t('accountBottomSheet.copyToClipboard')}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -114,14 +116,10 @@ const SeedPhraseBackupScreen: React.FC<Props> = ({ navigation, onClose }) => {
 
           <View className="rounded-xl bg-[rgba(255,107,107,0.1)] p-4">
             <Text className="mb-2 text-sm font-semibold text-[#FF6B6B]">
-              ⚠️ Important Security Notes
+              {t('accountBottomSheet.securityNotesTitle')}
             </Text>
             <Text className="text-sm leading-5 text-[#8D94A3]">
-              • Write down your recovery phrase on paper{'\n'}
-              • Store it in a secure, private location{'\n'}
-              • Never take a photo or store it digitally{'\n'}
-              • Never share it with anyone{'\n'}
-              • This phrase controls all accounts in your wallet
+              {t('accountBottomSheet.securityNotesDescription')}
             </Text>
           </View>
         </View>
@@ -133,7 +131,7 @@ const SeedPhraseBackupScreen: React.FC<Props> = ({ navigation, onClose }) => {
           className="w-full min-h-12 items-center justify-center rounded-xl bg-[#25272C]/60 px-6 py-4"
         >
           <Text className="text-base font-medium text-[#F9F9F9]">
-            I've Secured My Recovery Phrase
+            {t('accountBottomSheet.securedRecoveryPhrase')}
           </Text>
         </TouchableOpacity>
       </View>

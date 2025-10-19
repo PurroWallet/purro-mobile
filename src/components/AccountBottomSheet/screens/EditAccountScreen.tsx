@@ -8,12 +8,14 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AccountStackParamList } from '../AccountStackNavigator';
 import DefaultIcon from '@/assets/common/icon.png';
 import SheetHeader from '../components/SheetHeader';
+import { useTranslation } from '@/utils/i18n';
 
 type Props = NativeStackScreenProps<AccountStackParamList, 'EditAccount'>;
 
 const EditAccountScreen: React.FC<Props> = ({ navigation, route }) => {
   const { accountAddress } = route.params;
   const [account, setAccount] = useState<any>(null);
+  const { t } = useTranslation();
 
   const loadAccount = useCallback(async () => {
     try {
@@ -45,12 +47,12 @@ const EditAccountScreen: React.FC<Props> = ({ navigation, route }) => {
       onSuccess: async () => {
         try {
           const privateKey = await walletController.exportAccount(accountAddress);
-          Alert.alert('Private Key', privateKey, [
-            { text: 'Copy', onPress: () => Clipboard.setString(privateKey) },
-            { text: 'Close', style: 'cancel' },
+          Alert.alert(t('accountBottomSheet.alerts.privateKeyTitle'), privateKey, [
+            { text: t('accountBottomSheet.alerts.copy'), onPress: () => Clipboard.setString(privateKey) },
+            { text: t('common.cancel'), style: 'cancel' },
           ]);
         } catch {
-          Alert.alert('Error', 'Failed to export private key');
+          Alert.alert(t('errors.generic.title'), t('accountBottomSheet.errors.exportPrivateKeyFailed'));
         }
       },
     });
@@ -62,12 +64,12 @@ const EditAccountScreen: React.FC<Props> = ({ navigation, route }) => {
 
   const handleDeleteAccount = () => {
     Alert.alert(
-      'Delete Account',
-      'Are you sure you want to delete this account? This action cannot be undone.',
+      t('accountBottomSheet.deleteAccount'),
+      t('accountBottomSheet.deleteAccountConfirm'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Delete',
+          text: t('accountBottomSheet.delete'),
           style: 'destructive',
           onPress: async () => {
             try {
@@ -75,7 +77,7 @@ const EditAccountScreen: React.FC<Props> = ({ navigation, route }) => {
               navigation.goBack();
             } catch (error) {
               console.error('Failed to delete account:', error);
-              Alert.alert('Error', 'Failed to delete account');
+              Alert.alert(t('errors.generic.title'), t('accountBottomSheet.errors.deleteAccountFailed'));
             }
           },
         },
@@ -86,7 +88,7 @@ const EditAccountScreen: React.FC<Props> = ({ navigation, route }) => {
   if (!account) {
     return (
       <View className="flex-1 items-center justify-center">
-        <Text className="text-[#F9F9F9]">Loading...</Text>
+        <Text className="text-[#F9F9F9]">{t('common.loading')}</Text>
       </View>
     );
   }
@@ -95,7 +97,7 @@ const EditAccountScreen: React.FC<Props> = ({ navigation, route }) => {
     <BottomSheetScrollView className="flex-1 bg-[#161616]">
       {/* Header */}
       <SheetHeader
-        title="Edit Account"
+        title={t('accountBottomSheet.editAccount')}
         onBack={handleBack}
       />
       <View className="mb-6" />
@@ -112,7 +114,9 @@ const EditAccountScreen: React.FC<Props> = ({ navigation, route }) => {
           className="flex-row items-center justify-between rounded-xl bg-background-secondary px-4 py-4"
         >
           <View className="flex-1 flex-row items-center gap-2 pr-4">
-            <Text className="text-lg text-text-primary">Account Name</Text>
+            <Text className="text-lg text-text-primary">
+              {t('accountBottomSheet.accountName')}
+            </Text>
             <Text className="flex-1 text-right text-lg text-text-secondary">
               {account.alianName || 'Unnamed'}
             </Text>
@@ -125,7 +129,9 @@ const EditAccountScreen: React.FC<Props> = ({ navigation, route }) => {
           className="flex-row items-center justify-between rounded-xl bg-background-secondary px-4 py-4"
         >
           <View className="flex-1 flex-row items-center gap-2 pr-4">
-            <Text className="text-lg text-text-primary">Show Private Key</Text>
+            <Text className="text-lg text-text-primary">
+              {t('accountBottomSheet.showPrivateKey')}
+            </Text>
           </View>
           <ChevronRight size={20} color="rgb(var(--color-text-primary))" />
         </TouchableOpacity>

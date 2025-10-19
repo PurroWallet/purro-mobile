@@ -12,12 +12,14 @@ import { walletController } from '@/core/controllers/WalletController';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AccountStackParamList } from '../AccountStackNavigator';
 import SheetHeader from '../components/SheetHeader';
+import { useTranslation } from '@/utils/i18n';
 
 type Props = NativeStackScreenProps<AccountStackParamList, 'EditAccountName'>;
 
 const EditAccountNameScreen: React.FC<Props> = ({ navigation, route }) => {
   const { accountAddress, currentName } = route.params;
   const [name, setName] = useState(currentName);
+  const { t } = useTranslation();
 
   const handleSave = async () => {
     try {
@@ -32,7 +34,10 @@ const EditAccountNameScreen: React.FC<Props> = ({ navigation, route }) => {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <BottomSheetView className="flex-1">
         {/* Header */}
-        <SheetHeader title="Account Name" onBack={() => navigation.goBack()} />
+        <SheetHeader
+          title={t('accountBottomSheet.accountName')}
+          onBack={() => navigation.goBack()}
+        />
 
         {/* Input Field */}
         <View className="px-5 pt-5">
@@ -41,7 +46,7 @@ const EditAccountNameScreen: React.FC<Props> = ({ navigation, route }) => {
               <TextInput
                 value={name}
                 onChangeText={setName}
-                placeholder="Enter account name"
+                placeholder={t('accountBottomSheet.editNamePlaceholder')}
                 placeholderTextColor="#8D94A3"
                 className="text-lg text-[#F9F9F9]"
                 autoFocus
@@ -59,7 +64,7 @@ const EditAccountNameScreen: React.FC<Props> = ({ navigation, route }) => {
             className="rounded-xl bg-[#059288] px-6 py-4"
           >
             <Text className="text-center text-lg font-medium text-[#F9F9F9]">
-              Save
+              {t('common.save')}
             </Text>
           </TouchableOpacity>
         </View>

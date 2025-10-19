@@ -45,23 +45,7 @@
       }
     }
   },
-  "password": {
-    "create": {
-      "title": "Create Password",
-      "subtitle": "Your Gateway to Hyperliquid",
-      "passwordLabel": "Password",
-      "confirmLabel": "Confirm Password",
-      "passwordPlaceholder": "Enter password",
-      "confirmPlaceholder": "Re-enter password",
-      "requirement": "At least 8 characters",
-      "enableBiometrics": "Enable biometric authentication",
-      "continue": "Continue",
-      "validation": {
-        "tooShort": "Password must be at least 8 characters",
-        "mismatch": "Passwords do not match"
-      }
-    }
-  },
+  "password": {},
   "unlock": {
     "title": "Unlock Purro Wallet",
     "subtitle": "Enter your password",
@@ -126,11 +110,169 @@
     "showPrivateKey": "Show Private Key",
     "seedPhrase": "Seed phrase",
     "createNewAccount": "Create New Account",
+    "createAccountDescription": "Quickly add another wallet account",
     "importRecoveryPhrase": "Import Recovery Phrase",
+    "importRecoveryPhraseDescription": "Import an existing wallet using recovery phrase",
     "importPrivateKey": "Import Private Key",
+    "importPrivateKeyDescription": "Import an existing wallet using private key",
     "importWatchOnlyWallet": "Import Watch-Only Wallet",
     "aliasUpdateFailed": "Failed to update account name",
-    "addAccountFailed": "Failed to add account"
+    "addAccountFailed": "Failed to add account",
+    "backupWallet": "Backup Wallet",
+    "backupWalletDescription": "View your seed phrase",
+    "settingsScreen": {
+      "headerTitle": "Settings",
+      "sections": {
+        "security": "Security",
+        "wallet": "Wallet",
+        "about": "About",
+        "danger": "Danger Zone"
+      },
+      "biometrics": {
+        "title": "{{method}} Authentication",
+        "enabledSubtitle": "Unlock wallet with {{method}}",
+        "disabledSubtitle": "Enable {{method}} for quick access"
+      },
+      "changePasswordSubtitle": "Update your wallet password",
+      "theme": {
+        "title": "Theme",
+        "lightTitle": "Light Mode",
+        "darkTitle": "Dark Mode",
+        "lightSubtitle": "Switch to light theme",
+        "darkSubtitle": "Switch to dark theme"
+      },
+      "walletSection": "Wallet",
+      "aboutSection": "About",
+      "dangerZone": "Danger Zone",
+      "reset": {
+        "title": "Reset Wallet",
+        "subtitle": "This will erase all wallet data"
+      },
+      "version": {
+        "title": "Version",
+        "subtitle": "1.0.0"
+      },
+      "terms": {
+        "title": "Terms of Service",
+        "message": "Terms of Service"
+      },
+      "privacy": {
+        "title": "Privacy Policy",
+        "message": "Privacy Policy"
+      },
+      "alerts": {
+        "biometrics": {
+          "unlockRequired": "Please unlock your wallet before enabling biometric authentication.",
+          "passwordMissing": "Unable to retrieve wallet password. Please try again.",
+          "enableSuccess": "{{method}} authentication enabled successfully!",
+          "enableError": "Failed to enable biometric authentication. Please try again.",
+          "disableConfirmTitle": "Disable {{method}} Authentication?",
+          "disableConfirmMessage": "Disabling {{method}} will require your password to unlock the wallet.",
+          "disableButton": "Disable",
+          "disableSuccessTitle": "{{method}} Disabled",
+          "disableSuccessMessage": "{{method}} authentication has been disabled.",
+          "disableError": "Failed to disable biometric authentication.",
+          "updateError": "Failed to update biometric settings. Please try again later."
+        },
+        "changePassword": {
+          "title": "Change Password",
+          "message": "Password change feature coming soon."
+        },
+        "resetWallet": {
+          "title": "Reset Wallet",
+          "message": "Are you sure you want to reset your wallet? This action cannot be undone. Make sure you have backed up your seed phrase.",
+          "confirm": "Reset",
+          "error": "Failed to reset wallet."
+        }
+      },
+      "terms": {
+        "title": "Terms of Service",
+        "message": "Terms of Service"
+      },
+      "privacy": {
+        "title": "Privacy Policy",
+        "message": "Privacy Policy"
+      }
+    },
+    "recoveryPhraseTitle": "Your Recovery Phrase",
+    "recoveryPhraseDescription": "This phrase is the only way to recover your wallet. Keep it safe and never share it with anyone.",
+    "revealRecoveryPhrase": "Tap to reveal recovery phrase",
+    "copyToClipboard": "Copy to Clipboard",
+    "securityNotesTitle": "⚠️ Important Security Notes",
+    "securityNotesDescription": "• Write down your recovery phrase on paper\n• Store it in a secure, private location\n• Never take a photo or store it digitally\n• Never share it with anyone\n• This phrase controls all accounts in your wallet",
+    "securedRecoveryPhrase": "I've secured my recovery phrase",
+    "errors": {
+      "noAccountsFound": "No accounts found",
+      "loadSeedPhraseFailed": "Failed to load seed phrase"
+    },
+    "verifyPasswordTitle": "Verify Password",
+    "verifyPasswordSubtitle": "Enter Password",
+    "verifyPasswordDescription": "Enter your password to view your private key",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "verifyActions": {
+      "loading": "Verifying...",
+      "submit": "Verify"
+    },
+    "errors": {
+      "noAccountsFound": "No accounts found",
+      "loadSeedPhraseFailed": "Failed to load seed phrase",
+      "passwordRequired": "Please enter your password",
+      "incorrectPassword": "Incorrect password",
+      "verifyPasswordFailed": "Failed to verify password",
+      "exportPrivateKeyFailed": "Failed to export private key",
+      "deleteAccountFailed": "Failed to delete account",
+      "importWalletFailed": "Failed to import wallet"
+    },
+    "alerts": {
+      "copiedTitle": "Copied",
+      "seedPhraseCopied": "Seed phrase copied to clipboard",
+      "privateKeyTitle": "Private Key",
+      "copy": "Copy"
+    },
+    "deleteAccountConfirm": "Are you sure you want to delete this account? This action cannot be undone.",
+    "delete": "Delete",
+    "editNamePlaceholder": "Enter account name",
+    "createPassword": {
+      "title": "Create Password",
+      "subtitle": "Set a password to secure your wallet",
+      "requirement": "Password must be at least 8 characters long and include uppercase, lowercase, and numbers",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "confirmLabel": "Confirm Password",
+      "confirmPlaceholder": "Confirm your password",
+      "actions": {
+        "loading": "Importing...",
+        "submit": "Import Wallet"
+      },
+      "validation": {
+        "tooShort": "Password must be at least 8 characters",
+        "requirement": "Password must contain uppercase, lowercase, and numbers",
+        "confirmRequired": "Please confirm your password",
+        "mismatch": "Passwords do not match"
+      }
+    },
+    "success": {
+      "accountCreated": {
+        "title": "Account Created",
+        "message": "Your new account has been created successfully."
+      },
+      "walletImported": {
+        "title": "Wallet Imported",
+        "message": "Your wallet has been imported successfully."
+      }
+    },
+    "passwordPromptTitle": "Enter Password",
+    "passwordPromptCreate": "Enter your password to create a new account",
+    "passwordPromptImportMnemonic": "Enter your password to import your wallet",
+    "passwordPromptImportPrivateKey": "Enter your password to import your wallet",
+    "passwordPromptUnlock": "Enter your password to unlock your wallet",
+    "actions": {
+      "createAccount": "Create Account",
+      "importWallet": "Import Wallet",
+      "unlock": "Unlock"
+    },
+    "unlockTitle": "Unlock Wallet"
   },
   "settings": {
     "title": "Settings",
@@ -166,7 +308,9 @@
     "continue": "Continue",
     "back": "Back",
     "next": "Next",
-    "error": "Error"
+    "error": "Error",
+    "loading": "Loading...",
+    "save": "Save"
   },
   "importMethods": {
     "title": "Import Wallet",

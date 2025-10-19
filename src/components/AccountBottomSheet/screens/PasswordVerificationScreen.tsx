@@ -14,6 +14,7 @@ import { apisLock } from '@/core/apis';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AccountStackParamList } from '../AccountStackNavigator';
 import SheetHeader from '../components/SheetHeader';
+import { useTranslation } from '@/utils/i18n';
 
 type Props = NativeStackScreenProps<AccountStackParamList, 'PasswordVerification'> & {
   onClose: () => void;
@@ -33,10 +34,11 @@ const PasswordVerificationScreen: React.FC<Props> = ({
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { t } = useTranslation();
 
   const handleVerify = async () => {
     if (!password) {
-      Alert.alert('Error', 'Please enter your password');
+      Alert.alert(t('errors.generic.title'), t('accountBottomSheet.errors.passwordRequired'));
       return;
     }
 
@@ -50,11 +52,11 @@ const PasswordVerificationScreen: React.FC<Props> = ({
         // Password is correct, call onSuccess callback
         onSuccess();
       } else {
-        Alert.alert('Error', 'Incorrect password');
+        Alert.alert(t('errors.generic.title'), t('accountBottomSheet.errors.incorrectPassword'));
       }
     } catch (error) {
       console.error('Error verifying password:', error);
-      Alert.alert('Error', 'Failed to verify password');
+      Alert.alert(t('errors.generic.title'), t('accountBottomSheet.errors.verifyPasswordFailed'));
     } finally {
       setIsLoading(false);
     }
@@ -68,7 +70,7 @@ const PasswordVerificationScreen: React.FC<Props> = ({
       >
         {/* Header */}
         <SheetHeader 
-          title="Verify Password"
+          title={t('accountBottomSheet.verifyPasswordTitle')}
           onBack={() => navigation.goBack()}
         />
         <View className="mb-4" />
@@ -76,27 +78,29 @@ const PasswordVerificationScreen: React.FC<Props> = ({
         <View className="flex-1 px-5 justify-between">
           <View className="flex-1">
             <Text className="text-lg text-[#F9F9F9] mb-2">
-              Enter Password
+              {t('accountBottomSheet.verifyPasswordSubtitle')}
             </Text>
             <Text className="mb-6 text-sm text-text-secondary">
-              Enter your password to view your private key
+              {t('accountBottomSheet.verifyPasswordDescription')}
             </Text>
 
             <View className="mb-5">
               <Text className="mb-2 text-sm text-text-primary">
-                Password
+                {t('accountBottomSheet.passwordLabel')}
               </Text>
               <View className="flex-row items-center rounded-xl border border-border-primary px-4 py-4">
                 <TextInput
                   className="flex-1 text-lg text-text-primary"
                   value={password}
                   onChangeText={setPassword}
-                  placeholder="Enter your password"
+                  placeholder={t('accountBottomSheet.passwordPlaceholder')}
                   placeholderTextColor="rgb(var(--color-text-secondary))"
                   secureTextEntry={!showPassword}
                   autoCapitalize="none"
                   autoComplete="password"
                   textContentType="password"
+                  returnKeyType="done"
+                  onSubmitEditing={handleVerify}
                 />
                 <TouchableOpacity
                   className="ml-2"
@@ -125,7 +129,9 @@ const PasswordVerificationScreen: React.FC<Props> = ({
                   !password || isLoading ? 'text-text-secondary' : 'text-button-primary-text'
                 }`}
               >
-                {isLoading ? 'Verifying...' : 'Verify'}
+                {isLoading
+                  ? t('accountBottomSheet.verifyActions.loading')
+                  : t('accountBottomSheet.verifyActions.submit')}
               </Text>
             </TouchableOpacity>
           </View>

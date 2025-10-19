@@ -13,6 +13,7 @@ import { useAtom } from 'jotai';
 import { walletExists } from '@/atoms/app';
 import { useThemeMode } from '@/core/hooks/useTheme';
 import type { ThemeMode } from '@/theme';
+import { useTranslation } from '@/utils/i18n';
 
 type Props = NativeStackScreenProps<AccountStackParamList, 'Settings'> & {
   parentNavigation: NavigationProp<any>;
@@ -70,11 +71,13 @@ const SectionHeader: React.FC<{ title: string }> = ({ title }) => (
 
 const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
   const [, setWalletExists] = useAtom(walletExists);
+  const { t } = useTranslation();
   const {
     computed: { isBiometricsEnabled, defaultTypeLabel, couldSetupBiometrics },
     toggleBiometrics,
     fetchBiometrics,
   } = useBiometrics({ autoFetch: true });
+
   const { themeMode, setThemeMode } = useThemeMode();
 
   const [isEnablingBiometrics, setIsEnablingBiometrics] = useState(false);
@@ -102,11 +105,11 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
           if (!walletPassword) {
             const { keyringService } = await import('@/core/services/KeyringService');
 
-            if (!keyringService.isUnlocked()) {
-              Alert.alert(
-                'Error',
-                'Please unlock wallet first to enable biometric authentication',
-              );
+          if (!keyringService.isUnlocked()) {
+            Alert.alert(
+              t('errors.generic.title'),
+              t('accountBottomSheet.settingsScreen.alerts.biometrics.unlockRequired'),
+            );
               setIsEnablingBiometrics(false);
               return;
             }
@@ -114,7 +117,10 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
           }
 
           if (!walletPassword) {
-            Alert.alert('Error', 'Unable to get wallet password');
+          Alert.alert(
+            t('errors.generic.title'),
+            t('accountBottomSheet.settingsScreen.alerts.biometrics.passwordMissing'),
+          );
             setIsEnablingBiometrics(false);
             return;
           }
@@ -133,14 +139,17 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
           await fetchBiometrics();
 
           Alert.alert(
-            'Success',
-            `${defaultTypeLabel} authentication enabled successfully!`,
+            t('common.success'),
+            t(
+              'accountBottomSheet.settingsScreen.alerts.biometrics.enableSuccess',
+              { method: defaultTypeLabel },
+            ),
           );
         } catch (error) {
           console.error('Error enabling biometrics:', error);
           Alert.alert(
-            'Error',
-            'Failed to enable biometric authentication. Please try again.',
+            t('errors.generic.title'),
+            t('accountBottomSheet.settingsScreen.alerts.biometrics.enableError'),
           );
         } finally {
           setIsEnablingBiometrics(false);
@@ -148,16 +157,22 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
       } else {
         // Disable biometrics
         Alert.alert(
-          'Disable Biometric Authentication?',
-          `Are you sure you want to disable ${defaultTypeLabel}?`,
+          t(
+            'accountBottomSheet.settingsScreen.alerts.biometrics.disableConfirmTitle',
+            { method: defaultTypeLabel },
+          ),
+          t(
+            'accountBottomSheet.settingsScreen.alerts.biometrics.disableConfirmMessage',
+            { method: defaultTypeLabel },
+          ),
           [
             {
-              text: 'Cancel',
+              text: t('common.cancel'),
               style: 'cancel',
               onPress: () => setIsEnablingBiometrics(false),
             },
             {
-              text: 'Disable',
+              text: t('accountBottomSheet.settingsScreen.alerts.biometrics.disableButton'),
               style: 'destructive',
               onPress: async () => {
                 try {
@@ -166,14 +181,20 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
                   setIsEnablingBiometrics(false);
 
                   Alert.alert(
-                    'Disabled',
-                    `${defaultTypeLabel} has been disabled`,
+                    t(
+                      'accountBottomSheet.settingsScreen.alerts.biometrics.disableSuccessTitle',
+                      { method: defaultTypeLabel },
+                    ),
+                    t(
+                      'accountBottomSheet.settingsScreen.alerts.biometrics.disableSuccessMessage',
+                      { method: defaultTypeLabel },
+                    ),
                   );
                 } catch (err) {
                   console.error('Error disabling biometrics:', err);
                   Alert.alert(
-                    'Error',
-                    'Failed to disable biometric authentication',
+                    t('errors.generic.title'),
+                    t('accountBottomSheet.settingsScreen.alerts.biometrics.disableError'),
                   );
                   setIsEnablingBiometrics(false);
                 }
@@ -184,15 +205,20 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
       }
     } catch (error) {
       console.error('Error toggling biometrics:', error);
-      Alert.alert('Error', 'Failed to update biometric settings');
+      Alert.alert(
+        t('errors.generic.title'),
+        t('accountBottomSheet.settingsScreen.alerts.biometrics.updateError'),
+      );
       setIsEnablingBiometrics(false);
     }
   };
 
   const handleChangePassword = () => {
-    Alert.alert('Change Password', 'Password change feature coming soon', [
-      { text: 'OK', style: 'default' },
-    ]);
+    Alert.alert(
+      t('accountBottomSheet.settingsScreen.alerts.changePassword.title'),
+      t('accountBottomSheet.settingsScreen.alerts.changePassword.message'),
+      [{ text: t('common.ok'), style: 'default' }],
+    );
   };
 
   const handleChangeTheme = (nextMode: ThemeMode) => {
@@ -203,14 +229,20 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
     const isDark = themeMode === 'dark';
 
     return {
-      label: isDark ? 'Dark Mode' : 'Light Mode',
-      subtitle: isDark
-        ? 'Switch to light theme'
-        : 'Switch to dark theme',
+      label: t(
+        isDark
+          ? 'accountBottomSheet.settingsScreen.theme.darkTitle'
+          : 'accountBottomSheet.settingsScreen.theme.lightTitle',
+      ),
+      subtitle: t(
+        isDark
+          ? 'accountBottomSheet.settingsScreen.theme.lightSubtitle'
+          : 'accountBottomSheet.settingsScreen.theme.darkSubtitle',
+      ),
       nextMode: isDark ? 'light' : 'dark',
       value: isDark,
     };
-  }, [themeMode]);
+  }, [themeMode, t]);
 
   const handleBackupWallet = () => {
     navigation.navigate('SeedPhraseBackup');
@@ -218,15 +250,15 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
 
   const handleResetWallet = () => {
     Alert.alert(
-      'Reset Wallet',
-      'Are you sure you want to reset your wallet? This action cannot be undone. Make sure you have backed up your seed phrase.',
+      t('accountBottomSheet.settingsScreen.alerts.resetWallet.title'),
+      t('accountBottomSheet.settingsScreen.alerts.resetWallet.message'),
       [
         {
-          text: 'Cancel',
+          text: t('common.cancel'),
           style: 'cancel',
         },
         {
-          text: 'Reset',
+          text: t('accountBottomSheet.settingsScreen.alerts.resetWallet.confirm'),
           style: 'destructive',
           onPress: async () => {
             try {
@@ -260,7 +292,10 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
               }
             } catch (error) {
               console.error('Error resetting wallet:', error);
-              Alert.alert('Error', 'Failed to reset wallet');
+              Alert.alert(
+                t('errors.generic.title'),
+                t('accountBottomSheet.settingsScreen.alerts.resetWallet.error'),
+              );
             }
           },
         },
@@ -272,7 +307,7 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
     <BottomSheetScrollView className="flex-1">
       {/* Header */}
       <SheetHeader
-        title="Settings"
+        title={t('accountBottomSheet.settingsScreen.headerTitle')}
         onBack={() => navigation.goBack()}
       />
       <View className="mb-4" />
@@ -280,15 +315,21 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
       <ScrollView className="flex-1">
         {/* Security Section */}
         <View className="px-5">
-          <SectionHeader title="Security" />
+          <SectionHeader title={t('accountBottomSheet.settingsScreen.sections.security')} />
           <View className="gap-2">
             {couldSetupBiometrics && (
               <SettingItem
-                title={`${defaultTypeLabel} Authentication`}
+                title={t('accountBottomSheet.settingsScreen.biometrics.title', {
+                  method: defaultTypeLabel,
+                })}
                 subtitle={
                   isBiometricsEnabled
-                    ? `Unlock wallet with ${defaultTypeLabel}`
-                    : `Enable ${defaultTypeLabel} for quick access`
+                    ? t('accountBottomSheet.settingsScreen.biometrics.enabledSubtitle', {
+                        method: defaultTypeLabel,
+                      })
+                    : t('accountBottomSheet.settingsScreen.biometrics.disabledSubtitle', {
+                        method: defaultTypeLabel,
+                      })
                 }
                 showArrow={false}
                 onPress={() => handleBiometricToggle(!isBiometricsEnabled)}
@@ -309,20 +350,20 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
               />
             )}
             <SettingItem
-              title="Change Password"
-              subtitle="Update your wallet password"
+              title={t('settings.changePassword')}
+              subtitle={t('accountBottomSheet.settingsScreen.changePasswordSubtitle')}
               onPress={handleChangePassword}
             />
             <SettingItem
-              title="Theme"
+              title={t('accountBottomSheet.settingsScreen.theme.title')}
               subtitle={themeToggleOptions.subtitle}
-              onPress={() => handleChangeTheme(themeToggleOptions.nextMode)}
+              onPress={() => handleChangeTheme(themeToggleOptions.nextMode as ThemeMode)}
               rightComponent={
                 <View className="min-w-[51px] items-center justify-center pr-2">
                   <Switch
                     value={themeToggleOptions.value}
                     onValueChange={() =>
-                      handleChangeTheme(themeToggleOptions.nextMode)
+                      handleChangeTheme(themeToggleOptions.nextMode as ThemeMode)
                     }
                     trackColor={{
                       false: '#373B43',
@@ -338,11 +379,11 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
 
         {/* Wallet Section */}
         <View className="px-5 mt-6">
-          <SectionHeader title="Wallet" />
+          <SectionHeader title={t('accountBottomSheet.settingsScreen.sections.wallet')} />
           <View className="gap-2">
             <SettingItem
-              title="Backup Wallet"
-              subtitle="View your seed phrase"
+              title={t('accountBottomSheet.backupWallet')}
+              subtitle={t('accountBottomSheet.backupWalletDescription')}
               onPress={handleBackupWallet}
             />
           </View>
@@ -350,27 +391,37 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
 
         {/* About Section */}
         <View className="px-5 mt-6">
-          <SectionHeader title="About" />
+          <SectionHeader title={t('accountBottomSheet.settingsScreen.sections.about')} />
           <View className="gap-2">
-            <SettingItem title="Version" subtitle="1.0.0" showArrow={false} />
             <SettingItem
-              title="Terms of Service"
-              onPress={() => Alert.alert('Terms', 'Terms of Service')}
+              title={t('accountBottomSheet.settingsScreen.version.title')}
+              subtitle={t('accountBottomSheet.settingsScreen.version.subtitle')}
+              showArrow={false}
             />
             <SettingItem
-              title="Privacy Policy"
-              onPress={() => Alert.alert('Privacy', 'Privacy Policy')}
+              title={t('accountBottomSheet.settingsScreen.terms.title')}
+              onPress={() => Alert.alert(
+                t('accountBottomSheet.settingsScreen.terms.title'),
+                t('accountBottomSheet.settingsScreen.terms.message'),
+              )}
+            />
+            <SettingItem
+              title={t('accountBottomSheet.settingsScreen.privacy.title')}
+              onPress={() => Alert.alert(
+                t('accountBottomSheet.settingsScreen.privacy.title'),
+                t('accountBottomSheet.settingsScreen.privacy.message'),
+              )}
             />
           </View>
         </View>
 
         {/* Danger Zone */}
         <View className="px-5 mt-6 pb-10">
-          <SectionHeader title="Danger Zone" />
+          <SectionHeader title={t('accountBottomSheet.settingsScreen.sections.danger')} />
           <View className="gap-2">
             <SettingItem
-              title="Reset Wallet"
-              subtitle="This will erase all wallet data"
+              title={t('accountBottomSheet.settingsScreen.reset.title')}
+              subtitle={t('accountBottomSheet.settingsScreen.reset.subtitle')}
               onPress={handleResetWallet}
               danger={true}
             />

@@ -45,23 +45,7 @@
       }
     }
   },
-  "password": {
-    "create": {
-      "title": "Tạo mật khẩu",
-      "subtitle": "Cánh cổng của bạn đến với Hyperliquid",
-      "passwordLabel": "Mật khẩu",
-      "confirmLabel": "Xác nhận mật khẩu",
-      "passwordPlaceholder": "Nhập mật khẩu",
-      "confirmPlaceholder": "Nhập lại mật khẩu",
-      "requirement": "Ít nhất 8 ký tự",
-      "enableBiometrics": "Bật xác thực sinh trắc học",
-      "continue": "Tiếp tục",
-      "validation": {
-        "tooShort": "Mật khẩu phải có ít nhất 8 ký tự",
-        "mismatch": "Mật khẩu không khớp"
-      }
-    }
-  },
+  "password": {},
   "unlock": {
     "title": "Mở khóa Purro Wallet",
     "subtitle": "Nhập mật khẩu của bạn",
@@ -126,11 +110,163 @@
     "showPrivateKey": "Hiển thị Private Key",
     "seedPhrase": "Cụm từ khôi phục",
     "createNewAccount": "Tạo tài khoản mới",
+    "createAccountDescription": "Thêm nhanh một tài khoản ví khác",
     "importRecoveryPhrase": "Nhập cụm từ khôi phục",
+    "importRecoveryPhraseDescription": "Nhập ví hiện có bằng cụm từ khôi phục",
     "importPrivateKey": "Nhập Private Key",
+    "importPrivateKeyDescription": "Nhập ví hiện có bằng private key",
     "importWatchOnlyWallet": "Nhập ví chỉ xem",
     "aliasUpdateFailed": "Không thể cập nhật tên tài khoản",
-    "addAccountFailed": "Không thể thêm tài khoản"
+    "addAccountFailed": "Không thể thêm tài khoản",
+    "backupWallet": "Sao lưu ví",
+    "backupWalletDescription": "Xem cụm từ khôi phục của bạn",
+    "settingsScreen": {
+      "headerTitle": "Cài đặt",
+      "sections": {
+        "security": "Bảo mật",
+        "wallet": "Ví",
+        "about": "Giới thiệu",
+        "danger": "Khu vực nguy hiểm"
+      },
+      "biometrics": {
+        "title": "Xác thực {{method}}",
+        "enabledSubtitle": "Mở khóa ví bằng {{method}}",
+        "disabledSubtitle": "Bật {{method}} để truy cập nhanh"
+      },
+      "changePasswordSubtitle": "Cập nhật mật khẩu ví",
+      "theme": {
+        "title": "Chủ đề",
+        "lightTitle": "Chế độ sáng",
+        "darkTitle": "Chế độ tối",
+        "lightSubtitle": "Chuyển sang giao diện sáng",
+        "darkSubtitle": "Chuyển sang giao diện tối"
+      },
+      "walletSection": "Ví",
+      "aboutSection": "Giới thiệu",
+      "dangerZone": "Khu vực nguy hiểm",
+      "reset": {
+        "title": "Đặt lại ví",
+        "subtitle": "Thao tác này sẽ xóa toàn bộ dữ liệu ví"
+      },
+      "version": {
+        "title": "Phiên bản",
+        "subtitle": "1.0.0"
+      },
+      "terms": {
+        "title": "Điều khoản dịch vụ",
+        "message": "Điều khoản dịch vụ"
+      },
+      "privacy": {
+        "title": "Chính sách bảo mật",
+        "message": "Chính sách bảo mật"
+      },
+      "alerts": {
+        "biometrics": {
+          "unlockRequired": "Vui lòng mở khóa ví trước khi bật xác thực sinh trắc học.",
+          "passwordMissing": "Không thể lấy mật khẩu ví. Vui lòng thử lại.",
+          "enableSuccess": "Đã bật xác thực {{method}} thành công!",
+          "enableError": "Không thể bật xác thực sinh trắc học. Vui lòng thử lại.",
+          "disableConfirmTitle": "Tắt xác thực {{method}}?",
+          "disableConfirmMessage": "Khi tắt {{method}}, bạn sẽ cần mật khẩu để mở khóa ví.",
+          "disableButton": "Tắt",
+          "disableSuccessTitle": "Đã tắt {{method}}",
+          "disableSuccessMessage": "Xác thực {{method}} đã được tắt.",
+          "disableError": "Không thể tắt xác thực sinh trắc học.",
+          "updateError": "Không thể cập nhật cài đặt sinh trắc học. Vui lòng thử lại sau."
+        },
+        "changePassword": {
+          "title": "Đổi mật khẩu",
+          "message": "Tính năng đổi mật khẩu sẽ ra mắt sớm."
+        },
+        "resetWallet": {
+          "title": "Đặt lại ví",
+          "message": "Bạn có chắc muốn đặt lại ví? Hành động này không thể hoàn tác. Hãy đảm bảo bạn đã sao lưu cụm từ khôi phục.",
+          "confirm": "Đặt lại",
+          "error": "Không thể đặt lại ví."
+        }
+      },
+      "terms": {
+        "title": "Điều khoản dịch vụ",
+        "message": "Điều khoản dịch vụ"
+      },
+      "privacy": {
+        "title": "Chính sách bảo mật",
+        "message": "Chính sách bảo mật"
+      }
+    },
+    "recoveryPhraseTitle": "Cụm từ khôi phục của bạn",
+    "recoveryPhraseDescription": "Đây là cách duy nhất để khôi phục ví của bạn. Hãy giữ cẩn thận và không chia sẻ với bất kỳ ai.",
+    "revealRecoveryPhrase": "Nhấn để hiển thị cụm từ khôi phục",
+    "copyToClipboard": "Sao chép",
+    "securityNotesTitle": "⚠️ Lưu ý bảo mật quan trọng",
+    "securityNotesDescription": "• Viết cụm từ khôi phục xuống giấy\n• Lưu ở nơi an toàn và riêng tư\n• Không chụp ảnh hoặc lưu trữ kỹ thuật số\n• Không chia sẻ với bất kỳ ai\n• Cụm từ này kiểm soát toàn bộ tài khoản trong ví",
+    "securedRecoveryPhrase": "Tôi đã lưu cụm từ khôi phục an toàn",
+    "errors": {
+      "noAccountsFound": "Không tìm thấy tài khoản",
+      "loadSeedPhraseFailed": "Không thể tải cụm từ khôi phục",
+      "passwordRequired": "Vui lòng nhập mật khẩu",
+      "incorrectPassword": "Mật khẩu không đúng",
+      "verifyPasswordFailed": "Không thể xác minh mật khẩu",
+      "importWalletFailed": "Không thể nhập ví"
+    },
+    "alerts": {
+      "copiedTitle": "Đã sao chép",
+      "seedPhraseCopied": "Đã sao chép cụm từ khôi phục",
+      "privateKeyTitle": "Private Key",
+      "copy": "Sao chép"
+    },
+    "verifyPasswordTitle": "Xác minh mật khẩu",
+    "verifyPasswordSubtitle": "Nhập mật khẩu",
+    "verifyPasswordDescription": "Nhập mật khẩu để xem private key",
+    "passwordLabel": "Mật khẩu",
+    "passwordPlaceholder": "Nhập mật khẩu",
+    "verifyActions": {
+      "loading": "Đang xác minh...",
+      "submit": "Xác minh"
+    },
+    "deleteAccountConfirm": "Bạn có chắc muốn xóa tài khoản này? Hành động này không thể hoàn tác.",
+    "delete": "Xóa",
+    "editNamePlaceholder": "Nhập tên tài khoản",
+    "createPassword": {
+      "title": "Tạo mật khẩu",
+      "subtitle": "Đặt mật khẩu để bảo vệ ví của bạn",
+      "requirement": "Mật khẩu phải có ít nhất 8 ký tự, gồm chữ hoa, chữ thường và số",
+      "passwordLabel": "Mật khẩu",
+      "passwordPlaceholder": "Nhập mật khẩu",
+      "confirmLabel": "Xác nhận mật khẩu",
+      "confirmPlaceholder": "Nhập lại mật khẩu",
+      "actions": {
+        "loading": "Đang nhập...",
+        "submit": "Nhập ví"
+      },
+      "validation": {
+        "tooShort": "Mật khẩu phải có ít nhất 8 ký tự",
+        "requirement": "Mật khẩu phải có chữ hoa, chữ thường và số",
+        "confirmRequired": "Vui lòng xác nhận mật khẩu",
+        "mismatch": "Mật khẩu không khớp"
+      }
+    },
+    "success": {
+      "accountCreated": {
+        "title": "Tài khoản đã được tạo",
+        "message": "Tài khoản mới của bạn đã được tạo thành công."
+      },
+      "walletImported": {
+        "title": "Ví đã được nhập",
+        "message": "Ví của bạn đã được nhập thành công."
+      }
+    },
+    "passwordPromptTitle": "Nhập mật khẩu",
+    "passwordPromptCreate": "Nhập mật khẩu để tạo tài khoản mới",
+    "passwordPromptImportMnemonic": "Nhập mật khẩu để nhập ví",
+    "passwordPromptImportPrivateKey": "Nhập mật khẩu để nhập ví",
+    "passwordPromptUnlock": "Nhập mật khẩu để mở khóa ví",
+    "actions": {
+      "createAccount": "Tạo tài khoản",
+      "importWallet": "Nhập ví",
+      "unlock": "Mở khóa"
+    },
+    "unlockTitle": "Mở khóa ví"
   },
   "settings": {
     "title": "Cài đặt",
@@ -166,7 +302,9 @@
     "continue": "Tiếp tục",
     "back": "Quay lại",
     "next": "Tiếp theo",
-    "error": "Lỗi"
+    "error": "Lỗi",
+    "loading": "Đang tải...",
+    "save": "Lưu"
   },
   "importMethods": {
     "title": "Nhập ví",

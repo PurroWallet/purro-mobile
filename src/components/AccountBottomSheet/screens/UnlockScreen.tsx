@@ -18,6 +18,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AccountStackParamList } from '../AccountStackNavigator';
 import SheetHeader from '../components/SheetHeader';
 import { walletController } from '@/core/controllers/WalletController';
+import { useTranslation } from '@/utils/i18n';
 
 const unlockSchema = z.object({
   password: z.string().min(1, 'Password is required'),
@@ -48,6 +49,7 @@ const UnlockScreen: React.FC<Props> = ({
 
   const [showPassword, setShowPassword] = useState(false);
   const [isUnlocking, setIsUnlocking] = useState(false);
+  const { t } = useTranslation();
 
   const form = useZodForm(unlockSchema, {
     defaultValues: {
@@ -73,26 +75,28 @@ const UnlockScreen: React.FC<Props> = ({
           await walletController.addNewAccount();
         } else if (isImport && mnemonic) {
           // Import wallet
-          if (isPrivateKeyImport) {
-            // Handle private key import
-            await walletController.importWalletWithPrivateKey(mnemonic);
-          } else {
-            // Handle mnemonic import
-            await walletController.importWalletWithMnemonic(mnemonic, values.password);
-          }
+            if (isPrivateKeyImport) {
+              // Handle private key import
+              await walletController.importWalletWithPrivateKey(mnemonic);
+            } else {
+              // Handle mnemonic import
+              await walletController.importWalletWithMnemonic(mnemonic, values.password);
+            }
         }
 
         // Navigate to success screen
         navigation.navigate('Success', {
-          title: isNewAccount ? 'Account Created' : 'Wallet Imported',
-          message: isNewAccount
-            ? 'Your new account has been created successfully.'
-            : 'Your wallet has been imported successfully.',
+            title: isNewAccount
+              ? t('accountBottomSheet.success.accountCreated.title')
+              : t('accountBottomSheet.success.walletImported.title'),
+            message: isNewAccount
+              ? t('accountBottomSheet.success.accountCreated.message')
+              : t('accountBottomSheet.success.walletImported.message'),
         });
       } catch (error) {
         console.error('Error unlocking wallet:', error);
         form.setError('password', {
-          message: 'Incorrect password. Please try again.',
+            message: t('accountBottomSheet.errors.incorrectPassword'),
         });
       } finally {
         setIsUnlocking(false);
@@ -122,29 +126,40 @@ const UnlockScreen: React.FC<Props> = ({
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         {/* Header */}
-        <SheetHeader title="Unlock Wallet" onBack={() => navigation.goBack()} />
+        <SheetHeader
+          title={t('accountBottomSheet.unlockTitle')}
+          onBack={() => navigation.goBack()}
+        />
         <View className="mb-4" />
 
         <View className="flex-1 px-5 justify-between">
           <View className="flex-1">
-            <Text className="mb-2 text-lg text-text-primary">Enter Password</Text>
+            <Text className="mb-2 text-lg text-text-primary">
+              {t('accountBottomSheet.passwordPromptTitle')}
+            </Text>
             <Text className="mb-6 text-sm text-text-secondary">
               {isNewAccount
-                ? 'Enter your password to create a new account'
+                ? t('accountBottomSheet.passwordPromptCreate')
                 : isImport
-                ? 'Enter your password to import your wallet'
-                : 'Enter your password to unlock your wallet'}
+                ? t(
+                    isPrivateKeyImport
+                      ? 'accountBottomSheet.passwordPromptImportPrivateKey'
+                      : 'accountBottomSheet.passwordPromptImportMnemonic',
+                  )
+                : t('accountBottomSheet.passwordPromptUnlock')}
             </Text>
 
             <FormProvider {...form}>
               <View className="mb-5">
-                <Text className="mb-2 text-sm text-text-primary">Password</Text>
+                <Text className="mb-2 text-sm text-text-primary">
+                  {t('accountBottomSheet.passwordLabel')}
+                </Text>
                 <View className="flex-row items-center rounded-xl border border-border-primary px-4 py-4">
                   <TextInput
                     className="flex-1 text-lg text-text-primary"
                     value={passwordValue}
                     onChangeText={text => form.setValue('password', text)}
-                    placeholder="Enter your password"
+                    placeholder={t('accountBottomSheet.passwordPlaceholder')}
                     placeholderTextColor="rgb(var(--color-text-secondary))"
                     secureTextEntry={!showPassword}
                     autoCapitalize="none"
@@ -188,10 +203,10 @@ const UnlockScreen: React.FC<Props> = ({
             ) : (
               <Text className="text-base font-medium text-button-primary-text">
                 {isNewAccount
-                  ? 'Create Account'
+                  ? t('accountBottomSheet.actions.createAccount')
                   : isImport
-                  ? 'Import Wallet'
-                  : 'Unlock'}
+                  ? t('accountBottomSheet.actions.importWallet')
+                  : t('accountBottomSheet.actions.unlock')}
               </Text>
             )}
           </TouchableOpacity>

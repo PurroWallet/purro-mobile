@@ -16,6 +16,7 @@ import {
 } from 'react-hook-form';
 import { Colors } from '@/constants/colors';
 import { Icon } from '@/components/Icon';
+import { useTranslation } from '@/utils/i18n';
 
 type CommonInputProps<TFieldValues extends FieldValues> = {
   name: Path<TFieldValues>;
@@ -37,6 +38,7 @@ export function FormInput<TFieldValues extends FieldValues = FieldValues>({
   ...rest
 }: CommonInputProps<TFieldValues> & TextInputExtraProps) {
   const { control } = useFormContext<TFieldValues>();
+  const { t } = useTranslation();
 
   return (
     <Controller
@@ -65,7 +67,9 @@ export function FormInput<TFieldValues extends FieldValues = FieldValues>({
                 fieldState.error ? 'text-red-500' : 'text-gray-500'
               }`}
             >
-              {fieldState.error?.message ?? helperText}
+              {fieldState.error?.message
+                ? t(fieldState.error.message, fieldState.error.ref?.value ?? {})
+                : helperText}
             </Text>
           ) : null}
         </View>
@@ -83,6 +87,7 @@ export function PasswordInputForm<TFieldValues extends FieldValues = FieldValues
 }: CommonInputProps<TFieldValues> & TextInputExtraProps) {
   const { control } = useFormContext<TFieldValues>();
   const [showPassword, setShowPassword] = React.useState(false);
+  const { t } = useTranslation();
 
   return (
     <Controller
@@ -124,7 +129,9 @@ export function PasswordInputForm<TFieldValues extends FieldValues = FieldValues
                 fieldState.error ? 'text-red-500' : 'text-gray-500'
               }`}
             >
-              {fieldState.error?.message ?? helperText}
+              {fieldState.error?.message
+                ? t(fieldState.error.message, fieldState.error.ref?.value ?? {})
+                : helperText}
             </Text>
           ) : null}
         </View>
@@ -149,6 +156,7 @@ export function CheckboxForm<TFieldValues extends FieldValues = FieldValues>({
   onValueChange,
 }: CommonInputProps<TFieldValues> & CheckboxExtraProps) {
   const { control } = useFormContext<TFieldValues>();
+  const { t } = useTranslation();
 
   return (
     <Controller
@@ -202,7 +210,9 @@ export function CheckboxForm<TFieldValues extends FieldValues = FieldValues>({
                   fieldState.error ? 'text-red-500' : 'text-gray-500'
                 }`}
               >
-                {fieldState.error?.message ?? helperText}
+                {fieldState.error?.message
+                  ? t(fieldState.error.message, fieldState.error.ref?.value ?? {})
+                  : helperText}
               </Text>
             ) : null}
           </View>
