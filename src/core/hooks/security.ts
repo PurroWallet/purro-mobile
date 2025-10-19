@@ -49,9 +49,7 @@ export function useScreenshotDetection(onScreenshot?: () => void): void {
   useEffect(() => {
     // iOS screenshot detection would require native module
     // For now, show warning when screen is sensitive
-    console.log(
-      'Screenshot detection: Limited - requires native module for full support',
-    );
+    console.log('Screenshot detection: Limited - requires native module for full support');
   }, [onScreenshot]);
 }
 

@@ -44,9 +44,7 @@ if (IS_ANDROID) {
     UIManager.setLayoutAnimationEnabledExperimental(false);
 }
 
-export function resolveNativeModule<T extends keyof NativeModulesStatic>(
-  name: T,
-) {
+export function resolveNativeModule<T extends keyof NativeModulesStatic>(name: T) {
   const NATIVE_ERROR =
     `The native module '${name}' doesn't seem to be added. Make sure: \n\n` +
     '- You rebuilt the app after native code changed\n' +
@@ -101,9 +99,7 @@ export function wrapPlatformOnlyMethod<
 
   if (!platforms.includes(Platform.OS)) {
     return function (...args: Parameters<T>) {
-      const err = new Error(
-        `Method is not available on ${Platform.OS}, will use fallback`,
-      );
+      const err = new Error(`Method is not available on ${Platform.OS}, will use fallback`);
 
       console.error(err);
       fallbackFn(...args);
@@ -111,9 +107,7 @@ export function wrapPlatformOnlyMethod<
   }
 
   if (typeof method !== 'function') {
-    throw new Error(
-      `Method is not implemented on platform ${Platform.OS}, but it should be`,
-    );
+    throw new Error(`Method is not implemented on platform ${Platform.OS}, but it should be`);
   }
 
   return method;

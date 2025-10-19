@@ -1,4 +1,4 @@
-import { MMKV, Configuration } from 'react-native-mmkv';
+import { Configuration, MMKV } from 'react-native-mmkv';
 import { encryptionService } from '../services';
 
 export const MMKV_FILE_NAMES = {
@@ -39,11 +39,7 @@ export class SecureStorage {
   private encryptionKey: string;
   private useEncryption: boolean;
 
-  constructor(
-    id: string,
-    encryptionKey: string,
-    useEncryption: boolean = true,
-  ) {
+  constructor(id: string, encryptionKey: string, useEncryption: boolean = true) {
     this.mmkv = new MMKV({
       id,
       encryptionKey,
@@ -90,11 +86,7 @@ export class SecureStorage {
   }
 
   // Set encrypted item with password
-  async setEncryptedItem<T>(
-    key: string,
-    value: T,
-    password: string,
-  ): Promise<void> {
+  async setEncryptedItem<T>(key: string, value: T, password: string): Promise<void> {
     try {
       const encrypted = await encryptionService.encrypt(password, value);
       this.mmkv.set(key, encrypted);

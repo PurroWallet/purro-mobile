@@ -10,10 +10,7 @@ export function useIsOnBackground() {
       setIsOnBackground(nextAppState !== 'active');
     };
 
-    const subscription = AppState.addEventListener(
-      'change',
-      handleAppStateChange,
-    );
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
 
     // Initial state
     setIsOnBackground(AppState.currentState !== 'active');

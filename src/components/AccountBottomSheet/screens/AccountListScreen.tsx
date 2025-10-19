@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { BottomSheetView } from '@gorhom/bottom-sheet';
-import { useFocusEffect } from '@react-navigation/native';
-import { walletController } from '@/core/controllers/WalletController';
-import { Settings, ChevronRight, Edit2 } from 'lucide-react-native';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import type { AccountStackParamList } from '../AccountStackNavigator';
 import type { NavigationProp } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { ChevronRight, Edit2, Settings } from 'lucide-react-native';
+import React, { useEffect, useState } from 'react';
+import { Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import DefaultIcon from '@/assets/common/icon.png';
+import { walletController } from '@/core/controllers/WalletController';
+import type { AccountStackParamList } from '../AccountStackNavigator';
 
 type Props = NativeStackScreenProps<AccountStackParamList, 'AccountList'> & {
   onClose: () => void;
@@ -77,10 +77,7 @@ const AccountListScreen: React.FC<Props> = ({
     try {
       console.log('📋 AccountListScreen - Loading accounts...');
       const accountsList = await walletController.getAllAccounts();
-      console.log(
-        '📋 AccountListScreen - Loaded accounts:',
-        JSON.stringify(accountsList, null, 2),
-      );
+      console.log('📋 AccountListScreen - Loaded accounts:', JSON.stringify(accountsList, null, 2));
       setAccounts(accountsList);
     } catch (error) {
       console.error('📋 AccountListScreen - Failed to load accounts:', error);
@@ -106,9 +103,7 @@ const AccountListScreen: React.FC<Props> = ({
 
   const formatAddress = (address: string) => {
     if (!address) return '';
-    return `${address.substring(0, 6)}...${address.substring(
-      address.length - 4,
-    )}`;
+    return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
   };
 
   const currentAccountName = currentAccount?.alianName || 'Account 1';
@@ -119,24 +114,15 @@ const AccountListScreen: React.FC<Props> = ({
       {/* Header - Avatar + Current Account + Settings Icon */}
       <View className="flex-row items-center justify-between px-6 py-6">
         <View className="flex-row items-center gap-2.5">
-          <Image
-            source={DefaultIcon}
-            className="h-12 w-12 rounded-full"
-            resizeMode="cover"
-          />
+          <Image source={DefaultIcon} className="h-12 w-12 rounded-full" resizeMode="cover" />
           <View>
-            <Text className="text-xl font-semibold text-text-primary">
-              {currentAccountName}
-            </Text>
+            <Text className="text-xl font-semibold text-text-primary">{currentAccountName}</Text>
             <Text className="text-sm text-text-secondary">
               {formatAddress(currentAccountAddress)}
             </Text>
           </View>
         </View>
-        <TouchableOpacity
-          onPress={handleSettings}
-          className="h-6 w-6 items-center justify-center"
-        >
+        <TouchableOpacity onPress={handleSettings} className="h-6 w-6 items-center justify-center">
           <Settings size={24} color="rgb(var(--color-text-primary))" />
         </TouchableOpacity>
       </View>
@@ -149,18 +135,14 @@ const AccountListScreen: React.FC<Props> = ({
             <View key={network.id}>
               <TouchableOpacity
                 className="flex-row items-center justify-between py-4"
-                style={
-                  index < networks.length - 1 ? styles.networkBorder : undefined
-                }
+                style={index < networks.length - 1 ? styles.networkBorder : undefined}
               >
                 <View className="flex-1 flex-row items-center gap-4">
                   <View className="h-4 w-4 items-center justify-center rounded-full bg-brand-light">
                     <View className="h-2 w-2 rounded-full bg-brand-primary" />
                   </View>
                   <View className="flex-1 flex-row items-center gap-2.5 px-3">
-                    <Text className="text-base text-text-primary">
-                      {network.name}
-                    </Text>
+                    <Text className="text-base text-text-primary">{network.name}</Text>
                     <Text className="flex-1 text-right text-base text-text-secondary">
                       {network.address}
                     </Text>
@@ -176,9 +158,7 @@ const AccountListScreen: React.FC<Props> = ({
 
         {/* Your Accounts Section */}
         <View className="mt-6 pb-2">
-          <Text className="mb-4 text-lg font-semibold text-text-primary">
-            Your Accounts
-          </Text>
+          <Text className="mb-4 text-lg font-semibold text-text-primary">Your Accounts</Text>
           <View className="gap-2">
             {accounts.map((account, index) => {
               const isSelected = currentAccount?.address === account.address;
@@ -201,9 +181,7 @@ const AccountListScreen: React.FC<Props> = ({
                     <View>
                       <Text
                         className={`text-lg ${
-                          isSelected
-                            ? 'text-brand-primary font-semibold'
-                            : 'text-text-primary'
+                          isSelected ? 'text-brand-primary font-semibold' : 'text-text-primary'
                         }`}
                       >
                         {account.alianName || `Account ${index + 1}`}
@@ -233,9 +211,7 @@ const AccountListScreen: React.FC<Props> = ({
           onPress={handleAddAccount}
           className="flex-row items-center justify-center rounded-xl bg-brand-primary px-6 py-4"
         >
-          <Text className="text-lg font-medium text-button-primary-text">
-            Add Account
-          </Text>
+          <Text className="text-lg font-medium text-button-primary-text">Add Account</Text>
         </TouchableOpacity>
       </View>
     </BottomSheetView>

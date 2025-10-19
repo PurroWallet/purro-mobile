@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, TouchableOpacity, Alert, Image } from 'react-native';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import { ChevronRight, Trash2 } from 'lucide-react-native';
-import { walletController } from '@/core/controllers/WalletController';
 import Clipboard from '@react-native-clipboard/clipboard';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import type { AccountStackParamList } from '../AccountStackNavigator';
+import { ChevronRight, Trash2 } from 'lucide-react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Alert, Image, Text, TouchableOpacity, View } from 'react-native';
 import DefaultIcon from '@/assets/common/icon.png';
-import SheetHeader from '../components/SheetHeader';
+import { walletController } from '@/core/controllers/WalletController';
 import { useTranslation } from '@/utils/i18n';
+import type { AccountStackParamList } from '../AccountStackNavigator';
+import SheetHeader from '../components/SheetHeader';
 
 type Props = NativeStackScreenProps<AccountStackParamList, 'EditAccount'>;
 
@@ -20,9 +20,7 @@ const EditAccountScreen: React.FC<Props> = ({ navigation, route }) => {
   const loadAccount = useCallback(async () => {
     try {
       const accounts = await walletController.getAllAccounts();
-      const foundAccount = accounts.find(
-        (acc: any) => acc.address === accountAddress,
-      );
+      const foundAccount = accounts.find((acc: any) => acc.address === accountAddress);
       setAccount(foundAccount);
     } catch (error) {
       console.error('Failed to load account:', error);
@@ -48,11 +46,17 @@ const EditAccountScreen: React.FC<Props> = ({ navigation, route }) => {
         try {
           const privateKey = await walletController.exportAccount(accountAddress);
           Alert.alert(t('accountBottomSheet.alerts.privateKeyTitle'), privateKey, [
-            { text: t('accountBottomSheet.alerts.copy'), onPress: () => Clipboard.setString(privateKey) },
+            {
+              text: t('accountBottomSheet.alerts.copy'),
+              onPress: () => Clipboard.setString(privateKey),
+            },
             { text: t('common.cancel'), style: 'cancel' },
           ]);
         } catch {
-          Alert.alert(t('errors.generic.title'), t('accountBottomSheet.errors.exportPrivateKeyFailed'));
+          Alert.alert(
+            t('errors.generic.title'),
+            t('accountBottomSheet.errors.exportPrivateKeyFailed'),
+          );
         }
       },
     });
@@ -77,7 +81,10 @@ const EditAccountScreen: React.FC<Props> = ({ navigation, route }) => {
               navigation.goBack();
             } catch (error) {
               console.error('Failed to delete account:', error);
-              Alert.alert(t('errors.generic.title'), t('accountBottomSheet.errors.deleteAccountFailed'));
+              Alert.alert(
+                t('errors.generic.title'),
+                t('accountBottomSheet.errors.deleteAccountFailed'),
+              );
             }
           },
         },
@@ -96,10 +103,7 @@ const EditAccountScreen: React.FC<Props> = ({ navigation, route }) => {
   return (
     <BottomSheetScrollView className="flex-1 bg-[#161616]">
       {/* Header */}
-      <SheetHeader
-        title={t('accountBottomSheet.editAccount')}
-        onBack={handleBack}
-      />
+      <SheetHeader title={t('accountBottomSheet.editAccount')} onBack={handleBack} />
       <View className="mb-6" />
 
       {/* Account Avatar */}
@@ -114,9 +118,7 @@ const EditAccountScreen: React.FC<Props> = ({ navigation, route }) => {
           className="flex-row items-center justify-between rounded-xl bg-background-secondary px-4 py-4"
         >
           <View className="flex-1 flex-row items-center gap-2 pr-4">
-            <Text className="text-lg text-text-primary">
-              {t('accountBottomSheet.accountName')}
-            </Text>
+            <Text className="text-lg text-text-primary">{t('accountBottomSheet.accountName')}</Text>
             <Text className="flex-1 text-right text-lg text-text-secondary">
               {account.alianName || 'Unnamed'}
             </Text>
@@ -135,7 +137,6 @@ const EditAccountScreen: React.FC<Props> = ({ navigation, route }) => {
           </View>
           <ChevronRight size={20} color="rgb(var(--color-text-primary))" />
         </TouchableOpacity>
-
       </View>
 
       {/* Delete Button */}
@@ -145,9 +146,7 @@ const EditAccountScreen: React.FC<Props> = ({ navigation, route }) => {
           className="flex-row items-center justify-center gap-2 rounded-xl bg-background-secondary py-4"
         >
           <Trash2 size={20} color="rgb(var(--color-system-error))" />
-          <Text className="text-base font-medium text-system-error">
-            Delete Account
-          </Text>
+          <Text className="text-base font-medium text-system-error">Delete Account</Text>
         </TouchableOpacity>
       </View>
     </BottomSheetScrollView>

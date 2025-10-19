@@ -1,25 +1,22 @@
-import React, { useMemo } from 'react';
-import {
-  NavigationContainer,
-  NavigationIndependentTree,
-} from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
+import { NavigationContainer, NavigationIndependentTree } from '@react-navigation/native';
 import {
   createNativeStackNavigator,
   NativeStackNavigationOptions,
 } from '@react-navigation/native-stack';
+import React, { useMemo } from 'react';
 import AccountListScreen from './screens/AccountListScreen.tsx';
 import AddAccountScreen from './screens/AddAccountScreen.tsx';
-import EditAccountScreen from './screens/EditAccountScreen.tsx';
-import EditAccountNameScreen from './screens/EditAccountNameScreen.tsx';
-import SettingsScreen from './screens/SettingsScreen.tsx';
-import ImportSeedPhraseScreen from './screens/ImportSeedPhraseScreen.tsx';
-import ImportPrivateKeyScreen from './screens/ImportPrivateKeyScreen.tsx';
-import SeedPhraseBackupScreen from './screens/SeedPhraseBackupScreen.tsx';
 import CreatePasswordScreen from './screens/CreatePasswordScreen.tsx';
-import SuccessScreen from './screens/SuccessScreen.tsx';
+import EditAccountNameScreen from './screens/EditAccountNameScreen.tsx';
+import EditAccountScreen from './screens/EditAccountScreen.tsx';
+import ImportPrivateKeyScreen from './screens/ImportPrivateKeyScreen.tsx';
+import ImportSeedPhraseScreen from './screens/ImportSeedPhraseScreen.tsx';
 import PasswordVerificationScreen from './screens/PasswordVerificationScreen.tsx';
+import SeedPhraseBackupScreen from './screens/SeedPhraseBackupScreen.tsx';
+import SettingsScreen from './screens/SettingsScreen.tsx';
+import SuccessScreen from './screens/SuccessScreen.tsx';
 import UnlockScreen from './screens/UnlockScreen.tsx';
-import type { NavigationProp } from '@react-navigation/native';
 
 export type AccountStackParamList = {
   AccountList: undefined;
@@ -76,7 +73,7 @@ const AccountStackNavigator: React.FC<AccountStackNavigatorProps> = ({
       <NavigationContainer>
         <Stack.Navigator screenOptions={screenOptions}>
           <Stack.Screen name="AccountList">
-            {props => (
+            {(props) => (
               <AccountListScreen
                 {...props}
                 onClose={onClose}
@@ -87,16 +84,12 @@ const AccountStackNavigator: React.FC<AccountStackNavigatorProps> = ({
             )}
           </Stack.Screen>
           <Stack.Screen name="AddAccount">
-            {props => (
-              <AddAccountScreen
-                {...props}
-                onClose={onClose}
-                parentNavigation={parentNavigation}
-              />
+            {(props) => (
+              <AddAccountScreen {...props} onClose={onClose} parentNavigation={parentNavigation} />
             )}
           </Stack.Screen>
           <Stack.Screen name="ImportSeedPhrase">
-            {props => (
+            {(props) => (
               <ImportSeedPhraseScreen
                 {...props}
                 onClose={onClose}
@@ -105,7 +98,7 @@ const AccountStackNavigator: React.FC<AccountStackNavigatorProps> = ({
             )}
           </Stack.Screen>
           <Stack.Screen name="ImportPrivateKey">
-            {props => (
+            {(props) => (
               <ImportPrivateKeyScreen
                 {...props}
                 onClose={onClose}
@@ -114,15 +107,10 @@ const AccountStackNavigator: React.FC<AccountStackNavigatorProps> = ({
             )}
           </Stack.Screen>
           <Stack.Screen name="SeedPhraseBackup">
-            {props => (
-              <SeedPhraseBackupScreen
-                {...props}
-                onClose={onClose}
-              />
-            )}
+            {(props) => <SeedPhraseBackupScreen {...props} onClose={onClose} />}
           </Stack.Screen>
           <Stack.Screen name="CreatePassword">
-            {props => (
+            {(props) => (
               <CreatePasswordScreen
                 {...props}
                 onClose={onClose}
@@ -131,42 +119,20 @@ const AccountStackNavigator: React.FC<AccountStackNavigatorProps> = ({
             )}
           </Stack.Screen>
           <Stack.Screen name="Unlock">
-            {props => (
-              <UnlockScreen
-                {...props}
-                onClose={onClose}
-                parentNavigation={parentNavigation}
-              />
+            {(props) => (
+              <UnlockScreen {...props} onClose={onClose} parentNavigation={parentNavigation} />
             )}
           </Stack.Screen>
           <Stack.Screen name="Success">
-            {props => (
-              <SuccessScreen
-                {...props}
-                onClose={onClose}
-              />
-            )}
+            {(props) => <SuccessScreen {...props} onClose={onClose} />}
           </Stack.Screen>
           <Stack.Screen name="PasswordVerification">
-            {props => (
-              <PasswordVerificationScreen
-                {...props}
-                onClose={onClose}
-              />
-            )}
+            {(props) => <PasswordVerificationScreen {...props} onClose={onClose} />}
           </Stack.Screen>
           <Stack.Screen name="EditAccount" component={EditAccountScreen} />
-          <Stack.Screen
-            name="EditAccountName"
-            component={EditAccountNameScreen}
-          />
+          <Stack.Screen name="EditAccountName" component={EditAccountNameScreen} />
           <Stack.Screen name="Settings">
-            {props => (
-              <SettingsScreen
-                {...props}
-                parentNavigation={parentNavigation}
-              />
-            )}
+            {(props) => <SettingsScreen {...props} parentNavigation={parentNavigation} />}
           </Stack.Screen>
         </Stack.Navigator>
       </NavigationContainer>

@@ -31,9 +31,7 @@ export interface PreferenceData {
 }
 
 class PreferenceService {
-  getPreference<K extends keyof PreferenceData>(
-    key: K,
-  ): PreferenceData[K] | undefined {
+  getPreference<K extends keyof PreferenceData>(key: K): PreferenceData[K] | undefined {
     try {
       const value = getStorage().getString(key);
       return value ? JSON.parse(value) : undefined;
@@ -43,10 +41,7 @@ class PreferenceService {
     }
   }
 
-  setPreference<K extends keyof PreferenceData>(
-    key: K,
-    value: PreferenceData[K],
-  ): void {
+  setPreference<K extends keyof PreferenceData>(key: K, value: PreferenceData[K]): void {
     try {
       getStorage().set(key, JSON.stringify(value));
     } catch (error) {

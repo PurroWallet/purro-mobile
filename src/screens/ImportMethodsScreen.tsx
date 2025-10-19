@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-} from 'react-native';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Icon } from '@/components/Icon';
 import { Colors } from '@/constants/colors';
@@ -32,12 +27,8 @@ const ImportOption = ({
       <Icon name={icon} size={24} color={Colors.brand.primary} />
     </View>
     <View className="ml-4 flex-1">
-      <Text className="text-[16px] font-semibold text-text-primary">
-        {title}
-      </Text>
-      <Text className="mt-1 text-[14px] text-text-secondary">
-        {subtitle}
-      </Text>
+      <Text className="text-[16px] font-semibold text-text-primary">{title}</Text>
+      <Text className="mt-1 text-[14px] text-text-secondary">{subtitle}</Text>
     </View>
     <Icon name="ArrowRight" size={20} color={Colors.brand.primary} />
   </TouchableOpacity>

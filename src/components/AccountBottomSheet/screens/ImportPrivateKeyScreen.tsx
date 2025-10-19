@@ -1,18 +1,11 @@
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Alert,
-  ScrollView,
-  TextInput,
-} from 'react-native';
 import { BottomSheetView } from '@gorhom/bottom-sheet';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { Wallet } from 'ethers';
+import React, { useState } from 'react';
 import { FormProvider } from 'react-hook-form';
+import { Alert, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { z } from 'zod';
 import { useZodForm, ZodFormValues } from '@/core/hooks/form/useZodForm';
-import { Wallet } from 'ethers';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AccountStackParamList } from '../AccountStackNavigator';
 import SheetHeader from '../components/SheetHeader';
 
@@ -22,19 +15,12 @@ const importPrivateKeySchema = z.object({
 
 type ImportPrivateKeyFormValues = ZodFormValues<typeof importPrivateKeySchema>;
 
-type Props = NativeStackScreenProps<
-  AccountStackParamList,
-  'ImportPrivateKey'
-> & {
+type Props = NativeStackScreenProps<AccountStackParamList, 'ImportPrivateKey'> & {
   onClose: () => void;
   parentNavigation: any;
 };
 
-const ImportPrivateKeyScreen: React.FC<Props> = ({
-  navigation,
-  onClose,
-  parentNavigation,
-}) => {
+const ImportPrivateKeyScreen: React.FC<Props> = ({ navigation, onClose, parentNavigation }) => {
   const [isImporting, setIsImporting] = useState(false);
 
   const form = useZodForm(importPrivateKeySchema, {
@@ -62,9 +48,7 @@ const ImportPrivateKeyScreen: React.FC<Props> = ({
 
       // Check if it's a valid hex string of 64 characters (32 bytes)
       if (!/^[a-fA-F0-9]{64}$/.test(privateKey)) {
-        throw new Error(
-          'Invalid private key format. Must be 64 hexadecimal characters.',
-        );
+        throw new Error('Invalid private key format. Must be 64 hexadecimal characters.');
       }
 
       // Try to create a wallet from the private key to validate it
@@ -87,9 +71,7 @@ const ImportPrivateKeyScreen: React.FC<Props> = ({
       console.error('Error importing private key:', error);
       Alert.alert(
         'Import Failed',
-        error instanceof Error
-          ? error.message
-          : 'Failed to import private key. Please try again.',
+        error instanceof Error ? error.message : 'Failed to import private key. Please try again.',
       );
     } finally {
       setIsImporting(false);
@@ -103,17 +85,12 @@ const ImportPrivateKeyScreen: React.FC<Props> = ({
   return (
     <BottomSheetView className="flex-1">
       {/* Header */}
-      <SheetHeader
-        title="Import Private Key"
-        onBack={() => navigation.goBack()}
-      />
+      <SheetHeader title="Import Private Key" onBack={() => navigation.goBack()} />
       <View className="mb-4" />
 
       <ScrollView className="flex-1 px-5">
         <View className="py-2">
-          <Text className="text-lg text-[#F9F9F9] mb-2">
-            Import Private Key
-          </Text>
+          <Text className="text-lg text-[#F9F9F9] mb-2">Import Private Key</Text>
           <Text className="text-sm text-[#8D94A3] mb-6">
             Enter your private key to import a single address wallet
           </Text>
@@ -123,7 +100,7 @@ const ImportPrivateKeyScreen: React.FC<Props> = ({
               <View className="rounded-xl border border-[#494F5B] px-4 py-4">
                 <TextInput
                   value={form.watch('privateKey')}
-                  onChangeText={text => form.setValue('privateKey', text)}
+                  onChangeText={(text) => form.setValue('privateKey', text)}
                   placeholder="Enter your private key (64 hex characters)"
                   placeholderTextColor="#8D94A3"
                   className="text-lg text-[#F9F9F9]"
@@ -137,13 +114,11 @@ const ImportPrivateKeyScreen: React.FC<Props> = ({
           </FormProvider>
 
           <View className="mt-6 rounded-xl bg-[rgba(255,107,107,0.1)] p-4">
-            <Text className="mb-2 text-sm font-semibold text-[#FF6B6B]">
-              ⚠️ Security Warning
-            </Text>
+            <Text className="mb-2 text-sm font-semibold text-[#FF6B6B]">⚠️ Security Warning</Text>
             <Text className="text-sm leading-5 text-[#8D94A3]">
-              • Private keys give full control over your wallet{'\n'}• Never
-              share your private key with anyone{'\n'}• Import only from trusted
-              sources{'\n'}• Consider using seed phrase import instead
+              • Private keys give full control over your wallet{'\n'}• Never share your private key
+              with anyone{'\n'}• Import only from trusted sources{'\n'}• Consider using seed phrase
+              import instead
             </Text>
           </View>
         </View>

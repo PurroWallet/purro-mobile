@@ -17,7 +17,9 @@ export default {
       return true;
     } catch {
       // Log error but don't fail the app flow
-      console.log(`Note: Could not exclude ${filePath} from backup (this is normal in development)`);
+      console.log(
+        `Note: Could not exclude ${filePath} from backup (this is normal in development)`,
+      );
       return true;
     }
   },

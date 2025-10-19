@@ -1,4 +1,5 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useCallback } from 'react';
 
 export interface MarketTokenItem {
   id: string;
@@ -30,15 +31,9 @@ async function fetchFromGeckoTerminal(): Promise<MarketTokenItem[]> {
   const results: Array<any> = (json && json.data) || [];
   const mapped = results.map((item: any) => {
     const token =
-      item?.attributes?.token ||
-      item?.attributes?.base_token ||
-      item?.attributes?.token0 ||
-      null;
+      item?.attributes?.token || item?.attributes?.base_token || item?.attributes?.token0 || null;
     return {
-      id:
-        item?.id ||
-        item?.attributes?.address ||
-        Math.random().toString(36).slice(2),
+      id: item?.id || item?.attributes?.address || Math.random().toString(36).slice(2),
       symbol: token?.symbol || item?.attributes?.symbol || 'N/A',
       name: token?.name || item?.attributes?.name || token?.symbol || 'Unknown',
       priceUsd: item?.attributes?.price_usd ?? null,
@@ -75,32 +70,27 @@ async function fetchFromCoinGecko(): Promise<MarketTokenItem[]> {
     name: t.name || t.symbol || 'Unknown',
     priceUsd: typeof t.current_price === 'number' ? t.current_price : null,
     change24h:
-      typeof t.price_change_percentage_24h === 'number'
-        ? t.price_change_percentage_24h
-        : null,
+      typeof t.price_change_percentage_24h === 'number' ? t.price_change_percentage_24h : null,
     logo: t.image || null,
   }));
 }
 
-export function useMarketTokens() {
-  const [tokens, setTokens] = useState<MarketTokenItem[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+const MARKET_TOKENS_QUERY_KEY = ['marketTokens'];
 
-  const reload = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
+export function useMarketTokens() {
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
+    queryKey: MARKET_TOKENS_QUERY_KEY,
+    queryFn: async () => {
       try {
-        const fromGt = await fetchFromGeckoTerminal();
-        setTokens(fromGt);
-      } catch (e) {
+        return await fetchFromGeckoTerminal();
+      } catch (error) {
         try {
-          const fromCg = await fetchFromCoinGecko();
-          setTokens(fromCg);
-        } catch (e2) {
-          // As a last resort, provide a small mock list so UI still renders
-          setTokens([
+          return await fetchFromCoinGecko();
+        } catch (fallbackError) {
+          console.error('Market tokens fetch failed:', error, fallbackError);
+          queryClient.setQueryData(MARKET_TOKENS_QUERY_KEY, [
             {
               id: 'btc',
               symbol: 'BTC',
@@ -118,21 +108,20 @@ export function useMarketTokens() {
               logo: null,
             },
           ]);
-          setError(
-            'Service temporarily unavailable (503). Showing sample data.',
-          );
+          throw new Error('Service temporarily unavailable (503). Showing sample data.');
         }
       }
-    } catch (e: any) {
-      setError(String(e?.message || e));
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    },
+  });
 
-  useEffect(() => {
-    reload();
-  }, [reload]);
+  const reload = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: MARKET_TOKENS_QUERY_KEY });
+  }, [queryClient]);
 
-  return { tokens, loading, error, reload };
+  return {
+    tokens: query.data ?? [],
+    loading: query.isLoading,
+    error: query.error instanceof Error ? query.error.message : null,
+    reload,
+  };
 }

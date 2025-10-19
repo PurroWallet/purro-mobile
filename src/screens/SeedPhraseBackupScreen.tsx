@@ -1,18 +1,12 @@
-import { apisWallet } from '@/core/apis';
-import { SeedPhraseBackupScreenProps } from '@/types/navigation';
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StatusBar,
-  TouchableOpacity,
-  Alert,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { PasswordInputForm } from '@/components';
-import { z } from 'zod';
-import { useZodForm, ZodFormValues } from '@/core/hooks/form/useZodForm';
 import { FormProvider } from 'react-hook-form';
+import { Alert, StatusBar, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { z } from 'zod';
+import { PasswordInputForm } from '@/components';
+import { apisWallet } from '@/core/apis';
+import { useZodForm, ZodFormValues } from '@/core/hooks/form/useZodForm';
+import { SeedPhraseBackupScreenProps } from '@/types/navigation';
 import { useTranslation } from '@/utils/i18n';
 
 const unlockSchema = z.object({
@@ -21,12 +15,10 @@ const unlockSchema = z.object({
 
 type UnlockFormValues = ZodFormValues<typeof unlockSchema>;
 
-const SeedPhraseBackupScreen: React.FC<SeedPhraseBackupScreenProps> = ({
-  navigation,
-}) => {
+const SeedPhraseBackupScreen: React.FC<SeedPhraseBackupScreenProps> = ({ navigation }) => {
   const { t } = useTranslation();
   const [isUnlocking, setIsUnlocking] = useState(false);
-  
+
   const form = useZodForm(unlockSchema, {
     defaultValues: {
       password: '',
@@ -38,16 +30,16 @@ const SeedPhraseBackupScreen: React.FC<SeedPhraseBackupScreenProps> = ({
 
   const handleUnlock = async (values: UnlockFormValues) => {
     if (isUnlocking) return;
-    
+
     setIsUnlocking(true);
-    
+
     try {
       // Try to unlock wallet with password
       await apisWallet.unlockWallet(values.password);
-      
+
       // Get mnemonic for backup
       const mnemonic = await apisWallet.exportMnemonic();
-      
+
       // Navigate to seed phrase display
       navigation.navigate('SeedPhraseDisplay', { mnemonic });
     } catch (error) {

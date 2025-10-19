@@ -1,9 +1,4 @@
-import {
-  walletService,
-  lockService,
-  passwordService,
-  keyringService,
-} from '../services';
+import { keyringService, lockService, passwordService, walletService } from '../services';
 
 /**
  * Wallet API - Legacy API interface for compatibility with existing code
@@ -30,9 +25,7 @@ export class WalletAPI {
   async unlock(password: string): Promise<boolean> {
     try {
       // First unlock password vault
-      const passwordUnlocked = await passwordService.unlockPasswordVault(
-        password,
-      );
+      const passwordUnlocked = await passwordService.unlockPasswordVault(password);
 
       if (!passwordUnlocked) {
         return false;

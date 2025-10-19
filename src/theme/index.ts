@@ -1,1 +1,1 @@
-export { themeModeAtom, type ThemeMode } from './themeAtom';
+export { type ThemeMode, useThemeStore } from './themeAtom';

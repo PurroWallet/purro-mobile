@@ -1,20 +1,20 @@
+import { BottomSheetView } from '@gorhom/bottom-sheet';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { Eye, EyeOff } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
   Alert,
   KeyboardAvoidingView,
   Platform,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import { BottomSheetView } from '@gorhom/bottom-sheet';
-import { Eye, EyeOff } from 'lucide-react-native';
 import { apisLock } from '@/core/apis';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useTranslation } from '@/utils/i18n';
 import type { AccountStackParamList } from '../AccountStackNavigator';
 import SheetHeader from '../components/SheetHeader';
-import { useTranslation } from '@/utils/i18n';
 
 type Props = NativeStackScreenProps<AccountStackParamList, 'PasswordVerification'> & {
   onClose: () => void;
@@ -25,11 +25,7 @@ interface RouteParams {
   onSuccess: () => void;
 }
 
-const PasswordVerificationScreen: React.FC<Props> = ({ 
-  navigation, 
-  onClose,
-  route 
-}) => {
+const PasswordVerificationScreen: React.FC<Props> = ({ navigation, onClose, route }) => {
   const { accountAddress, onSuccess } = (route.params || {}) as RouteParams;
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -44,10 +40,10 @@ const PasswordVerificationScreen: React.FC<Props> = ({
 
     try {
       setIsLoading(true);
-      
+
       // Verify password
       const result = await apisLock.verifyPassword(password);
-      
+
       if (result.success) {
         // Password is correct, call onSuccess callback
         onSuccess();
@@ -69,7 +65,7 @@ const PasswordVerificationScreen: React.FC<Props> = ({
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         {/* Header */}
-        <SheetHeader 
+        <SheetHeader
           title={t('accountBottomSheet.verifyPasswordTitle')}
           onBack={() => navigation.goBack()}
         />
@@ -102,10 +98,7 @@ const PasswordVerificationScreen: React.FC<Props> = ({
                   returnKeyType="done"
                   onSubmitEditing={handleVerify}
                 />
-                <TouchableOpacity
-                  className="ml-2"
-                  onPress={() => setShowPassword(!showPassword)}
-                >
+                <TouchableOpacity className="ml-2" onPress={() => setShowPassword(!showPassword)}>
                   {showPassword ? (
                     <EyeOff size={20} color="rgb(var(--color-text-secondary))" />
                   ) : (

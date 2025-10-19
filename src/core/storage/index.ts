@@ -4,8 +4,8 @@
  */
 
 export {
-  keyringStorage,
-  walletStorage,
   keychainStorage,
+  keyringStorage,
   MMKV_FILE_NAMES,
+  walletStorage,
 } from './secureStorage';

@@ -1,5 +1,5 @@
-import RNHelpers from '../native/RNHelpers';
 import { Platform } from 'react-native';
+import RNHelpers from '../native/RNHelpers';
 
 export async function excludeFilesFromBackup() {
   if (Platform.OS !== 'ios') return;

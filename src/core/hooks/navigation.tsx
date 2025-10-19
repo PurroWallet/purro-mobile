@@ -1,6 +1,5 @@
-import { useMemo } from 'react';
 import { useNavigationState } from '@react-navigation/native';
-import { atom, useAtom } from 'jotai';
+import { useMemo, useState } from 'react';
 
 export enum ProtectType {
   SafeTipModal = 'SafeTipModal',
@@ -14,23 +13,17 @@ export interface ProtectedConf {
   onOk?: (params: { navigation: any }) => void;
 }
 
-const protectedConfAtom = atom<ProtectedConf>({
+const protectedConfAtom = {
   iosBlurType: ProtectType.None,
   warningScreenshotBackup: false,
-});
+};
 
 export function useAtSensitiveScene() {
   const { currentRouteName } = useCurrentRouteName();
-
-  const [protectedConf] = useAtom(protectedConfAtom);
+  const [protectedConf] = useState(protectedConfAtom);
 
   const atSensitiveScene = useMemo(() => {
-    // Check if current route is sensitive
-    const sensitiveRoutes = [
-      'SeedPhraseDisplay',
-      'SeedPhraseVerify',
-      'PrivateKeyExport',
-    ];
+    const sensitiveRoutes = ['SeedPhraseDisplay', 'SeedPhraseVerify', 'PrivateKeyExport'];
     return sensitiveRoutes.includes(currentRouteName || '');
   }, [currentRouteName]);
 
@@ -38,7 +31,7 @@ export function useAtSensitiveScene() {
 }
 
 export function useCurrentRouteName() {
-  const navState = useNavigationState(state => state);
+  const navState = useNavigationState((state) => state);
 
   const currentRouteName = useMemo(() => {
     if (!navState) return undefined;
@@ -47,9 +40,7 @@ export function useCurrentRouteName() {
 
     // Handle nested navigators
     while (currentRoute.state && currentRoute.state.index !== undefined) {
-      currentRoute = currentRoute.state.routes[
-        currentRoute.state.index
-      ] as typeof currentRoute;
+      currentRoute = currentRoute.state.routes[currentRoute.state.index] as typeof currentRoute;
     }
 
     return currentRoute.name;
@@ -61,11 +52,7 @@ export function useCurrentRouteName() {
 /**
  * @description call this hook only once on the top level of your app
  */
-export function useAppPreventScreenshotOnScreen({
-  isTop = false,
-}: {
-  isTop?: boolean;
-}) {
+export function useAppPreventScreenshotOnScreen({ isTop = false }: { isTop?: boolean }) {
   // Screenshot prevention is handled by individual screen hooks
   // This hook is for future global prevention logic
   if (isTop) {

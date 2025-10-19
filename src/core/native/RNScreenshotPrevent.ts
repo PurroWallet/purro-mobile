@@ -1,15 +1,8 @@
-import { PermissionsAndroid } from 'react-native';
-import {
-  IS_ANDROID,
-  IS_IOS,
-  makeRnEEClass,
-  resolveNativeModule,
-} from './utils';
 import i18next from 'i18next';
+import { PermissionsAndroid } from 'react-native';
+import { IS_ANDROID, IS_IOS, makeRnEEClass, resolveNativeModule } from './utils';
 
-const { RNScreenshotPrevent: nativeModule } = resolveNativeModule(
-  'RNScreenshotPrevent',
-);
+const { RNScreenshotPrevent: nativeModule } = resolveNativeModule('RNScreenshotPrevent');
 
 type Listeners = {
   /**
@@ -33,19 +26,14 @@ type Listeners = {
    */
   androidOnLifeCycleChanged: (ret: { state: 'resume' | 'pause' }) => any;
   /** @description pointless now */
-  preventScreenshotChanged: (ret: {
-    isPrevent: boolean;
-    success: boolean;
-  }) => any;
+  preventScreenshotChanged: (ret: { isPrevent: boolean; success: boolean }) => any;
 };
 const { NativeEventEmitter } = makeRnEEClass<Listeners>();
 const eventEmitter = new NativeEventEmitter(nativeModule);
 
 function makeDefaultHandler<T extends keyof Listeners>(fn: Listeners[T]) {
   if (typeof fn !== 'function') {
-    console.error(
-      'RNScreenshotPrevent: addListener requires valid callback function',
-    );
+    console.error('RNScreenshotPrevent: addListener requires valid callback function');
 
     return {
       remove: (): void => {
@@ -90,9 +78,7 @@ function onPreventScreenshotChanged(fn: Listeners['preventScreenshotChanged']) {
   return eventEmitter.addListener('preventScreenshotChanged', fn);
 }
 
-function onScreenCaptureDetectionChanged(
-  fn: Listeners['screenCaptureDetectionChanged'],
-) {
+function onScreenCaptureDetectionChanged(fn: Listeners['screenCaptureDetectionChanged']) {
   const handler = makeDefaultHandler<'screenCaptureDetectionChanged'>(fn);
   if (handler) return handler;
 
@@ -103,10 +89,10 @@ if (__DEV__) {
   // iosOnUserDidTakeScreenshot(() => {
   //   console.debug('userDidTakeScreenshot');
   // });
-  iosOnScreenCaptureChanged(params => {
+  iosOnScreenCaptureChanged((params) => {
     console.debug('screenCapturedChanged', params);
   });
-  onPreventScreenshotChanged(params => {
+  onPreventScreenshotChanged((params) => {
     console.debug('preventScreenshotChanged', params);
   });
   // nativeModule.iosProtectFromScreenRecording();

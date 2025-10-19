@@ -1,10 +1,10 @@
-import React, { useState, useMemo, useCallback } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { FormProvider, useForm } from 'react-hook-form';
+import range from 'lodash/range';
 import shuffle from 'lodash/shuffle';
 import sortBy from 'lodash/sortBy';
-import range from 'lodash/range';
+import React, { useCallback, useMemo, useState } from 'react';
+import { FormProvider, useForm } from 'react-hook-form';
+import { Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { FormInput } from '@/components';
 import { useProtectedScreen } from '@/core/hooks/security';
 import { SeedPhraseVerifyScreenProps } from '@/types/navigation';
@@ -55,10 +55,7 @@ const WordInput = ({
   />
 );
 
-const SeedPhraseVerifyScreen: React.FC<SeedPhraseVerifyScreenProps> = ({
-  route,
-  navigation,
-}) => {
+const SeedPhraseVerifyScreen: React.FC<SeedPhraseVerifyScreenProps> = ({ route, navigation }) => {
   const { mnemonic } = route.params;
   const { t } = useTranslation();
 
@@ -68,17 +65,14 @@ const SeedPhraseVerifyScreen: React.FC<SeedPhraseVerifyScreenProps> = ({
       return [] as number[];
     }
 
-    return sortBy(
-      shuffle(range(0, words.length)).slice(0, Math.min(3, words.length)),
-    );
+    return sortBy(shuffle(range(0, words.length)).slice(0, Math.min(3, words.length)));
   }, [words]);
 
-  const [verificationFields, setVerificationFields] = useState<VerificationField[]>(
-    () =>
-      createVerificationPlan().map(position => ({
-        position,
-        name: `word_${position}`,
-      })),
+  const [verificationFields, setVerificationFields] = useState<VerificationField[]>(() =>
+    createVerificationPlan().map((position) => ({
+      position,
+      name: `word_${position}`,
+    })),
   );
 
   const form = useForm<Record<string, string>>({
@@ -94,7 +88,7 @@ const SeedPhraseVerifyScreen: React.FC<SeedPhraseVerifyScreenProps> = ({
 
   const regenerateVerification = useCallback(() => {
     const positions = createVerificationPlan();
-    const fields = positions.map(position => ({
+    const fields = positions.map((position) => ({
       position,
       name: `word_${position}`,
     }));
@@ -107,14 +101,14 @@ const SeedPhraseVerifyScreen: React.FC<SeedPhraseVerifyScreenProps> = ({
 
   const canContinue =
     verificationFields.length > 0 &&
-    verificationFields.every(field => {
+    verificationFields.every((field) => {
       const value = (formValues as Record<string, string>)[field.name];
       return value?.trim().length;
     });
 
   const onSubmit = useCallback(
     (values: Record<string, string>) => {
-      const isValid = verificationFields.every(field => {
+      const isValid = verificationFields.every((field) => {
         const inputWord = values[field.name]?.toLowerCase().trim();
         const correctWord = words[field.position];
         return inputWord === correctWord;
@@ -157,9 +151,7 @@ const SeedPhraseVerifyScreen: React.FC<SeedPhraseVerifyScreenProps> = ({
                 label={t('seedPhrase.verify.wordLabel', {
                   number: field.position + 1,
                 })}
-                returnKeyType={
-                  index === verificationFields.length - 1 ? 'done' : 'next'
-                }
+                returnKeyType={index === verificationFields.length - 1 ? 'done' : 'next'}
                 onSubmitEditing={
                   index === verificationFields.length - 1
                     ? handleContinue

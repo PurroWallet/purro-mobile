@@ -1,1 +1,1 @@
-export * from './BlurViews'
+export * from './BlurViews';

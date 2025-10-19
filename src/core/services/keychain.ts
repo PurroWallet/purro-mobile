@@ -47,10 +47,8 @@ class SecureKeychain {
 
     if (type === KEYCHAIN_AUTH_TYPES.BIOMETRICS) {
       console.log('🔐 Configuring for biometric authentication...');
-      authOptions.accessControl =
-        RNKeychain.ACCESS_CONTROL.BIOMETRY_CURRENT_SET;
-      authOptions.authenticationType =
-        RNKeychain.AUTHENTICATION_TYPE.BIOMETRICS;
+      authOptions.accessControl = RNKeychain.ACCESS_CONTROL.BIOMETRY_CURRENT_SET;
+      authOptions.authenticationType = RNKeychain.AUTHENTICATION_TYPE.BIOMETRICS;
       authOptions.authenticationPrompt = {
         title: 'Enable Face ID',
         description: 'Use Face ID to unlock your wallet',
@@ -65,11 +63,7 @@ class SecureKeychain {
     const encryptedPassword = await this.encryptPassword(password);
 
     console.log('🔐 Saving to keychain with Face ID protection...');
-    await RNKeychain.setGenericPassword(
-      'purro-user',
-      encryptedPassword,
-      authOptions,
-    );
+    await RNKeychain.setGenericPassword('purro-user', encryptedPassword, authOptions);
     console.log('✅ Password saved to keychain successfully');
 
     keychainStorage.setItem(KEYCHAIN_AUTH_TYPES_KEY, type);
@@ -105,10 +99,7 @@ class SecureKeychain {
     });
 
     if (result) {
-      keychainStorage.setItem(
-        KEYCHAIN_AUTH_TYPES_KEY,
-        KEYCHAIN_AUTH_TYPES.APPLICATION_PASSWORD,
-      );
+      keychainStorage.setItem(KEYCHAIN_AUTH_TYPES_KEY, KEYCHAIN_AUTH_TYPES.APPLICATION_PASSWORD);
     }
 
     return result;
@@ -143,5 +134,4 @@ class SecureKeychain {
 export const secureKeychain = SecureKeychain.getInstance();
 
 // Export helper functions
-export const isAuthenticatedByBiometrics = () =>
-  secureKeychain.isAuthenticatedByBiometrics();
+export const isAuthenticatedByBiometrics = () => secureKeychain.isAuthenticatedByBiometrics();

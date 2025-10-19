@@ -1,52 +1,26 @@
-import { atom, useAtom } from 'jotai';
-import { apisWallet } from '@/core/apis/wallet';
-
-export enum WalletCreationType {
-  Create = 1,
-  Import = 2,
-}
-
-type CreateWalletProcess = {
-  type: WalletCreationType;
-  seedPhrase: string;
-  passwordForm: {
-    password: string;
-    confirmPassword: string;
-    enableBiometrics?: boolean;
-  };
-  isGenerating: boolean;
-  error: string | null;
-};
-
-function getDefaultCreateWalletProc(): CreateWalletProcess {
-  return {
-    type: WalletCreationType.Create,
-    seedPhrase: '',
-    passwordForm: {
-      password: '',
-      confirmPassword: '',
-      enableBiometrics: false,
-    },
-    isGenerating: false,
-    error: null,
-  };
-}
-
-const createWalletProcess = atom<CreateWalletProcess>(
-  getDefaultCreateWalletProc(),
-);
+import { useCallback } from 'react';
+import {
+  type CreateWalletProcess,
+  useCreateWalletStore,
+  WalletCreationType,
+} from '@/stores/createWalletStore';
 
 export function useCreateWallet() {
-  const [walletProc, setWalletProc] = useAtom(createWalletProcess);
+  const walletProc = useCreateWalletStore((state) => state.process);
+  const setProcess = useCreateWalletStore((state) => state.setProcess);
+  const resetProcess = useCreateWalletStore((state) => state.resetProcess);
 
-  const preGenerateSeedPhrase = async () => {
+  const preGenerateSeedPhrase = useCallback(async () => {
     if (walletProc.seedPhrase) {
       return;
     }
 
     try {
-      const mnemonic = await apisWallet.generateMnemonic();
-      setWalletProc(prev => ({
+      const mnemonic = await useCreateWalletStore.getState().generateSeedPhrase();
+      if (!mnemonic) {
+        return;
+      }
+      setProcess((prev) => ({
         ...prev,
         seedPhrase: mnemonic,
         isGenerating: false,
@@ -54,15 +28,15 @@ export function useCreateWallet() {
       }));
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      setWalletProc(prev => ({
+      setProcess((prev) => ({
         ...prev,
         isGenerating: false,
         error: errorMessage,
       }));
     }
-  };
+  }, [walletProc.seedPhrase, setProcess]);
 
-  const getSeedPhrase = async (): Promise<{
+  const getSeedPhrase = useCallback(async (): Promise<{
     mnemonic: string;
   }> => {
     if (walletProc.seedPhrase) {
@@ -71,15 +45,18 @@ export function useCreateWallet() {
       };
     }
 
-    setWalletProc(prev => ({
+    setProcess((prev) => ({
       ...prev,
       isGenerating: true,
       error: null,
     }));
 
     try {
-      const mnemonic = await apisWallet.generateMnemonic();
-      setWalletProc(prev => ({
+      const mnemonic = await useCreateWalletStore.getState().generateSeedPhrase();
+      if (!mnemonic) {
+        throw new Error('Unknown error');
+      }
+      setProcess((prev) => ({
         ...prev,
         seedPhrase: mnemonic,
         isGenerating: false,
@@ -89,42 +66,45 @@ export function useCreateWallet() {
       return { mnemonic };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      setWalletProc(prev => ({
+      setProcess((prev) => ({
         ...prev,
         isGenerating: false,
         error: errorMessage,
       }));
       throw new Error(errorMessage);
     }
-  };
+  }, [setProcess, walletProc.seedPhrase]);
 
-  const storePassword = (passwordForm: CreateWalletProcess['passwordForm']) => {
-    setWalletProc(prev => ({
-      ...prev,
-      passwordForm: {
-        ...prev.passwordForm,
-        ...passwordForm,
-      },
-    }));
-  };
+  const storePassword = useCallback(
+    (passwordForm: CreateWalletProcess['passwordForm']) => {
+      setProcess((prev) => ({
+        ...prev,
+        passwordForm: {
+          ...prev.passwordForm,
+          ...passwordForm,
+        },
+      }));
+    },
+    [setProcess],
+  );
 
-  const resetCreateWallet = () => {
-    setWalletProc(getDefaultCreateWalletProc());
-  };
+  const resetCreateWallet = useCallback(() => {
+    resetProcess();
+  }, [resetProcess]);
 
-  const startCreateWallet = () => {
-    setWalletProc(prev => ({
+  const startCreateWallet = useCallback(() => {
+    setProcess((prev) => ({
       ...prev,
       type: WalletCreationType.Create,
     }));
-  };
+  }, [setProcess]);
 
-  const startImportWallet = () => {
-    setWalletProc(prev => ({
+  const startImportWallet = useCallback(() => {
+    setProcess((prev) => ({
       ...prev,
       type: WalletCreationType.Import,
     }));
-  };
+  }, [setProcess]);
 
   return {
     createWalletProc: walletProc,

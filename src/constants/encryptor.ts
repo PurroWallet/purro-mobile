@@ -12,7 +12,7 @@ export function generateSalt(): string {
     array[i] = Math.floor(Math.random() * 256);
   }
   return Array.from(array)
-    .map(b => b.toString(16).padStart(2, '0'))
+    .map((b) => b.toString(16).padStart(2, '0'))
     .join('');
 }
 

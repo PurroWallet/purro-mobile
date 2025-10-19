@@ -1,21 +1,15 @@
 import type { ComponentProps } from 'react';
 import React from 'react';
 import {
-  Switch,
-  Text,
-  TextInput as RNTextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import {
   Controller,
-  useFormContext,
   type ControllerProps,
   type FieldValues,
   type Path,
+  useFormContext,
 } from 'react-hook-form';
-import { Colors } from '@/constants/colors';
+import { TextInput as RNTextInput, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from '@/components/Icon';
+import { Colors } from '@/constants/colors';
 import { useTranslation } from '@/utils/i18n';
 
 type CommonInputProps<TFieldValues extends FieldValues> = {
@@ -47,25 +41,19 @@ export function FormInput<TFieldValues extends FieldValues = FieldValues>({
       rules={rules}
       render={({ field, fieldState }) => (
         <View>
-          <Text className="mb-2 text-sm font-medium text-gray-700">
-            {label}
-          </Text>
+          <Text className="mb-2 text-sm font-medium text-gray-700">{label}</Text>
           <RNTextInput
             {...rest}
             value={field.value ?? ''}
             onChangeText={field.onChange}
             onBlur={field.onBlur}
             className={`rounded-xl border px-4 py-3 text-base ${
-              fieldState.error
-                ? 'border-red-500 bg-red-50'
-                : 'border-gray-200 bg-white'
+              fieldState.error ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-white'
             }`}
           />
           {fieldState.error?.message || helperText ? (
             <Text
-              className={`mt-1.5 text-sm ${
-                fieldState.error ? 'text-red-500' : 'text-gray-500'
-              }`}
+              className={`mt-1.5 text-sm ${fieldState.error ? 'text-red-500' : 'text-gray-500'}`}
             >
               {fieldState.error?.message
                 ? t(fieldState.error.message, fieldState.error.ref?.value ?? {})
@@ -96,9 +84,7 @@ export function PasswordInputForm<TFieldValues extends FieldValues = FieldValues
       rules={rules}
       render={({ field, fieldState }) => (
         <View>
-          <Text className="mb-2 text-sm font-medium text-gray-700">
-            {label}
-          </Text>
+          <Text className="mb-2 text-sm font-medium text-gray-700">{label}</Text>
           <View className="relative">
             <RNTextInput
               {...rest}
@@ -107,9 +93,7 @@ export function PasswordInputForm<TFieldValues extends FieldValues = FieldValues
               onBlur={field.onBlur}
               secureTextEntry={!showPassword}
               className={`rounded-xl border px-4 py-3 pr-12 text-base ${
-                fieldState.error
-                  ? 'border-red-500 bg-red-50'
-                  : 'border-gray-200 bg-white'
+                fieldState.error ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-white'
               }`}
             />
             <TouchableOpacity
@@ -125,9 +109,7 @@ export function PasswordInputForm<TFieldValues extends FieldValues = FieldValues
           </View>
           {fieldState.error?.message || helperText ? (
             <Text
-              className={`mt-1.5 text-sm ${
-                fieldState.error ? 'text-red-500' : 'text-gray-500'
-              }`}
+              className={`mt-1.5 text-sm ${fieldState.error ? 'text-red-500' : 'text-gray-500'}`}
             >
               {fieldState.error?.message
                 ? t(fieldState.error.message, fieldState.error.ref?.value ?? {})
@@ -177,38 +159,26 @@ export function CheckboxForm<TFieldValues extends FieldValues = FieldValues>({
               onPress={() => handleChange(!value)}
               disabled={disabled}
               className={`flex-row items-center gap-3 rounded-xl border p-4 ${
-                fieldState.error
-                  ? 'border-red-500 bg-red-50'
-                  : 'border-gray-200 bg-white'
+                fieldState.error ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-white'
               } ${disabled ? 'opacity-50' : ''}`}
             >
               <View
                 className={`h-6 w-6 items-center justify-center rounded-md border-2 ${
-                  value
-                    ? 'border-blue-500 bg-blue-500'
-                    : 'border-gray-300 bg-white'
+                  value ? 'border-blue-500 bg-blue-500' : 'border-gray-300 bg-white'
                 }`}
               >
-                {value && (
-                  <Icon name="Check" size={16} color={Colors.system.white} />
-                )}
+                {value && <Icon name="Check" size={16} color={Colors.system.white} />}
               </View>
               <View className="flex-1">
-                <Text className="text-base font-medium text-gray-900">
-                  {label}
-                </Text>
+                <Text className="text-base font-medium text-gray-900">{label}</Text>
                 {description ? (
-                  <Text className="mt-1 text-sm text-gray-500">
-                    {description}
-                  </Text>
+                  <Text className="mt-1 text-sm text-gray-500">{description}</Text>
                 ) : null}
               </View>
             </TouchableOpacity>
             {fieldState.error?.message || helperText ? (
               <Text
-                className={`mt-1.5 text-sm ${
-                  fieldState.error ? 'text-red-500' : 'text-gray-500'
-                }`}
+                className={`mt-1.5 text-sm ${fieldState.error ? 'text-red-500' : 'text-gray-500'}`}
               >
                 {fieldState.error?.message
                   ? t(fieldState.error.message, fieldState.error.ref?.value ?? {})
@@ -255,19 +225,13 @@ export function SwitchForm<TFieldValues extends FieldValues = FieldValues>({
           <View>
             <View
               className={`flex-row items-center gap-3 rounded-xl border p-4 ${
-                fieldState.error
-                  ? 'border-red-500 bg-red-50'
-                  : 'border-gray-200 bg-white'
+                fieldState.error ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-white'
               } ${disabled ? 'opacity-50' : ''}`}
             >
               <View className="flex-1">
-                <Text className="text-base font-medium text-gray-900">
-                  {label}
-                </Text>
+                <Text className="text-base font-medium text-gray-900">{label}</Text>
                 {description ? (
-                  <Text className="mt-1 text-sm text-gray-500">
-                    {description}
-                  </Text>
+                  <Text className="mt-1 text-sm text-gray-500">{description}</Text>
                 ) : null}
               </View>
               <Switch
@@ -283,9 +247,7 @@ export function SwitchForm<TFieldValues extends FieldValues = FieldValues>({
             </View>
             {fieldState.error?.message || helperText ? (
               <Text
-                className={`mt-1.5 text-sm ${
-                  fieldState.error ? 'text-red-500' : 'text-gray-500'
-                }`}
+                className={`mt-1.5 text-sm ${fieldState.error ? 'text-red-500' : 'text-gray-500'}`}
               >
                 {fieldState.error?.message ?? helperText}
               </Text>

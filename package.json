@@ -5,12 +5,15 @@
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
-    "lint": "eslint .",
+    "lint": "biome lint .",
+    "fmt": "biome format .",
+    "check": "biome check .",
     "start": "react-native start --reset-cache",
     "test": "jest",
     "open:xcode": "xed -b ios",
     "open:android": "open -a Android\\ Studio",
-    "reset": "rm -rf node_modules bun.lock ios/Pods ios/build ios/Podfile.lock && yarn install && cd ios && pod install && cd .."
+    "reset": "rm -rf node_modules bun.lock ios/Pods ios/build ios/Podfile.lock && yarn install && cd ios && pod install && cd ..",
+    "prepare": "husky"
   },
   "dependencies": {
     "@ethereumjs/util": "^10.0.0",
@@ -28,7 +31,7 @@
     "@react-navigation/native-stack": "^7.3.27",
     "@scure/bip32": "^2.0.1",
     "@scure/bip39": "^2.0.1",
-    "@tanstack/query-core": "^5.90.2",
+    "@tanstack/react-query": "^5.90.5",
     "@toruslabs/react-native-web-browser": "^1.1.0",
     "@web3auth/base": "^9.7.0",
     "@web3auth/base-provider": "^9.7.0",
@@ -40,9 +43,7 @@
     "ethers": "^5.7.2",
     "event": "^1.0.0",
     "events": "^3.3.0",
-    "i18next": "^23.7.6",
-    "jotai": "^2.15.0",
-    "jotai-tanstack-query": "^0.11.0",
+    "i18next": "^25.5.2",
     "lodash": "^4.17.21",
     "lucide-react-native": "^0.545.0",
     "nativewind": "4.1.23",
@@ -62,13 +63,15 @@
     "react-native-screens": "^4.16.0",
     "react-native-screenshot-prevent": "^1.2.1",
     "react-native-svg": "^15.14.0",
-    "zod": "^4.1.12"
+    "zod": "^4.1.12",
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@babel/plugin-transform-export-namespace-from": "^7.27.1",
     "@babel/preset-env": "^7.25.3",
     "@babel/runtime": "^7.25.0",
+    "@biomejs/biome": "^2.2.6",
     "@react-native-community/cli": "^20.0.0",
     "@react-native-community/cli-platform-android": "20.0.0",
     "@react-native-community/cli-platform-ios": "20.0.0",
@@ -82,15 +85,21 @@
     "@types/react-test-renderer": "^19.1.0",
     "babel-plugin-module-resolver": "^5.0.2",
     "eslint": "^8.19.0",
+    "husky": "^9.1.7",
     "jest": "^29.6.3",
-    "prettier": "2.8.8",
+    "lint-staged": "^16.2.4",
+    "prettier": "^3.4.2",
     "prettier-plugin-tailwindcss": "^0.5.11",
     "react-native-svg-transformer": "^1.5.1",
     "react-test-renderer": "19.1.1",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.8.3"
   },
-  "overrides": { "nativewind": { "react-native-css-interop": "0.1.22" } },
+  "overrides": {
+    "nativewind": {
+      "react-native-css-interop": "0.1.22"
+    }
+  },
   "engines": {
     "node": ">=20"
   }

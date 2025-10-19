@@ -2,38 +2,20 @@
  * Biometrics hooks for Face ID / Touch ID authentication
  */
 
-import { atom, useAtom, useAtomValue } from 'jotai';
-import { useCallback, useMemo } from 'react';
-import { BIOMETRY_TYPE } from 'react-native-keychain';
+import { useCallback, useEffect, useMemo } from 'react';
 import { Platform } from 'react-native';
+import { BIOMETRY_TYPE } from 'react-native-keychain';
 import { apisKeychain } from '@/core/apis';
-import {
-  KEYCHAIN_AUTH_TYPES,
-  isAuthenticatedByBiometrics,
-} from '@/core/services/keychain';
+import { isAuthenticatedByBiometrics, KEYCHAIN_AUTH_TYPES } from '@/core/services/keychain';
+import { useBiometricsStore } from '@/stores/biometricsStore';
 
 const IS_IOS = Platform.OS === 'ios';
-
-// Biometrics state atom
-const biometricsInfoAtom = atom({
-  authEnabled: isAuthenticatedByBiometrics(),
-  supportedBiometryType: null as BIOMETRY_TYPE | null,
-});
-
-// Initialize biometrics on mount
-biometricsInfoAtom.onMount = setter => {
-  apisKeychain
-    .getSupportedBiometryType()
-    .then((supportedType: BIOMETRY_TYPE | null) => {
-      setter(prev => ({ ...prev, supportedBiometryType: supportedType }));
-    });
-};
 
 /**
  * Computed biometrics information
  */
 export function useBiometricsComputed() {
-  const biometrics = useAtomValue(biometricsInfoAtom);
+  const biometrics = useBiometricsStore((state) => state.info);
 
   const computed = useMemo(() => {
     const { authEnabled, supportedBiometryType } = biometrics;
@@ -42,19 +24,14 @@ export function useBiometricsComputed() {
     const forceEnable = IS_IOS && !supportedBiometryType;
     const effectiveSupported =
       supportedBiometryType || (forceEnable ? BIOMETRY_TYPE.FACE_ID : null);
-    const isFaceID =
-      effectiveSupported === BIOMETRY_TYPE.FACE_ID || forceEnable;
+    const isFaceID = effectiveSupported === BIOMETRY_TYPE.FACE_ID || forceEnable;
 
     return {
       isBiometricsEnabled: authEnabled && !!effectiveSupported,
       settingsAuthEnabled: authEnabled,
       couldSetupBiometrics: !!effectiveSupported,
       supportedBiometryType: effectiveSupported,
-      defaultTypeLabel: isFaceID
-        ? 'Face ID'
-        : IS_IOS
-        ? 'Touch ID'
-        : 'Fingerprint',
+      defaultTypeLabel: isFaceID ? 'Face ID' : IS_IOS ? 'Touch ID' : 'Fingerprint',
       isFaceID,
     };
   }, [biometrics]);
@@ -66,7 +43,20 @@ export function useBiometricsComputed() {
  * Main biometrics hook with full functionality
  */
 export function useBiometrics(_options?: { autoFetch?: boolean }) {
-  const [biometrics, setBiometrics] = useAtom(biometricsInfoAtom);
+  const biometrics = useBiometricsStore((state) => state.info);
+  const setBiometricsInfo = useBiometricsStore((state) => state.setInfo);
+
+  useEffect(() => {
+    const initialize = async () => {
+      const supportedType = await apisKeychain.getSupportedBiometryType();
+      setBiometricsInfo((prev) => ({
+        ...prev,
+        supportedBiometryType: supportedType,
+      }));
+    };
+
+    initialize();
+  }, [setBiometricsInfo]);
 
   const fetchBiometrics = useCallback(async () => {
     try {
@@ -79,14 +69,9 @@ export function useBiometrics(_options?: { autoFetch?: boolean }) {
       }
 
       const authEnabled = supportedType ? isAuthenticatedByBiometrics() : false;
-      console.log(
-        '🔐 Auth enabled:',
-        authEnabled,
-        'Supported type:',
-        supportedType,
-      );
+      console.log('🔐 Auth enabled:', authEnabled, 'Supported type:', supportedType);
 
-      setBiometrics(prev => ({
+      setBiometricsInfo((prev) => ({
         ...prev,
         supportedBiometryType: supportedType,
         authEnabled: authEnabled,
@@ -94,7 +79,7 @@ export function useBiometrics(_options?: { autoFetch?: boolean }) {
     } catch (error) {
       console.error('❌ fetchBiometrics error:', error);
     }
-  }, [setBiometrics]);
+  }, [setBiometricsInfo]);
 
   const toggleBiometrics = useCallback(
     async <T extends boolean>(
@@ -108,22 +93,19 @@ export function useBiometrics(_options?: { autoFetch?: boolean }) {
       try {
         if (nextEnabled && validatedPassword) {
           // Enable biometrics
-          await apisKeychain.setGenericPassword(
-            validatedPassword,
-            KEYCHAIN_AUTH_TYPES.BIOMETRICS,
-          );
-          setBiometrics(prev => ({ ...prev, authEnabled: true }));
+          await apisKeychain.setGenericPassword(validatedPassword, KEYCHAIN_AUTH_TYPES.BIOMETRICS);
+          setBiometricsInfo((prev) => ({ ...prev, authEnabled: true }));
         } else {
           // Disable biometrics
           await apisKeychain.resetGenericPassword();
-          setBiometrics(prev => ({ ...prev, authEnabled: false }));
+          setBiometricsInfo((prev) => ({ ...prev, authEnabled: false }));
         }
       } catch (error) {
         console.error('Toggle biometrics error:', error);
         throw error;
       }
     },
-    [setBiometrics],
+    [setBiometricsInfo],
   );
 
   const computed = useBiometricsComputed();

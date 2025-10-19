@@ -1,6 +1,6 @@
+import { type BottomSheetHandleProps } from '@gorhom/bottom-sheet';
 import React from 'react';
 import { View } from 'react-native';
-import { type BottomSheetHandleProps } from '@gorhom/bottom-sheet';
 
 const BottomSheetHandle: React.FC<BottomSheetHandleProps> = () => {
   return (

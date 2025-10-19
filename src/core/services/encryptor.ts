@@ -110,33 +110,20 @@ export class Encryptor implements EncryptorAdapter {
       const result = JSON.parse(data);
       return result;
     } catch (error) {
-      throw new Error(
-        'Failed to decrypt data - invalid password or corrupted data',
-      );
+      throw new Error('Failed to decrypt data - invalid password or corrupted data');
     }
   }
 
   /**
    * Decrypt with detailed logging (for debugging)
    */
-  async decryptWithLogging(
-    password: string,
-    encryptedString: string,
-  ): Promise<any> {
+  async decryptWithLogging(password: string, encryptedString: string): Promise<any> {
     try {
       console.time('🔐 Total Decrypt');
-      console.log(
-        '🔍 Encrypted vault size:',
-        encryptedString.length,
-        'characters',
-      );
+      console.log('🔍 Encrypted vault size:', encryptedString.length, 'characters');
 
       const encryptedData = JSON.parse(encryptedString);
-      console.log(
-        '🔍 Encrypted data size:',
-        JSON.stringify(encryptedData).length,
-        'characters',
-      );
+      console.log('🔍 Encrypted data size:', JSON.stringify(encryptedData).length, 'characters');
       console.log('🔍 Encrypted data keys:', Object.keys(encryptedData));
 
       console.time('🔑 PBKDF2 Key Derivation');
@@ -166,9 +153,7 @@ export class Encryptor implements EncryptorAdapter {
       console.timeEnd('🔐 Total Decrypt');
       return result;
     } catch (error) {
-      throw new Error(
-        'Failed to decrypt data - invalid password or corrupted data',
-      );
+      throw new Error('Failed to decrypt data - invalid password or corrupted data');
     }
   }
 }

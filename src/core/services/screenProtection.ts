@@ -7,10 +7,7 @@ class ScreenProtectionService {
   private readonly AUTO_LOCK_DELAY = 5 * 60 * 1000; // 5 minutes
 
   init(): void {
-    this.appStateSubscription = AppState.addEventListener(
-      'change',
-      this.handleAppStateChange,
-    );
+    this.appStateSubscription = AppState.addEventListener('change', this.handleAppStateChange);
   }
 
   private handleAppStateChange = (nextAppState: AppStateStatus): void => {

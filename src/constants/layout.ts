@@ -5,4 +5,3 @@ export enum RootNames {
   SeedPhraseDisplay = 'SeedPhraseDisplay',
   SeedPhraseVerify = 'SeedPhraseVerify',
 }
-

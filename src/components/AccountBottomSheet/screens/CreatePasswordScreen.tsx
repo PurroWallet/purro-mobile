@@ -1,22 +1,15 @@
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-} from 'react-native';
 import { BottomSheetView } from '@gorhom/bottom-sheet';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { walletController } from '@/core/controllers/WalletController';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { Alert, KeyboardAvoidingView, Platform, Text, TouchableOpacity, View } from 'react-native';
+import z from 'zod';
+import { PasswordInputForm } from '@/components';
+import { walletController } from '@/core/controllers/WalletController';
+import { useTranslation } from '@/utils/i18n';
 import type { AccountStackParamList } from '../AccountStackNavigator';
 import SheetHeader from '../components/SheetHeader';
-import { PasswordInputForm } from '@/components';
-import { useTranslation } from '@/utils/i18n';
-import z from 'zod';
 
 type Props = NativeStackScreenProps<AccountStackParamList, 'CreatePassword'> & {
   onClose: () => void;
@@ -34,13 +27,8 @@ const passwordSchema = z
     password: z
       .string()
       .min(8, 'password.create.validation.tooShort')
-      .regex(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-        'password.create.validation.requirement'
-      ),
-    confirmPassword: z
-      .string()
-      .min(1, 'password.create.validation.confirmRequired'),
+      .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 'password.create.validation.requirement'),
+    confirmPassword: z.string().min(1, 'password.create.validation.confirmRequired'),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'password.create.validation.mismatch',
@@ -49,11 +37,11 @@ const passwordSchema = z
 
 type PasswordFormData = z.infer<typeof passwordSchema>;
 
-const CreatePasswordScreen: React.FC<Props> = ({ 
-  navigation, 
-  onClose, 
+const CreatePasswordScreen: React.FC<Props> = ({
+  navigation,
+  onClose,
   parentNavigation,
-  route 
+  route,
 }) => {
   const { mnemonic, isPrivateKeyImport, isNewAccount } = (route.params || {}) as RouteParams;
   const [isLoading, setIsLoading] = useState(false);
@@ -104,10 +92,7 @@ const CreatePasswordScreen: React.FC<Props> = ({
       });
     } catch (error) {
       console.error('Failed to create wallet:', error);
-      Alert.alert(
-        t('errors.generic.title'),
-        t('accountBottomSheet.errors.importWalletFailed'),
-      );
+      Alert.alert(t('errors.generic.title'), t('accountBottomSheet.errors.importWalletFailed'));
     } finally {
       setIsLoading(false);
     }
@@ -120,7 +105,7 @@ const CreatePasswordScreen: React.FC<Props> = ({
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         {/* Header */}
-        <SheetHeader 
+        <SheetHeader
           title={t('accountBottomSheet.createPassword.title')}
           onBack={() => navigation.goBack()}
         />
@@ -155,18 +140,14 @@ const CreatePasswordScreen: React.FC<Props> = ({
           <View className="px-5 pb-6">
             <TouchableOpacity
               className={`w-full min-h-12 items-center justify-center rounded-xl px-6 py-4 ${
-                (!isValid || isLoading)
-                  ? 'bg-background-secondary'
-                  : 'bg-brand-primary'
+                !isValid || isLoading ? 'bg-background-secondary' : 'bg-brand-primary'
               }`}
               onPress={handleSubmit(onSubmit)}
               disabled={!isValid || isLoading}
             >
               <Text
                 className={`text-base font-medium ${
-                  (!isValid || isLoading)
-                    ? 'text-text-secondary'
-                    : 'text-button-primary-text'
+                  !isValid || isLoading ? 'text-text-secondary' : 'text-button-primary-text'
                 }`}
               >
                 {isLoading

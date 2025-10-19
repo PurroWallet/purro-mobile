@@ -1,7 +1,7 @@
-import { Wallet } from 'ethers';
-import * as bip39 from 'bip39';
 import { HDKey } from '@scure/bip32';
+import * as bip39 from 'bip39';
 import { Buffer } from 'buffer';
+import { Wallet } from 'ethers';
 
 // Polyfill Buffer for bip39 in React Native
 global.Buffer = global.Buffer || Buffer;
@@ -28,11 +28,13 @@ export const validateMnemonic = (mnemonic: string): boolean => {
   if (mnemonic.startsWith('PRIVATE_KEY:')) {
     const [, privateKey, address] = mnemonic.split(':');
     // Validate private key format (64 hex characters)
-    return /^[a-fA-F0-9]{64}$/.test(privateKey) &&
-           // Validate address format (42 hex characters starting with 0x)
-           /^0x[a-fA-F0-9]{40}$/.test(address);
+    return (
+      /^[a-fA-F0-9]{64}$/.test(privateKey) &&
+      // Validate address format (42 hex characters starting with 0x)
+      /^0x[a-fA-F0-9]{40}$/.test(address)
+    );
   }
-  
+
   return bip39.validateMnemonic(mnemonic);
 };
 
@@ -45,30 +47,30 @@ export class SimpleKeyring {
   addPrivateKey(privateKey: string): void {
     // Remove 0x prefix if present
     const key = privateKey.startsWith('0x') ? privateKey.slice(2) : privateKey;
-    
+
     // Validate private key format (64 hex characters)
     if (!/^[a-fA-F0-9]{64}$/.test(key)) {
       throw new Error('Invalid private key format');
     }
-    
+
     const wallet = new Wallet('0x' + key);
     this.wallets.push(wallet);
   }
 
   getAccounts(): string[] {
-    return this.wallets.map(w => w.address);
+    return this.wallets.map((w) => w.address);
   }
 
   serialize(): string[] {
-    return this.wallets.map(w => w.privateKey);
+    return this.wallets.map((w) => w.privateKey);
   }
 
   deserialize(data: string[]): void {
-    this.wallets = data.map(privateKey => new Wallet(privateKey));
+    this.wallets = data.map((privateKey) => new Wallet(privateKey));
   }
 
   exportAccount(address: string): string {
-    const wallet = this.wallets.find(w => w.address.toLowerCase() === address.toLowerCase());
+    const wallet = this.wallets.find((w) => w.address.toLowerCase() === address.toLowerCase());
     if (!wallet) {
       throw new Error('Account not found');
     }
@@ -135,7 +137,7 @@ export class HDKeyring {
    * @returns Array of account addresses
    */
   getAccounts(): string[] {
-    return this.wallets.map(w => w.address);
+    return this.wallets.map((w) => w.address);
   }
 
   /**
@@ -144,18 +146,12 @@ export class HDKeyring {
    * @returns Wallet instance or undefined
    */
   getWalletByAddress(address: string): Wallet | undefined {
-    return this.wallets.find(
-      w => w.address.toLowerCase() === address.toLowerCase(),
-    );
+    return this.wallets.find((w) => w.address.toLowerCase() === address.toLowerCase());
   }
 
-  getAccountByAddress(
-    address: string,
-  ): { address: string; privateKey: string } | null {
+  getAccountByAddress(address: string): { address: string; privateKey: string } | null {
     const wallet = this.getWalletByAddress(address);
-    return wallet
-      ? { address: wallet.address, privateKey: wallet.privateKey }
-      : null;
+    return wallet ? { address: wallet.address, privateKey: wallet.privateKey } : null;
   }
 
   /**

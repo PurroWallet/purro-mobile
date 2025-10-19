@@ -1,15 +1,15 @@
 import type { FC } from 'react';
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import { FormProvider } from 'react-hook-form';
-import { Colors } from '../constants/colors';
+import { ActivityIndicator, StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import { PasswordInputForm } from '../components';
 import KeyboardAvoidingView from '../components/KeyboardAvoidingView';
+import { Colors } from '../constants/colors';
 import { apisKeychain, apisLock } from '../core/apis';
 import { useBiometrics } from '../core/hooks/biometrics';
 import { useUnlockForm } from '../core/hooks/form/useUnlockForm';
-import { useTranslation } from '../utils/i18n';
 import type { UnlockScreenProps } from '../types/navigation';
+import { useTranslation } from '../utils/i18n';
 
 const UnlockScreen: FC<UnlockScreenProps> = ({ navigation }) => {
   const { t } = useTranslation();
@@ -30,7 +30,7 @@ const UnlockScreen: FC<UnlockScreenProps> = ({ navigation }) => {
     const attemptBiometricUnlock = async () => {
       try {
         await fetchBiometrics();
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise((resolve) => setTimeout(resolve, 500));
 
         console.log('🔥 Pre-warming vault...');
         console.time('🔥 Vault Pre-warm');
@@ -89,7 +89,7 @@ const UnlockScreen: FC<UnlockScreenProps> = ({ navigation }) => {
   ]);
 
   const onSubmit = useCallback(() => {
-     handleSubmit();
+    handleSubmit();
   }, [handleSubmit]);
 
   const isDisabled = !passwordValue.trim() || isUnlocking;
@@ -100,9 +100,7 @@ const UnlockScreen: FC<UnlockScreenProps> = ({ navigation }) => {
 
       <View className="flex-1 items-center justify-center px-5">
         <View className="mb-8 h-[120px] w-[120px] rounded-[60px] bg-background-secondary" />
-        <Text className="text-center text-h4 text-text-primary">
-          {t('unlock.title')}
-        </Text>
+        <Text className="text-center text-h4 text-text-primary">{t('unlock.title')}</Text>
       </View>
 
       <View className="px-5 pb-10">
@@ -128,7 +126,9 @@ const UnlockScreen: FC<UnlockScreenProps> = ({ navigation }) => {
               {isUnlocking ? (
                 <ActivityIndicator size="small" color={Colors.text.primary} />
               ) : (
-                <Text className="text-button text-button-primary-text">{t('unlock.actions.submit')}</Text>
+                <Text className="text-button text-button-primary-text">
+                  {t('unlock.actions.submit')}
+                </Text>
               )}
             </TouchableOpacity>
           </View>

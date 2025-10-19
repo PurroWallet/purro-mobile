@@ -1,8 +1,8 @@
 import { useCallback, useState } from 'react';
 import { Alert } from 'react-native';
 import { z } from 'zod';
-import { useZodForm, ZodFormValues } from '@/core/hooks/form/useZodForm';
 import { apisLock } from '@/core/apis';
+import { useZodForm, ZodFormValues } from '@/core/hooks/form/useZodForm';
 
 const unlockSchema = z.object({
   password: z.string().min(1, 'Password is required'),
@@ -44,17 +44,14 @@ export const useUnlockForm = ({ onSuccess }: UseUnlockFormParams) => {
           console.timeEnd('🔓 Unlock API Call');
 
           if (result.success) {
-            console.log(
-              '🔓 Unlock successful, resetting form and calling onSuccess...',
-            );
+            console.log('🔓 Unlock successful, resetting form and calling onSuccess...');
             form.reset({ password: '' });
             console.time('🔓 Navigation Time');
             onSuccess();
             console.timeEnd('🔓 Navigation Time');
           } else {
             form.setError('password', {
-              message:
-                result.formFieldError || result.error || 'Invalid password',
+              message: result.formFieldError || result.error || 'Invalid password',
             });
           }
         } catch (error) {

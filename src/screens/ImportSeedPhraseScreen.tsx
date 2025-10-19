@@ -1,32 +1,31 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Alert,
-  ScrollView,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { FormProvider } from 'react-hook-form';
+import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
 import { FormInput } from '@/components';
 import { useZodForm, ZodFormValues } from '@/core/hooks/form/useZodForm';
 import type { ImportSeedPhraseScreenProps } from '@/types/navigation';
 import { useTranslation } from '@/utils/i18n';
 
-const importSeedPhraseSchema = z.object({
-  mnemonic: z.string().min(1, 'Seed phrase is required'),
-}).refine(data => {
-  const words = data.mnemonic.trim().split(/\s+/);
-  // Check if it's exactly 12 words
-  if (words.length !== 12) {
-    return false;
-  }
-  // Basic validation - check if words contain only letters
-  return words.every(word => /^[a-zA-Z]+$/.test(word));
-}, {
-  message: 'Invalid seed phrase. Must be exactly 12 words.',
-});
+const importSeedPhraseSchema = z
+  .object({
+    mnemonic: z.string().min(1, 'Seed phrase is required'),
+  })
+  .refine(
+    (data) => {
+      const words = data.mnemonic.trim().split(/\s+/);
+      // Check if it's exactly 12 words
+      if (words.length !== 12) {
+        return false;
+      }
+      // Basic validation - check if words contain only letters
+      return words.every((word) => /^[a-zA-Z]+$/.test(word));
+    },
+    {
+      message: 'Invalid seed phrase. Must be exactly 12 words.',
+    },
+  );
 
 type ImportSeedPhraseFormValues = ZodFormValues<typeof importSeedPhraseSchema>;
 
@@ -45,7 +44,7 @@ const ImportSeedPhraseScreen: React.FC<ImportSeedPhraseScreenProps> = ({ navigat
 
   const handleImport = async (values: ImportSeedPhraseFormValues) => {
     if (isImporting) return;
-    
+
     setIsImporting(true);
     try {
       // Validate mnemonic format
@@ -75,9 +74,7 @@ const ImportSeedPhraseScreen: React.FC<ImportSeedPhraseScreenProps> = ({ navigat
     <SafeAreaView className="flex-1 bg-background-primary">
       <ScrollView className="flex-1 px-5">
         <View className="py-5">
-          <Text className="text-h4 text-text-primary mb-2">
-            {t('importSeedPhrase.title')}
-          </Text>
+          <Text className="text-h4 text-text-primary mb-2">{t('importSeedPhrase.title')}</Text>
           <Text className="text-button text-text-secondary mb-8">
             {t('importSeedPhrase.subtitle')}
           </Text>

@@ -1,47 +1,24 @@
-import { useCallback, useEffect } from 'react';
-import { useAtom } from 'jotai';
-import { themeModeAtom, type ThemeMode } from '@/theme';
-import { preferenceService } from '@/core/services/preference';
-import { colorScheme as globalColorScheme } from 'nativewind';
+import { useCallback } from 'react';
+import { type ThemeMode, useThemeStore } from '@/theme';
 
 export function useThemeMode() {
-  const [storedMode, setStoredMode] = useAtom(themeModeAtom);
-
-  useEffect(() => {
-    const savedMode = preferenceService.getPreference('themeMode');
-    if (savedMode === 'light' || savedMode === 'dark') {
-      setStoredMode(savedMode);
-      globalColorScheme.set(savedMode);
-    } else {
-      const systemScheme = globalColorScheme.get();
-      if (systemScheme === 'light' || systemScheme === 'dark') {
-        setStoredMode(systemScheme);
-      }
-    }
-  }, [setStoredMode]);
-
-  useEffect(() => {
-    if (storedMode === 'light' || storedMode === 'dark') {
-      preferenceService.setPreference('themeMode', storedMode);
-      globalColorScheme.set(storedMode);
-    }
-  }, [storedMode]);
+  const themeMode = useThemeStore((state) => state.themeMode);
+  const setThemeModeStore = useThemeStore((state) => state.setThemeMode);
+  const toggleThemeModeStore = useThemeStore((state) => state.toggleThemeMode);
 
   const setThemeMode = useCallback(
     (mode: ThemeMode) => {
-      setStoredMode(mode);
+      setThemeModeStore(mode);
     },
-    [setStoredMode],
+    [setThemeModeStore],
   );
 
   const toggleThemeMode = useCallback(() => {
-    setStoredMode(prev => (prev === 'dark' ? 'light' : 'dark'));
-  }, [setStoredMode]);
-
-  const activeMode: ThemeMode = storedMode ?? 'light';
+    toggleThemeModeStore();
+  }, [toggleThemeModeStore]);
 
   return {
-    themeMode: activeMode,
+    themeMode,
     setThemeMode,
     toggleThemeMode,
   };

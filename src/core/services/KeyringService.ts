@@ -1,12 +1,13 @@
 import { EventEmitter } from 'events';
 import {
-  IKeyring,
-  KeyringData,
   Account,
-  KEYRING_TYPE,
+  createKeyring,
+  IKeyring,
   KEYRING_CLASS,
+  KEYRING_TYPE,
+  KeyringData,
+  validateMnemonic,
 } from '../keyring';
-import { createKeyring, validateMnemonic } from '../keyring';
 import { keyringStorage } from '../storage/secureStorage';
 
 /**
@@ -37,9 +38,7 @@ export class KeyringService extends EventEmitter {
 
       // If keyrings not loaded yet (from pre-warming), load them now
       if (this.keyrings.length === 0) {
-        console.log(
-          '🚀 KeyringService.boot - No keyrings loaded, loading now...',
-        );
+        console.log('🚀 KeyringService.boot - No keyrings loaded, loading now...');
         try {
           await this.loadKeyrings(password);
           this.password = password;
@@ -47,10 +46,7 @@ export class KeyringService extends EventEmitter {
           console.log('🚀 KeyringService.boot - Keyrings loaded, unlocked');
           return;
         } catch (error) {
-          console.error(
-            '🚀 KeyringService.boot - Failed to load keyrings:',
-            error,
-          );
+          console.error('🚀 KeyringService.boot - Failed to load keyrings:', error);
           throw error;
         }
       }
@@ -116,10 +112,7 @@ export class KeyringService extends EventEmitter {
   }
 
   // Create new HD keyring with mnemonic
-  async createHDKeyring(
-    mnemonic: string,
-    passphrase?: string,
-  ): Promise<string[]> {
+  async createHDKeyring(mnemonic: string, passphrase?: string): Promise<string[]> {
     if (!this.booted) {
       throw new Error('Keyring service not booted');
     }
@@ -190,7 +183,7 @@ export class KeyringService extends EventEmitter {
 
     for (const keyring of this.keyrings) {
       const accounts = await keyring.getAccounts();
-      if (accounts.some(acc => acc.toLowerCase() === normalizedAddress)) {
+      if (accounts.some((acc) => acc.toLowerCase() === normalizedAddress)) {
         return keyring;
       }
     }
@@ -200,7 +193,7 @@ export class KeyringService extends EventEmitter {
 
   // Get keyrings by type
   getKeyringsByType(type: KEYRING_TYPE): IKeyring[] {
-    return this.keyrings.filter(keyring => keyring.type === type);
+    return this.keyrings.filter((keyring) => keyring.type === type);
   }
 
   // Sign transaction with address
@@ -296,10 +289,7 @@ export class KeyringService extends EventEmitter {
 
     // Encrypt and save to MMKV
     const { encryptionService } = require('../services/EncryptionService');
-    const encrypted = await encryptionService.encrypt(
-      this.password,
-      serializedKeyrings,
-    );
+    const encrypted = await encryptionService.encrypt(this.password, serializedKeyrings);
 
     keyringStorage.setItem('vault', encrypted);
   }
@@ -311,16 +301,11 @@ export class KeyringService extends EventEmitter {
     console.log('🔑 LoadKeyrings - Vault exists:', !!encryptedVault);
     console.log('🔑 LoadKeyrings - Vault type:', typeof encryptedVault);
     if (encryptedVault) {
-      console.log(
-        '🔑 LoadKeyrings - Vault length:',
-        JSON.stringify(encryptedVault).length,
-      );
+      console.log('🔑 LoadKeyrings - Vault length:', JSON.stringify(encryptedVault).length);
     }
 
     if (!encryptedVault) {
-      console.log(
-        '🔑 LoadKeyrings - No vault found, initializing empty keyrings',
-      );
+      console.log('🔑 LoadKeyrings - No vault found, initializing empty keyrings');
       return;
     }
 
@@ -328,35 +313,20 @@ export class KeyringService extends EventEmitter {
     console.log('🔑 LoadKeyrings - Attempting to decrypt vault...');
     const decrypted = await encryptionService.decrypt(password, encryptedVault);
     console.log('🔑 LoadKeyrings - Decryption successful!');
-    console.log(
-      '🔑 LoadKeyrings - Decrypted data:',
-      JSON.stringify(decrypted, null, 2),
-    );
-    console.log(
-      '🔑 LoadKeyrings - Decrypted keyrings count:',
-      decrypted.length,
-    );
+    console.log('🔑 LoadKeyrings - Decrypted data:', JSON.stringify(decrypted, null, 2));
+    console.log('🔑 LoadKeyrings - Decrypted keyrings count:', decrypted.length);
 
     this.keyrings = [];
 
     for (const keyringData of decrypted) {
-      console.log(
-        '🔑 LoadKeyrings - Processing keyring:',
-        JSON.stringify(keyringData, null, 2),
-      );
+      console.log('🔑 LoadKeyrings - Processing keyring:', JSON.stringify(keyringData, null, 2));
       const keyring = createKeyring(keyringData.type);
       await keyring.deserialize(keyringData.data);
-      console.log(
-        '🔑 LoadKeyrings - Keyring deserialized, accounts:',
-        await keyring.getAccounts(),
-      );
+      console.log('🔑 LoadKeyrings - Keyring deserialized, accounts:', await keyring.getAccounts());
       this.keyrings.push(keyring);
     }
 
-    console.log(
-      '🔑 LoadKeyrings - Total keyrings loaded:',
-      this.keyrings.length,
-    );
+    console.log('🔑 LoadKeyrings - Total keyrings loaded:', this.keyrings.length);
   }
 
   // Verify password against stored vault
@@ -376,10 +346,7 @@ export class KeyringService extends EventEmitter {
   }
 
   // Update password
-  public async updatePassword(
-    oldPassword: string,
-    newPassword: string,
-  ): Promise<void> {
+  public async updatePassword(oldPassword: string, newPassword: string): Promise<void> {
     await this.verifyPassword(oldPassword);
     this.password = newPassword;
     await this.persistKeyrings();
@@ -407,9 +374,7 @@ export class KeyringService extends EventEmitter {
 
     // If already unlocked via boot(), don't verify again
     if (this.unlocked && this.keyrings.length > 0) {
-      console.log(
-        '🔑 KeyringService.submitPassword - Already unlocked, skipping',
-      );
+      console.log('🔑 KeyringService.submitPassword - Already unlocked, skipping');
       return;
     }
 
@@ -417,9 +382,7 @@ export class KeyringService extends EventEmitter {
 
     // If keyrings not loaded (shouldn't happen with new flow), load them
     if (this.keyrings.length === 0) {
-      console.log(
-        '🔑 KeyringService.submitPassword - No keyrings, loading now...',
-      );
+      console.log('🔑 KeyringService.submitPassword - No keyrings, loading now...');
       await this.loadKeyrings(password);
       this.password = password;
     }
@@ -447,10 +410,7 @@ export class KeyringService extends EventEmitter {
   }
 
   // Check for duplicate accounts
-  private async checkForDuplicateAccounts(
-    type: string,
-    newAccounts: string[],
-  ): Promise<void> {
+  private async checkForDuplicateAccounts(type: string, newAccounts: string[]): Promise<void> {
     const allAccounts: string[] = [];
 
     for (const keyring of this.keyrings) {
@@ -461,9 +421,7 @@ export class KeyringService extends EventEmitter {
     }
 
     for (const newAccount of newAccounts) {
-      if (
-        allAccounts.some(acc => acc.toLowerCase() === newAccount.toLowerCase())
-      ) {
+      if (allAccounts.some((acc) => acc.toLowerCase() === newAccount.toLowerCase())) {
         throw new Error(`Account already exists: ${newAccount}`);
       }
     }

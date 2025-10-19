@@ -1,19 +1,18 @@
-import React, { useMemo, useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Switch, Alert, ScrollView } from 'react-native';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import { ChevronRight } from 'lucide-react-native';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { NavigationProp } from '@react-navigation/native';
-import type { AccountStackParamList } from '../AccountStackNavigator';
-import SheetHeader from '../components/SheetHeader';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { ChevronRight } from 'lucide-react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Alert, ScrollView, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { apisKeychain, apisLock, apisWallet } from '@/core/apis';
 import { useBiometrics } from '@/core/hooks/biometrics';
-import { apisLock, apisWallet, apisKeychain } from '@/core/apis';
-import { KEYCHAIN_AUTH_TYPES } from '@/core/services/keychain';
-import { useAtom } from 'jotai';
-import { walletExists } from '@/atoms/app';
 import { useThemeMode } from '@/core/hooks/useTheme';
+import { KEYCHAIN_AUTH_TYPES } from '@/core/services/keychain';
+import { useAppStore } from '@/stores/appStore';
 import type { ThemeMode } from '@/theme';
 import { useTranslation } from '@/utils/i18n';
+import type { AccountStackParamList } from '../AccountStackNavigator';
+import SheetHeader from '../components/SheetHeader';
 
 type Props = NativeStackScreenProps<AccountStackParamList, 'Settings'> & {
   parentNavigation: NavigationProp<any>;
@@ -46,17 +45,15 @@ const SettingItem: React.FC<SettingsOption> = ({
     activeOpacity={onPress ? 0.8 : 1}
   >
     <View className="flex-1">
-      <Text className={`text-lg font-semibold ${danger ? 'text-system-error' : 'text-text-primary'}`}>
+      <Text
+        className={`text-lg font-semibold ${danger ? 'text-system-error' : 'text-text-primary'}`}
+      >
         {title}
       </Text>
-      {subtitle && (
-        <Text className="mt-1 text-sm text-text-secondary">{subtitle}</Text>
-      )}
+      {subtitle && <Text className="mt-1 text-sm text-text-secondary">{subtitle}</Text>}
     </View>
     {rightComponent ||
-      (showArrow && (
-        <ChevronRight size={20} color="rgb(var(--color-text-primary))" />
-      ))}
+      (showArrow && <ChevronRight size={20} color="rgb(var(--color-text-primary))" />)}
   </TouchableOpacity>
 );
 
@@ -70,7 +67,7 @@ const SectionHeader: React.FC<{ title: string }> = ({ title }) => (
 );
 
 const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
-  const [, setWalletExists] = useAtom(walletExists);
+  const setWalletExists = useAppStore((state) => state.setWalletExists);
   const { t } = useTranslation();
   const {
     computed: { isBiometricsEnabled, defaultTypeLabel, couldSetupBiometrics },
@@ -105,11 +102,11 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
           if (!walletPassword) {
             const { keyringService } = await import('@/core/services/KeyringService');
 
-          if (!keyringService.isUnlocked()) {
-            Alert.alert(
-              t('errors.generic.title'),
-              t('accountBottomSheet.settingsScreen.alerts.biometrics.unlockRequired'),
-            );
+            if (!keyringService.isUnlocked()) {
+              Alert.alert(
+                t('errors.generic.title'),
+                t('accountBottomSheet.settingsScreen.alerts.biometrics.unlockRequired'),
+              );
               setIsEnablingBiometrics(false);
               return;
             }
@@ -117,10 +114,10 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
           }
 
           if (!walletPassword) {
-          Alert.alert(
-            t('errors.generic.title'),
-            t('accountBottomSheet.settingsScreen.alerts.biometrics.passwordMissing'),
-          );
+            Alert.alert(
+              t('errors.generic.title'),
+              t('accountBottomSheet.settingsScreen.alerts.biometrics.passwordMissing'),
+            );
             setIsEnablingBiometrics(false);
             return;
           }
@@ -131,19 +128,15 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
             console.log('No existing keychain data to clear');
           }
 
-          await apisKeychain.setGenericPassword(
-            walletPassword,
-            KEYCHAIN_AUTH_TYPES.BIOMETRICS,
-          );
+          await apisKeychain.setGenericPassword(walletPassword, KEYCHAIN_AUTH_TYPES.BIOMETRICS);
 
           await fetchBiometrics();
 
           Alert.alert(
             t('common.success'),
-            t(
-              'accountBottomSheet.settingsScreen.alerts.biometrics.enableSuccess',
-              { method: defaultTypeLabel },
-            ),
+            t('accountBottomSheet.settingsScreen.alerts.biometrics.enableSuccess', {
+              method: defaultTypeLabel,
+            }),
           );
         } catch (error) {
           console.error('Error enabling biometrics:', error);
@@ -157,14 +150,12 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
       } else {
         // Disable biometrics
         Alert.alert(
-          t(
-            'accountBottomSheet.settingsScreen.alerts.biometrics.disableConfirmTitle',
-            { method: defaultTypeLabel },
-          ),
-          t(
-            'accountBottomSheet.settingsScreen.alerts.biometrics.disableConfirmMessage',
-            { method: defaultTypeLabel },
-          ),
+          t('accountBottomSheet.settingsScreen.alerts.biometrics.disableConfirmTitle', {
+            method: defaultTypeLabel,
+          }),
+          t('accountBottomSheet.settingsScreen.alerts.biometrics.disableConfirmMessage', {
+            method: defaultTypeLabel,
+          }),
           [
             {
               text: t('common.cancel'),
@@ -181,14 +172,12 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
                   setIsEnablingBiometrics(false);
 
                   Alert.alert(
-                    t(
-                      'accountBottomSheet.settingsScreen.alerts.biometrics.disableSuccessTitle',
-                      { method: defaultTypeLabel },
-                    ),
-                    t(
-                      'accountBottomSheet.settingsScreen.alerts.biometrics.disableSuccessMessage',
-                      { method: defaultTypeLabel },
-                    ),
+                    t('accountBottomSheet.settingsScreen.alerts.biometrics.disableSuccessTitle', {
+                      method: defaultTypeLabel,
+                    }),
+                    t('accountBottomSheet.settingsScreen.alerts.biometrics.disableSuccessMessage', {
+                      method: defaultTypeLabel,
+                    }),
                   );
                 } catch (err) {
                   console.error('Error disabling biometrics:', err);
@@ -263,13 +252,13 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
           onPress: async () => {
             try {
               console.log('🔄 Resetting wallet...');
-              
+
               // Reset wallet data
               apisWallet.resetWallet();
-              
+
               // Lock wallet
               await apisLock.lockWallet();
-              
+
               // Clear keychain data
               try {
                 await apisKeychain.resetGenericPassword();
@@ -277,12 +266,12 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
               } catch (error) {
                 console.log('🔑 No keychain data to clear:', error);
               }
-              
+
               // Update wallet exists state
               setWalletExists(false);
-              
+
               console.log('✅ Wallet reset complete, navigating to Welcome screen');
-              
+
               // Use parent navigation to reset to Welcome screen
               if (parentNavigation) {
                 parentNavigation.reset({
@@ -400,17 +389,21 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
             />
             <SettingItem
               title={t('accountBottomSheet.settingsScreen.terms.title')}
-              onPress={() => Alert.alert(
-                t('accountBottomSheet.settingsScreen.terms.title'),
-                t('accountBottomSheet.settingsScreen.terms.message'),
-              )}
+              onPress={() =>
+                Alert.alert(
+                  t('accountBottomSheet.settingsScreen.terms.title'),
+                  t('accountBottomSheet.settingsScreen.terms.message'),
+                )
+              }
             />
             <SettingItem
               title={t('accountBottomSheet.settingsScreen.privacy.title')}
-              onPress={() => Alert.alert(
-                t('accountBottomSheet.settingsScreen.privacy.title'),
-                t('accountBottomSheet.settingsScreen.privacy.message'),
-              )}
+              onPress={() =>
+                Alert.alert(
+                  t('accountBottomSheet.settingsScreen.privacy.title'),
+                  t('accountBottomSheet.settingsScreen.privacy.message'),
+                )
+              }
             />
           </View>
         </View>

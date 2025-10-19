@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, Text } from 'react-native';
+import { Text, TouchableOpacity } from 'react-native';
 
 interface ButtonProps {
   type?: 'primary' | 'secondary';
@@ -29,9 +29,7 @@ export function Button({
     >
       <Text
         className={`text-base font-semibold ${
-          type === 'primary'
-            ? 'text-button-primary-text'
-            : 'text-button-secondary-text'
+          type === 'primary' ? 'text-button-primary-text' : 'text-button-secondary-text'
         } ${disabled ? 'text-text-disabled' : ''} ${textClassName ?? ''}`}
       >
         {title}
@@ -39,4 +37,3 @@ export function Button({
     </TouchableOpacity>
   );
 }
-

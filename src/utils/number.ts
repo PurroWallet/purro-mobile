@@ -1,7 +1,4 @@
-export function formatPriceUSD(
-  value: number | null,
-  options?: { digits?: number },
-) {
+export function formatPriceUSD(value: number | null, options?: { digits?: number }) {
   if (value === null || value === undefined || Number.isNaN(value)) return '—';
   const digits = options?.digits ?? 2;
   if (value >= 1000) {

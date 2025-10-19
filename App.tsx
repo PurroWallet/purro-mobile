@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Platform, StatusBar, ActivityIndicator, View } from 'react-native';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, Platform, StatusBar, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import './global.css';
 // Disable DevTools to prevent crypto polyfill issues
@@ -16,41 +17,37 @@ if (__DEV__) {
   import('@/utils/resetVault').catch(() => {});
 }
 
-import { useAtom } from 'jotai';
-import { currentRoute, walletExists, walletUnlocked } from '@/atoms/app';
-import { apisWallet } from '@/core/apis/wallet';
-import { screenProtection } from '@/core/services/screenProtection';
-import { excludeFilesFromBackup } from '@/core/utils/appFS';
-import { PrivacyBlur } from '@/components/PrivacyBlur';
-import { ThemeProvider } from '@/providers/ThemeProvider';
-
 // Screenshot protection components (Rabby pattern)
 import { BackgroundSecureBlurView } from '@/components/customized/BlurViews';
+import { PrivacyBlur } from '@/components/PrivacyBlur';
 import { GlobalSecurityTipStubModal } from '@/components/SecurityTipStubModal';
+import { apisWallet } from '@/core/apis/wallet';
 import { useAppPreventScreenshotOnScreen } from '@/core/hooks/native/security';
-
-// Import screens
-import WelcomeScreen from './src/screens/WelcomeScreen';
-import SeedPhraseDisplayScreen from './src/screens/SeedPhraseDisplayScreen';
-import SeedPhraseVerifyScreen from './src/screens/SeedPhraseVerifyScreen';
+import { screenProtection } from '@/core/services/screenProtection';
+import { excludeFilesFromBackup } from '@/core/utils/appFS';
+import { ThemeProvider } from '@/providers/ThemeProvider';
+import { useAppStore } from '@/stores/appStore';
 import CreatePasswordScreen from './src/screens/CreatePasswordScreen';
-import WalletSuccessScreen from './src/screens/WalletSuccessScreen';
-import UnlockScreen from './src/screens/UnlockScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import ImportMethodsScreen from './src/screens/ImportMethodsScreen';
-import ImportSeedPhraseScreen from './src/screens/ImportSeedPhraseScreen';
 import ImportPrivateKeyScreen from './src/screens/ImportPrivateKeyScreen';
-import SeedPhraseBackupScreen from './src/screens/SeedPhraseBackupScreen';
+import ImportSeedPhraseScreen from './src/screens/ImportSeedPhraseScreen';
 import ImportWalletScreen from './src/screens/ImportWalletScreen';
+import SeedPhraseBackupScreen from './src/screens/SeedPhraseBackupScreen';
+import SeedPhraseDisplayScreen from './src/screens/SeedPhraseDisplayScreen';
+import SeedPhraseVerifyScreen from './src/screens/SeedPhraseVerifyScreen';
+import UnlockScreen from './src/screens/UnlockScreen';
+import WalletSuccessScreen from './src/screens/WalletSuccessScreen';
+// Import screens
+import WelcomeScreen from './src/screens/WelcomeScreen';
 
 import type { RootStackParamList } from './src/types/navigation';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
+const queryClient = new QueryClient();
 
 const App: React.FC = () => {
-  const [_route, setRoute] = useAtom(currentRoute);
-  const [, setWalletExists] = useAtom(walletExists);
-  const [, setWalletUnlocked] = useAtom(walletUnlocked);
+  const { setRoute, setWalletExists, setWalletUnlocked } = useAppStore();
   const [initialRoute, setInitialRoute] = useState<string | null>(null);
 
   // Screenshot prevention (Rabby pattern)
@@ -70,7 +67,7 @@ const App: React.FC = () => {
     screenProtection.init();
 
     // Exclude sensitive files from backup (iOS)
-    excludeFilesFromBackup().catch(error => {
+    excludeFilesFromBackup().catch((error) => {
       console.warn('[App] Failed to exclude files from backup:', error);
     });
 
@@ -123,92 +120,79 @@ const App: React.FC = () => {
       <GestureHandlerRootView className="flex-1">
         <BottomSheetModalProvider>
           <PrivacyBlur>
-            <ThemeProvider>
-              <NavigationContainer>
-              <StatusBar barStyle="light-content" backgroundColor="#161616" />
-              <Stack.Navigator
-                initialRouteName={initialRoute as keyof RootStackParamList}
-                screenOptions={{
-                  headerShown: false,
-                  animation: 'simple_push',
-                  contentStyle: {
-                    backgroundColor: '#161616',
-                  },
-                }}
-              >
-                {/* Onboarding Flow */}
-                <Stack.Screen name="Welcome" component={WelcomeScreen} />
-                <Stack.Screen
-                  name="SeedPhraseDisplay"
-                  component={SeedPhraseDisplayScreen}
-                  options={{
-                    gestureEnabled: false, // Prevent swipe back on seed phrase screen
-                  }}
-                />
-                <Stack.Screen
-                  name="SeedPhraseVerify"
-                  component={SeedPhraseVerifyScreen}
-                  options={{
-                    gestureEnabled: false,
-                  }}
-                />
-                <Stack.Screen
-                  name="CreatePassword"
-                  component={CreatePasswordScreen}
-                  options={{
-                    gestureEnabled: false,
-                  }}
-                />
-                <Stack.Screen
-                  name="WalletSuccess"
-                  component={WalletSuccessScreen}
-                  options={{
-                    gestureEnabled: false,
-                  }}
-                />
+            <QueryClientProvider client={queryClient}>
+              <ThemeProvider>
+                <NavigationContainer>
+                  <StatusBar barStyle="light-content" backgroundColor="#161616" />
+                  <Stack.Navigator
+                    initialRouteName={initialRoute as keyof RootStackParamList}
+                    screenOptions={{
+                      headerShown: false,
+                      animation: 'simple_push',
+                      contentStyle: {
+                        backgroundColor: '#161616',
+                      },
+                    }}
+                  >
+                    {/* Onboarding Flow */}
+                    <Stack.Screen name="Welcome" component={WelcomeScreen} />
+                    <Stack.Screen
+                      name="SeedPhraseDisplay"
+                      component={SeedPhraseDisplayScreen}
+                      options={{
+                        gestureEnabled: false, // Prevent swipe back on seed phrase screen
+                      }}
+                    />
+                    <Stack.Screen
+                      name="SeedPhraseVerify"
+                      component={SeedPhraseVerifyScreen}
+                      options={{
+                        gestureEnabled: false,
+                      }}
+                    />
+                    <Stack.Screen
+                      name="CreatePassword"
+                      component={CreatePasswordScreen}
+                      options={{
+                        gestureEnabled: false,
+                      }}
+                    />
+                    <Stack.Screen
+                      name="WalletSuccess"
+                      component={WalletSuccessScreen}
+                      options={{
+                        gestureEnabled: false,
+                      }}
+                    />
 
-                {/* Auth Flow */}
-                <Stack.Screen
-                  name="Unlock"
-                  component={UnlockScreen}
-                  options={{
-                    gestureEnabled: false, // Prevent swipe back on unlock screen
-                  }}
-                />
+                    {/* Auth Flow */}
+                    <Stack.Screen
+                      name="Unlock"
+                      component={UnlockScreen}
+                      options={{
+                        gestureEnabled: false, // Prevent swipe back on unlock screen
+                      }}
+                    />
 
-                {/* Import Flow */}
-                <Stack.Screen
-                  name="ImportMethods"
-                  component={ImportMethodsScreen}
-                />
-                <Stack.Screen
-                  name="ImportSeedPhrase"
-                  component={ImportSeedPhraseScreen}
-                />
-                <Stack.Screen
-                  name="ImportPrivateKey"
-                  component={ImportPrivateKeyScreen}
-                />
-                <Stack.Screen
-                  name="ImportWallet"
-                  component={ImportWalletScreen}
-                />
+                    {/* Import Flow */}
+                    <Stack.Screen name="ImportMethods" component={ImportMethodsScreen} />
+                    <Stack.Screen name="ImportSeedPhrase" component={ImportSeedPhraseScreen} />
+                    <Stack.Screen name="ImportPrivateKey" component={ImportPrivateKeyScreen} />
+                    <Stack.Screen name="ImportWallet" component={ImportWalletScreen} />
 
-                {/* Backup Flow */}
-                <Stack.Screen
-                  name="SeedPhraseBackup"
-                  component={SeedPhraseBackupScreen}
-                />
+                    {/* Backup Flow */}
+                    <Stack.Screen name="SeedPhraseBackup" component={SeedPhraseBackupScreen} />
 
-                {/* Main App Flow */}
-                <Stack.Screen name="Home" component={HomeScreen} />
-              </Stack.Navigator>
+                    {/* Main App Flow */}
+                    <Stack.Screen name="Home" component={HomeScreen} />
+                  </Stack.Navigator>
 
-              {/* Screenshot protection components (Rabby pattern) */}
-              <BackgroundSecureBlurView />
-              <GlobalSecurityTipStubModal />
-              </NavigationContainer>
-            </ThemeProvider>
+                  {/* Screenshot protection components (Rabby pattern) */}
+                  <BackgroundSecureBlurView />
+                  <GlobalSecurityTipStubModal />
+                </NavigationContainer>
+              </ThemeProvider>
+            </QueryClientProvider>
           </PrivacyBlur>
         </BottomSheetModalProvider>
       </GestureHandlerRootView>

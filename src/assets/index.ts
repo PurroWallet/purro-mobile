@@ -230,10 +230,10 @@ export const Icons = {
 };
 
 export const Images = {
-  logo: require("./common/logo.png"),
-  splash: require("./common/splash.png"),
-  inviteBg: require("./images/invite-bg.png"),
-  phoneEntryBg: require("./images/phone-entry-bg.png"),
+  logo: require('./common/logo.png'),
+  splash: require('./common/splash.png'),
+  inviteBg: require('./images/invite-bg.png'),
+  phoneEntryBg: require('./images/phone-entry-bg.png'),
 };
 
 // Asset helper functions

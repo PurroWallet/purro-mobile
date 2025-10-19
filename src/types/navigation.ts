@@ -5,13 +5,13 @@ export type RootStackParamList = {
   SeedPhraseDisplay: { mnemonic: string };
   SeedPhraseVerify: { mnemonic: string };
   SeedPhraseBackup: undefined;
-  CreatePassword: { 
-    mnemonic?: string; 
+  CreatePassword: {
+    mnemonic?: string;
     isImport?: boolean;
     isPrivateKeyImport?: boolean;
   };
-  WalletSuccess: { 
-    addresses: string[]; 
+  WalletSuccess: {
+    addresses: string[];
     isImport?: boolean;
   };
   ImportWallet: undefined;
@@ -23,7 +23,10 @@ export type RootStackParamList = {
   Settings: undefined;
 };
 
-export type NavigationProp<T extends keyof RootStackParamList> = BaseNavigationProp<RootStackParamList, T> & {
+export type NavigationProp<T extends keyof RootStackParamList> = BaseNavigationProp<
+  RootStackParamList,
+  T
+> & {
   navigate<K extends keyof RootStackParamList>(screen: K, params?: RootStackParamList[K]): void;
   replace<K extends keyof RootStackParamList>(screen: K, params?: RootStackParamList[K]): void;
 };

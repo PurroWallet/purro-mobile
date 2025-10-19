@@ -1,8 +1,8 @@
 import { useCallback, useState } from 'react';
 import { Alert } from 'react-native';
 import { z } from 'zod';
-import { useZodForm, ZodFormValues } from '@/core/hooks/form/useZodForm';
 import { apisWallet } from '@/core/apis';
+import { useZodForm, ZodFormValues } from '@/core/hooks/form/useZodForm';
 
 const createPasswordSchema = z
   .object({
@@ -50,19 +50,19 @@ export const useCreatePasswordForm = ({
 
         try {
           console.time('🏗️ Total Create Wallet');
-          
+
           // Check if this is a private key import
           if (isPrivateKeyImport && mnemonic.startsWith('PRIVATE_KEY:')) {
             // Extract private key and address from synthetic mnemonic
             const [, _privateKey, _address] = mnemonic.split(':');
-            
+
             // Create wallet from private key
             console.log('🔑 Importing private key wallet:', _address);
-            
+
             // Store the private key in a secure location (this would need proper implementation)
             // For now, we'll just log it
             console.log('🔐 Storing private key for address:', _address);
-            
+
             // Create a simple wallet record for the private key
             // In a real implementation, you would store this securely
             await apisWallet.importPrivateKey(_privateKey);

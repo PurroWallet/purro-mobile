@@ -4,10 +4,10 @@
  */
 
 export { apisWallet } from './wallet';
-// export type { WalletAccount } from './wallet';
 
-// Re-export legacy lock APIs if needed
-export { apisLock } from './lock';
+// export type { WalletAccount } from './wallet';
 
 // Re-export keychain for biometric setup
 export { secureKeychain as apisKeychain } from '../services/keychain';
+// Re-export legacy lock APIs if needed
+export { apisLock } from './lock';

@@ -1,23 +1,20 @@
 import React, { useState } from 'react';
 import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
   Alert,
   KeyboardAvoidingView,
   Platform,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTranslation } from '@/utils/i18n';
-import { walletController } from '@/core/controllers/WalletController';
 import { Icon } from '@/components/Icon';
+import { walletController } from '@/core/controllers/WalletController';
 import type { CreatePasswordScreenProps } from '@/types/navigation';
+import { useTranslation } from '@/utils/i18n';
 
-const CreatePasswordScreen: React.FC<CreatePasswordScreenProps> = ({
-  navigation,
-  route,
-}) => {
+const CreatePasswordScreen: React.FC<CreatePasswordScreenProps> = ({ navigation, route }) => {
   const { t } = useTranslation();
   const { mnemonic, isImport } = route.params || {};
   const [password, setPassword] = useState('');
@@ -49,10 +46,7 @@ const CreatePasswordScreen: React.FC<CreatePasswordScreenProps> = ({
 
       if (isImport && mnemonic) {
         // Import existing wallet
-        addresses = await walletController.importWalletWithMnemonic(
-          mnemonic,
-          password
-        );
+        addresses = await walletController.importWalletWithMnemonic(mnemonic, password);
       } else {
         // Create new wallet
         const result = await walletController.createWallet(password);
@@ -66,10 +60,7 @@ const CreatePasswordScreen: React.FC<CreatePasswordScreenProps> = ({
       });
     } catch (error) {
       console.error('Failed to create wallet:', error);
-      Alert.alert(
-        t('errors.generic.title'),
-        t('errors.wallet.createFailed')
-      );
+      Alert.alert(t('errors.generic.title'), t('errors.wallet.createFailed'));
     } finally {
       setIsLoading(false);
     }
@@ -83,20 +74,11 @@ const CreatePasswordScreen: React.FC<CreatePasswordScreenProps> = ({
       >
         <View className="flex-1 px-5 justify-between">
           <View className="flex-row items-center justify-between mb-6">
-            <TouchableOpacity
-              className="p-2"
-              onPress={() => navigation.goBack()}
-            >
-              <Icon
-                name="ChevronLeft"
-                size={24}
-              />
+            <TouchableOpacity className="p-2" onPress={() => navigation.goBack()}>
+              <Icon name="ChevronLeft" size={24} />
             </TouchableOpacity>
             <Text className="text-h4 text-text-primary">
-              {isImport
-                ? t('welcome.importWallet')
-                : t('welcome.createWallet')
-              }
+              {isImport ? t('welcome.importWallet') : t('welcome.createWallet')}
             </Text>
             <View className="w-10" />
           </View>
@@ -122,10 +104,7 @@ const CreatePasswordScreen: React.FC<CreatePasswordScreenProps> = ({
                   autoComplete="password"
                   textContentType="password"
                 />
-                <TouchableOpacity
-                  className="p-3"
-                  onPress={() => setShowPassword(!showPassword)}
-                >
+                <TouchableOpacity className="p-3" onPress={() => setShowPassword(!showPassword)}>
                   <Icon
                     name={showPassword ? 'EyeOff' : 'Eye'}
                     size={20}
@@ -172,7 +151,7 @@ const CreatePasswordScreen: React.FC<CreatePasswordScreenProps> = ({
           <View className="px-5 pb-5">
             <TouchableOpacity
               className={`w-full min-h-12 items-center justify-center rounded-xl px-6 py-4 ${
-                (!password || !confirmPassword || isLoading)
+                !password || !confirmPassword || isLoading
                   ? 'bg-button-primary-disabled'
                   : 'bg-brand-primary'
               }`}
@@ -181,15 +160,12 @@ const CreatePasswordScreen: React.FC<CreatePasswordScreenProps> = ({
             >
               <Text
                 className={`text-button ${
-                  (!password || !confirmPassword || isLoading)
+                  !password || !confirmPassword || isLoading
                     ? 'text-button-primary-disabled-text'
                     : 'text-button-primary-text'
                 }`}
               >
-                {isLoading
-                  ? t('common.loading')
-                  : t('password.create.continue')
-                }
+                {isLoading ? t('common.loading') : t('password.create.continue')}
               </Text>
             </TouchableOpacity>
           </View>

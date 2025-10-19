@@ -1,18 +1,12 @@
 import React, { useCallback, useState } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Pressable,
-  Alert,
-} from 'react-native';
-import { useTranslation } from '@/utils/i18n';
+import { Alert, Pressable, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useCreateWallet } from '@/core/hooks/wallet/useCreateWallet';
 // import { useSocialLogin } from '@/hooks/auth/useSocialLogin';
 import { Icon } from '@/components/Icon';
 import { useThemeMode } from '@/core/hooks/useTheme';
+import { useCreateWallet } from '@/core/hooks/wallet/useCreateWallet';
 import type { WelcomeScreenProps } from '@/types/navigation';
+import { useTranslation } from '@/utils/i18n';
 
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
   const { t } = useTranslation();
@@ -25,11 +19,9 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
 
   const ensureTermsAccepted = useCallback(() => {
     if (!acceptedTerms) {
-      Alert.alert(
-        t('welcome.termsRequired.title'),
-        t('welcome.termsRequired.message'),
-        [{ text: t('welcome.termsRequired.ok'), style: 'default' }],
-      );
+      Alert.alert(t('welcome.termsRequired.title'), t('welcome.termsRequired.message'), [
+        { text: t('welcome.termsRequired.ok'), style: 'default' },
+      ]);
       return false;
     }
 
@@ -121,10 +113,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
 
       <View className="gap-5 px-5 pb-5">
         <View className="items-center">
-          <Pressable
-            className="flex-row items-center gap-2"
-            onPress={toggleTermsAcceptance}
-          >
+          <Pressable className="flex-row items-center gap-2" onPress={toggleTermsAcceptance}>
             <View
               className={`h-4 w-4 items-center justify-center rounded border border-text-secondary ${acceptedTerms ? 'border-brand-primary bg-brand-primary' : 'bg-transparent'}`}
             >
@@ -132,9 +121,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
                 <View className="h-[6px] w-[8px] -rotate-45 border-b-[1.5px] border-l-[1.5px] border-system-white -mt-[2px] ml-[1px]" />
               )}
             </View>
-            <Text className="text-label text-text-secondary">
-              {t('welcome.termsText')}
-            </Text>
+            <Text className="text-label text-text-secondary">{t('welcome.termsText')}</Text>
           </Pressable>
         </View>
 

@@ -1,6 +1,6 @@
+import { BlurView } from '@react-native-community/blur';
 import React from 'react';
 import { Modal, Text, TouchableOpacity, View } from 'react-native';
-import { BlurView } from '@react-native-community/blur';
 
 /**
  * @description stub component for security tip
@@ -33,8 +33,8 @@ export default function SecurityTipStubModal({
               Safety Alert
             </Text>
             <Text className="mb-6 text-center text-base leading-6 text-[#666666]">
-              For your protection, screenshots/screen recordings are disabled
-              when viewing your seed phrase or private key.
+              For your protection, screenshots/screen recordings are disabled when viewing your seed
+              phrase or private key.
             </Text>
             <TouchableOpacity
               className="rounded-lg bg-brand-primary px-8 py-3"
@@ -42,9 +42,7 @@ export default function SecurityTipStubModal({
                 onOk?.();
               }}
             >
-              <Text className="text-base font-semibold text-button-primary-text">
-                OK
-              </Text>
+              <Text className="text-base font-semibold text-button-primary-text">OK</Text>
             </TouchableOpacity>
           </View>
         </TouchableOpacity>

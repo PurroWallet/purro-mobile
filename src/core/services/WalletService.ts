@@ -1,7 +1,7 @@
+import { KEYRING_CLASS } from '../keyring/types';
+import { ContactBookService } from './ContactBookService';
 import { KeyringService } from './KeyringService';
 import { LockService } from './LockService';
-import { ContactBookService } from './ContactBookService';
-import { KEYRING_CLASS } from '../keyring/types';
 
 /**
  * Wallet Service - High-level wallet operations
@@ -77,10 +77,7 @@ export class WalletService {
       await this.keyringService.boot(password);
 
       // Create HD keyring with mnemonic
-      const addresses = await this.keyringService.createHDKeyring(
-        mnemonic,
-        passphrase,
-      );
+      const addresses = await this.keyringService.createHDKeyring(mnemonic, passphrase);
 
       // Generate alias for first account
       const alias = this.generateAliasName(KEYRING_CLASS.MNEMONIC, 0, 0);
@@ -106,9 +103,7 @@ export class WalletService {
   async importWalletWithPrivateKey(privateKey: string): Promise<string[]> {
     try {
       // Create simple keyring with private key
-      const addresses = await this.keyringService.createSimpleKeyring(
-        privateKey,
-      );
+      const addresses = await this.keyringService.createSimpleKeyring(privateKey);
 
       // Generate alias for first account
       const alias = this.generateAliasName(KEYRING_CLASS.PRIVATE_KEY, 0, 0);
@@ -149,10 +144,7 @@ export class WalletService {
 
       return true;
     } catch (error) {
-      console.error(
-        '🔓 WalletService.unlockWallet - Failed to unlock wallet:',
-        error,
-      );
+      console.error('🔓 WalletService.unlockWallet - Failed to unlock wallet:', error);
       return false;
     }
   }
@@ -177,9 +169,7 @@ export class WalletService {
    */
   async getAllAccounts(): Promise<any[]> {
     try {
-      console.log(
-        '💼 WalletService.getAllAccounts - Getting accounts from keyring...',
-      );
+      console.log('💼 WalletService.getAllAccounts - Getting accounts from keyring...');
       const keyringAccounts = await this.keyringService.getAllAccounts();
       console.log(
         '💼 WalletService.getAllAccounts - Keyring accounts:',
@@ -189,9 +179,7 @@ export class WalletService {
       const accounts = [];
 
       for (const account of keyringAccounts) {
-        const contact = this.contactBookService.getContactByAddress(
-          account.address,
-        );
+        const contact = this.contactBookService.getContactByAddress(account.address);
         accounts.push({
           address: account.address,
           type: account.type,
@@ -226,8 +214,7 @@ export class WalletService {
         return null;
       }
 
-      const contact =
-        this.contactBookService.getContactByAddress(currentAddress);
+      const contact = this.contactBookService.getContactByAddress(currentAddress);
       return {
         address: currentAddress,
         alianName: contact?.name,
@@ -256,11 +243,7 @@ export class WalletService {
 
       // Generate alias for new account
       const allAccounts = await this.getAllAccounts();
-      const alias = this.generateAliasName(
-        KEYRING_CLASS.MNEMONIC,
-        0,
-        allAccounts.length - 1,
-      );
+      const alias = this.generateAliasName(KEYRING_CLASS.MNEMONIC, 0, allAccounts.length - 1);
 
       // Store contact with alias
       await this.contactBookService.addContact({
@@ -362,11 +345,7 @@ export class WalletService {
   /**
    * Generate alias name
    */
-  generateAliasName(
-    brandName: string,
-    keyringCount: number,
-    addressCount: number,
-  ): string {
+  generateAliasName(brandName: string, keyringCount: number, addressCount: number): string {
     if (brandName === KEYRING_CLASS.MNEMONIC) {
       return `Account ${addressCount + 1}`;
     } else if (brandName === KEYRING_CLASS.PRIVATE_KEY) {

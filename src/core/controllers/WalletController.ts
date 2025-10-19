@@ -1,6 +1,4 @@
-import { walletService } from '../services';
-import { lockService } from '../services';
-import { contactBookService } from '../services';
+import { contactBookService, lockService, walletService } from '../services';
 
 /**
  * Wallet Controller - Main controller for wallet operations
@@ -38,19 +36,14 @@ export class WalletController {
   /**
    * Create new wallet
    */
-  async createWallet(
-    password: string,
-  ): Promise<{ mnemonic: string; addresses: string[] }> {
+  async createWallet(password: string): Promise<{ mnemonic: string; addresses: string[] }> {
     return walletService.createWallet(password);
   }
 
   /**
    * Import wallet with mnemonic
    */
-  async importWalletWithMnemonic(
-    mnemonic: string,
-    password: string,
-  ): Promise<string[]> {
+  async importWalletWithMnemonic(mnemonic: string, password: string): Promise<string[]> {
     return walletService.importWalletWithMnemonic(mnemonic, password);
   }
 

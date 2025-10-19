@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { BottomSheetView } from '@gorhom/bottom-sheet';
 import Clipboard from '@react-native-clipboard/clipboard';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import type { AccountStackParamList } from '../AccountStackNavigator';
-import SheetHeader from '../components/SheetHeader';
+import React, { useEffect, useState } from 'react';
+import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { walletController } from '@/core/controllers/WalletController';
 import { useTranslation } from '@/utils/i18n';
+import type { AccountStackParamList } from '../AccountStackNavigator';
+import SheetHeader from '../components/SheetHeader';
 
 type Props = NativeStackScreenProps<AccountStackParamList, 'SeedPhraseBackup'> & {
   onClose: () => void;
@@ -24,10 +24,7 @@ const SeedPhraseBackupScreen: React.FC<Props> = ({ navigation, onClose }) => {
         setIsLoading(true);
         const accounts = await walletController.getAllAccounts();
         if (accounts.length === 0) {
-          Alert.alert(
-            t('errors.generic.title'),
-            t('accountBottomSheet.errors.noAccountsFound'),
-          );
+          Alert.alert(t('errors.generic.title'), t('accountBottomSheet.errors.noAccountsFound'));
           onClose();
           return;
         }
@@ -36,10 +33,7 @@ const SeedPhraseBackupScreen: React.FC<Props> = ({ navigation, onClose }) => {
         setSeedPhrase(mnemonic || '');
       } catch (error) {
         console.error('Error loading seed phrase:', error);
-        Alert.alert(
-          t('errors.generic.title'),
-          t('accountBottomSheet.errors.loadSeedPhraseFailed'),
-        );
+        Alert.alert(t('errors.generic.title'), t('accountBottomSheet.errors.loadSeedPhraseFailed'));
         onClose();
       } finally {
         setIsLoading(false);
@@ -89,19 +83,14 @@ const SeedPhraseBackupScreen: React.FC<Props> = ({ navigation, onClose }) => {
 
           <View className="mb-6 rounded-xl bg-[#373B43]/60 p-4">
             {!isRevealed ? (
-              <TouchableOpacity
-                onPress={handleReveal}
-                className="items-center justify-center py-8"
-              >
+              <TouchableOpacity onPress={handleReveal} className="items-center justify-center py-8">
                 <Text className="text-lg text-[#059288] font-medium">
                   {t('accountBottomSheet.revealRecoveryPhrase')}
                 </Text>
               </TouchableOpacity>
             ) : (
               <View>
-                <Text className="text-base text-[#F9F9F9] leading-6 mb-4">
-                  {seedPhrase}
-                </Text>
+                <Text className="text-base text-[#F9F9F9] leading-6 mb-4">{seedPhrase}</Text>
                 <TouchableOpacity
                   onPress={handleCopyToClipboard}
                   className="self-center rounded-lg bg-[#059288] px-4 py-2"

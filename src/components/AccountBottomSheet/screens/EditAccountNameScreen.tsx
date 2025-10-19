@@ -1,18 +1,18 @@
+import { BottomSheetView } from '@gorhom/bottom-sheet';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useState } from 'react';
 import {
-  View,
+  Keyboard,
   Text,
   TextInput,
   TouchableOpacity,
-  Keyboard,
   TouchableWithoutFeedback,
+  View,
 } from 'react-native';
-import { BottomSheetView } from '@gorhom/bottom-sheet';
 import { walletController } from '@/core/controllers/WalletController';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useTranslation } from '@/utils/i18n';
 import type { AccountStackParamList } from '../AccountStackNavigator';
 import SheetHeader from '../components/SheetHeader';
-import { useTranslation } from '@/utils/i18n';
 
 type Props = NativeStackScreenProps<AccountStackParamList, 'EditAccountName'>;
 
@@ -59,10 +59,7 @@ const EditAccountNameScreen: React.FC<Props> = ({ navigation, route }) => {
 
         {/* Save Button (optional, can use keyboard done) */}
         <View className="absolute bottom-10 w-full px-6">
-          <TouchableOpacity
-            onPress={handleSave}
-            className="rounded-xl bg-[#059288] px-6 py-4"
-          >
+          <TouchableOpacity onPress={handleSave} className="rounded-xl bg-[#059288] px-6 py-4">
             <Text className="text-center text-lg font-medium text-[#F9F9F9]">
               {t('common.save')}
             </Text>

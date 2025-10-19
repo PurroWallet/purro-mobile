@@ -1,4 +1,4 @@
-const colorVar = variable => `rgb(var(${variable}) / <alpha-value>)`;
+const colorVar = (variable) => `rgb(var(${variable}) / <alpha-value>)`;
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -29,9 +29,7 @@ module.exports = {
           primary: colorVar('--color-button-primary'),
           'primary-text': colorVar('--color-button-primary-text'),
           'primary-disabled': colorVar('--color-button-primary-disabled'),
-          'primary-disabled-text': colorVar(
-            '--color-button-primary-disabled-text',
-          ),
+          'primary-disabled-text': colorVar('--color-button-primary-disabled-text'),
           secondary: colorVar('--color-button-secondary'),
           'secondary-text': colorVar('--color-button-secondary-text'),
         },

@@ -1,6 +1,6 @@
+import { BlurView } from '@react-native-community/blur';
 import React, { useEffect, useState } from 'react';
 import { AppState, AppStateStatus, Platform } from 'react-native';
-import { BlurView } from '@react-native-community/blur';
 
 export interface PrivacyBlurProps {
   children: React.ReactNode;
@@ -33,10 +33,7 @@ export const PrivacyBlur: React.FC<PrivacyBlurProps> = ({
       }
     };
 
-    const subscription = AppState.addEventListener(
-      'change',
-      handleAppStateChange,
-    );
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
 
     return () => {
       subscription.remove();

@@ -1,6 +1,6 @@
-import { useForm, UseFormProps, UseFormReturn, FieldValues } from 'react-hook-form';
-import { z, ZodTypeAny } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { FieldValues, UseFormProps, UseFormReturn, useForm } from 'react-hook-form';
+import { ZodTypeAny, z } from 'zod';
 
 type InferFieldValues<TSchema extends ZodTypeAny> = z.infer<TSchema> extends FieldValues
   ? z.infer<TSchema>

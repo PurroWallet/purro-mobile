@@ -1,13 +1,14 @@
 // Export all keyring types and implementations
-export * from './types';
+
 export * from './AbstractKeyring';
 export * from './HDKeyring';
 export * from './SimpleKeyring';
+export * from './types';
 
-// Factory function to create keyring by type
-import { IKeyring, KEYRING_TYPE } from './types';
 import { HDKeyring } from './HDKeyring';
 import { SimpleKeyring } from './SimpleKeyring';
+// Factory function to create keyring by type
+import { IKeyring, KEYRING_TYPE } from './types';
 
 export function createKeyring(type: KEYRING_TYPE, options?: any): IKeyring {
   switch (type) {
@@ -36,7 +37,7 @@ export function generateMnemonic(strength: number = 128): string {
 export function validatePrivateKey(privateKey: string): boolean {
   // Remove 0x prefix if present
   const key = privateKey.startsWith('0x') ? privateKey.slice(2) : privateKey;
-  
+
   // Validate private key format (64 hex characters)
   return /^[a-fA-F0-9]{64}$/.test(key);
 }

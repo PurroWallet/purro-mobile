@@ -14,9 +14,7 @@ const eventEmitter = new NativeEventEmitter(nativeModule);
 
 function makeDefaultHandler<T extends keyof Listeners>(fn: Listeners[T]) {
   if (typeof fn !== 'function') {
-    console.error(
-      'RNTimeChanged: addListener requires valid callback function',
-    );
+    console.error('RNTimeChanged: addListener requires valid callback function');
 
     return {
       remove: (): void => {

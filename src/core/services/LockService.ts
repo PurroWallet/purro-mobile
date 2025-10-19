@@ -1,5 +1,5 @@
-import { keyringService } from './KeyringService';
 import { secureWalletStorage } from '../storage/secureStorage';
+import { keyringService } from './KeyringService';
 
 export interface UnlockResult {
   success: boolean;
@@ -65,9 +65,9 @@ export class LockService {
 
   async unlockWithBiometrics(): Promise<UnlockResult> {
     // Simple implementation without keychain for now
-    return { 
-      success: false, 
-      error: 'Biometric authentication not available' 
+    return {
+      success: false,
+      error: 'Biometric authentication not available',
     };
   }
 

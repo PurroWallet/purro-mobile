@@ -1,39 +1,29 @@
-import React, { useState, useRef } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  Image as RNImage,
-  Alert,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
-import { useTranslation } from '@/utils/i18n';
-import { walletController } from '@/core/controllers/WalletController';
-import { useAtom } from 'jotai';
-import { walletExists } from '@/atoms/app';
-import { apisLock, apisWallet, apisKeychain } from '@/core/apis';
-import AccountBottomSheet, {
-  type AccountBottomSheetRef,
-} from '@/components/AccountBottomSheet';
 import {
-  Send,
   ArrowDownToLine,
-  Repeat,
-  GitBranch,
+  ArrowLeftRight,
   ChevronDown,
-  Plus,
   // Bell,
   ChevronRight,
-  Home,
-  ArrowLeftRight,
-  Image,
   Compass,
-  Search
+  GitBranch,
+  Home,
+  Image,
+  Plus,
+  Repeat,
+  Search,
+  Send,
 } from 'lucide-react-native';
-import type { HomeScreenProps } from '@/types/navigation';
+import React, { useRef, useState } from 'react';
+import { Alert, Image as RNImage, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import DefaultIcon from '@/assets/common/icon.png';
+import AccountBottomSheet, { type AccountBottomSheetRef } from '@/components/AccountBottomSheet';
+import { apisKeychain, apisLock, apisWallet } from '@/core/apis';
+import { walletController } from '@/core/controllers/WalletController';
+import { useAppStore } from '@/stores/appStore';
+import type { HomeScreenProps } from '@/types/navigation';
+import { useTranslation } from '@/utils/i18n';
 
 interface Account {
   address: string;
@@ -63,10 +53,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const { t } = useTranslation();
   const [currentAccount, setCurrentAccount] = useState<Account | null>(null);
   const accountBottomSheetRef = useRef<AccountBottomSheetRef>(null);
-  const [, setWalletExists] = useAtom(walletExists);
-  const [selectedTab, setSelectedTab] = useState<'EVM' | 'Spot' | 'Perpetuals'>(
-    'EVM',
-  );
+  const setWalletExists = useAppStore((state) => state.setWalletExists);
+  const [selectedTab, setSelectedTab] = useState<'EVM' | 'Spot' | 'Perpetuals'>('EVM');
 
   // Mock data
   const [perpPositions] = useState<PerpPosition[]>([
@@ -123,20 +111,12 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         console.log('✅ HomeScreen - Setting account:', account.address);
         setCurrentAccount(account);
       } else {
-        console.log(
-          '⚠️ HomeScreen - No account from controller, trying getAllAccounts...',
-        );
+        console.log('⚠️ HomeScreen - No account from controller, trying getAllAccounts...');
         const allAccounts = await walletController.getAllAccounts();
-        console.log(
-          '👥 HomeScreen - All accounts:',
-          JSON.stringify(allAccounts, null, 2),
-        );
+        console.log('👥 HomeScreen - All accounts:', JSON.stringify(allAccounts, null, 2));
 
         if (allAccounts && allAccounts.length > 0) {
-          console.log(
-            '✅ HomeScreen - Using first account:',
-            allAccounts[0].address,
-          );
+          console.log('✅ HomeScreen - Using first account:', allAccounts[0].address);
           setCurrentAccount(allAccounts[0]);
         } else {
           console.log('❌ HomeScreen - No accounts found');
@@ -154,13 +134,13 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const handleResetWallet = async () => {
     try {
       console.log('🔄 Resetting wallet...');
-      
+
       // Reset wallet data
       apisWallet.resetWallet();
-      
+
       // Lock wallet
       await apisLock.lockWallet();
-      
+
       // Clear keychain data
       try {
         await apisKeychain.resetGenericPassword();
@@ -168,12 +148,12 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       } catch (error) {
         console.log('🔑 No keychain data to clear:', error);
       }
-      
+
       // Update wallet exists state
       setWalletExists(false);
-      
+
       console.log('✅ Wallet reset complete, navigating to Welcome screen');
-      
+
       // Navigate to Welcome screen
       navigation.reset({
         index: 0,
@@ -200,7 +180,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
               >
                 <RNImage
                   source={DefaultIcon}
-                className="w-10 h-10 rounded-full border border-border-primary"
+                  className="w-10 h-10 rounded-full border border-border-primary"
                   resizeMode="cover"
                 />
                 <View>
@@ -244,18 +224,18 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           </TouchableOpacity>
 
           <TouchableOpacity className="flex-1 rounded-xl bg-background-secondary py-4 items-center gap-3">
-            <ArrowDownToLine size={24}  />
-                  <Text className="text-text-primary text-sm">{t('home.receive')}</Text>
+            <ArrowDownToLine size={24} />
+            <Text className="text-text-primary text-sm">{t('home.receive')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity className="flex-1 rounded-xl bg-background-secondary py-4 items-center gap-3">
-            <Repeat size={24}  />
-                  <Text className="text-text-primary text-sm">{t('home.swap')}</Text>
+            <Repeat size={24} />
+            <Text className="text-text-primary text-sm">{t('home.swap')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity className="flex-1 rounded-xl bg-background-secondary py-4 items-center gap-3">
-            <GitBranch size={24}  />
-                  <Text className="text-text-primary text-sm">{t('home.bridge')}</Text>
+            <GitBranch size={24} />
+            <Text className="text-text-primary text-sm">{t('home.bridge')}</Text>
           </TouchableOpacity>
         </View>
         {/* Accounts Horizontal Scroll */}
@@ -272,9 +252,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                 resizeMode="cover"
               />
               <View className="flex-1">
-                <Text className="text-text-primary text-lg">
-                  {t('home.createAccount')}
-                </Text>
+                <Text className="text-text-primary text-lg">{t('home.createAccount')}</Text>
                 <Text className="text-text-secondary text-sm">
                   {t('home.createAccountDescription')}
                 </Text>
@@ -289,54 +267,40 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                 resizeMode="cover"
               />
               <View className="flex-1">
-                <Text className="text-text-primary text-lg">
-                  {t('home.createAccount')}
-                </Text>
+                <Text className="text-text-primary text-lg">{t('home.createAccount')}</Text>
                 <Text className="text-text-secondary text-sm">
                   {t('home.createAccountDescription')}
                 </Text>
               </View>
-            <ChevronRight size={24} color="rgb(var(--color-text-primary))" />
+              <ChevronRight size={24} color="rgb(var(--color-text-primary))" />
             </View>
           </ScrollView>
         </View>
         {/* Perps Section */}
         <View className="px-5 pt-10 pb-10">
           <View className="flex-row justify-between items-center px-0 pb-4">
-          <Text className="text-text-primary text-lg font-semibold">{t('home.perps')}</Text>
+            <Text className="text-text-primary text-lg font-semibold">{t('home.perps')}</Text>
             <TouchableOpacity>
-              <Text className="text-brand-primary text-sm font-medium">
-                {t('home.viewMore')}
-              </Text>
+              <Text className="text-brand-primary text-sm font-medium">{t('home.viewMore')}</Text>
             </TouchableOpacity>
           </View>
 
-          {perpPositions.map(position => (
+          {perpPositions.map((position) => (
             <View
               key={position.id}
               className="rounded-xl bg-background-secondary px-4 py-1 flex-row items-center gap-5 mb-2"
             >
-              <RNImage
-                source={DefaultIcon}
-                className="w-12 h-12 rounded-full"
-                resizeMode="cover"
-              />
+              <RNImage source={DefaultIcon} className="w-12 h-12 rounded-full" resizeMode="cover" />
               <View className="flex-1 flex-row justify-between items-center py-5">
                 <View className="gap-3">
-                  <Text className="text-text-primary text-xl font-medium">
-                    {position.name}
-                  </Text>
-                  <Text className="text-text-secondary text-sm">
-                    {position.multiplier}
-                  </Text>
+                  <Text className="text-text-primary text-xl font-medium">{position.name}</Text>
+                  <Text className="text-text-secondary text-sm">{position.multiplier}</Text>
                 </View>
                 <View className="items-end gap-3">
                   <Text className="text-text-primary text-xl font-medium text-right">
                     {position.value}
                   </Text>
-                  <Text className="text-system-error text-sm">
-                    {position.change}
-                  </Text>
+                  <Text className="text-system-error text-sm">{position.change}</Text>
                 </View>
               </View>
             </View>
@@ -385,9 +349,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
               >
                 <Text
                   className={`text-lg font-semibold ${
-                    selectedTab === 'Perpetuals'
-                      ? 'text-text-primary'
-                      : 'text-text-secondary'
+                    selectedTab === 'Perpetuals' ? 'text-text-primary' : 'text-text-secondary'
                   }`}
                 >
                   {t('home.tabs.perpetuals')}
@@ -401,56 +363,38 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           {/* Balance Cards */}
           <View className="flex-row gap-2 mb-2">
             <View className="flex-1 rounded-xl bg-background-secondary/60 p-5">
-              <Text className="text-text-secondary text-base mb-3.5">
-                {t('home.totalBalance')}
-              </Text>
-              <Text className="text-text-primary text-2xl font-medium">
-                $345.64
-              </Text>
+              <Text className="text-text-secondary text-base mb-3.5">{t('home.totalBalance')}</Text>
+              <Text className="text-text-primary text-2xl font-medium">$345.64</Text>
             </View>
             <View className="flex-1 rounded-xl bg-background-secondary/60 p-5">
-              <Text className="text-text-secondary text-base mb-3.5">
-                {t('home.totalTokens')}
-              </Text>
+              <Text className="text-text-secondary text-base mb-3.5">{t('home.totalTokens')}</Text>
               <Text className="text-text-primary text-2xl font-medium">1</Text>
             </View>
           </View>
 
           {/* Token List */}
-          {tokens.map(token => (
+          {tokens.map((token) => (
             <View
               key={token.id}
               className="rounded-xl bg-background-secondary px-4 py-5 flex-row items-center gap-5 mb-2"
             >
-              <RNImage
-                source={DefaultIcon}
-                className="w-12 h-12 rounded-full"
-                resizeMode="cover"
-              />
+              <RNImage source={DefaultIcon} className="w-12 h-12 rounded-full" resizeMode="cover" />
               <View className="flex-1 flex-row justify-between items-center py-5">
                 <View className="gap-3">
-                  <Text className="text-text-primary text-xl font-medium">
-                    {token.name}
-                  </Text>
+                  <Text className="text-text-primary text-xl font-medium">{token.name}</Text>
                   <View className="flex-row gap-1.5">
-                    <Text className="text-text-primary text-sm">
-                      {token.balance}
-                    </Text>
-                    <Text className="text-text-secondary text-sm">
-                      {token.symbol}
-                    </Text>
+                    <Text className="text-text-primary text-sm">{token.balance}</Text>
+                    <Text className="text-text-secondary text-sm">{token.symbol}</Text>
                   </View>
                 </View>
-                <Text className="text-text-primary text-xl font-medium">
-                  {token.value}
-                </Text>
+                <Text className="text-text-primary text-xl font-medium">{token.value}</Text>
               </View>
             </View>
           ))}
 
           {/* Add Token Button */}
           <TouchableOpacity className="rounded-xl bg-background-secondary px-4 py-6 flex-row items-center justify-center gap-2">
-          <Plus size={16} color="rgb(var(--color-text-primary))" />
+            <Plus size={16} color="rgb(var(--color-text-primary))" />
             <Text className="text-text-primary text-base text-right">
               {t('home.addTestnetToken')}
             </Text>
@@ -462,12 +406,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         <SafeAreaView edges={['bottom']}>
           <View className="flex-row justify-between items-center">
             <TouchableOpacity className="items-center py-2.5 border-t-2 border-brand-primary">
-              <Home
-                size={24}
-                
-                strokeWidth={2}
-                className="mb-1"
-              />
+              <Home size={24} strokeWidth={2} className="mb-1" />
               <Text className="text-brand-primary text-xs font-medium">{t('home.nav.home')}</Text>
             </TouchableOpacity>
 

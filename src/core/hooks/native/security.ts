@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from 'react';
-import { atom, useAtom } from 'jotai';
 import { Platform } from 'react-native';
+import { useIOSScreenCaptureStore } from '@/stores/iosScreenCaptureStore';
 
 // Mock RNScreenshotPrevent for compatibility
 const RNScreenshotPrevent = {
@@ -8,9 +8,7 @@ const RNScreenshotPrevent = {
     console.log(`Screenshot prevention ${prevent ? 'enabled' : 'disabled'}`);
   },
   iosIsBeingCaptured: () => false,
-  iosOnScreenCaptureChanged: (
-    callback: (ctx: { isBeingCaptured: boolean }) => void,
-  ) => ({
+  iosOnScreenCaptureChanged: (callback: (ctx: { isBeingCaptured: boolean }) => void) => ({
     remove: () => callback,
   }),
   iosOnUserDidTakeScreenshot: (callback: () => void) => ({
@@ -48,13 +46,8 @@ export function usePreventScreenshot(prevent = true, { isTop = false } = {}) {
   }, [prevent, isTop]);
 }
 
-const iosScreenCaptureAtom = atom({
-  isBeingCaptured: Platform.OS === 'ios' ? RNScreenshotPrevent.iosIsBeingCaptured() : false,
-  isScreenshotJustNow: false,
-});
-
 export function useIOSScreenIsBeingCaptured() {
-  const [{ isBeingCaptured }] = useAtom(iosScreenCaptureAtom);
+  const isBeingCaptured = useIOSScreenCaptureStore((state) => state.isBeingCaptured);
 
   return {
     isBeingCaptured,
@@ -65,8 +58,8 @@ export function useIOSScreenRecording(options?: {
   isTop?: boolean;
   onIsBeingCapturedChanged?: (ctx: { isBeingCaptured: boolean }) => void;
 }) {
-  const [{ isBeingCaptured }, setIOSScreenCapture] =
-    useAtom(iosScreenCaptureAtom);
+  const isBeingCaptured = useIOSScreenCaptureStore((state) => state.isBeingCaptured);
+  const setIsBeingCaptured = useIOSScreenCaptureStore((state) => state.setIsBeingCaptured);
 
   const { onIsBeingCapturedChanged, isTop } = options || {};
 
@@ -74,18 +67,15 @@ export function useIOSScreenRecording(options?: {
     if (!isTop) return;
     if (Platform.OS !== 'ios') return;
 
-    const { remove } = RNScreenshotPrevent.iosOnScreenCaptureChanged(ctx => {
-      setIOSScreenCapture(prev => ({
-        ...prev,
-        isBeingCaptured: ctx.isBeingCaptured,
-      }));
+    const { remove } = RNScreenshotPrevent.iosOnScreenCaptureChanged((ctx) => {
+      setIsBeingCaptured(ctx.isBeingCaptured);
       onIsBeingCapturedChanged?.(ctx);
     });
 
     return () => {
       remove();
     };
-  }, [isTop, setIOSScreenCapture, onIsBeingCapturedChanged]);
+  }, [isTop, setIsBeingCaptured, onIsBeingCapturedChanged]);
 
   return {
     isBeingCaptured,
@@ -98,28 +88,27 @@ export function useIOSScreenshotted(options?: {
     setScreenshotted: (isScreenshotJustNow: boolean) => void;
   }) => void;
 }) {
-  const [{ isScreenshotJustNow }, setIOSScreenCapture] =
-    useAtom(iosScreenCaptureAtom);
+  const isScreenshotJustNow = useIOSScreenCaptureStore((state) => state.isScreenshotJustNow);
+  const setScreenshotJustNow = useIOSScreenCaptureStore((state) => state.setScreenshotJustNow);
 
   const { onIsScreenshottedJustNow } = options || {};
 
   const clearScreenshotJustNow = useCallback(() => {
-    setIOSScreenCapture(prev => ({ ...prev, isScreenshotJustNow: false }));
-  }, [setIOSScreenCapture]);
+    setScreenshotJustNow(false);
+  }, [setScreenshotJustNow]);
 
   useEffect(() => {
     if (Platform.OS !== 'ios') return;
 
     const { remove } = RNScreenshotPrevent.iosOnUserDidTakeScreenshot(() => {
-      const setScreenshotted = (val?: boolean) =>
-        setIOSScreenCapture(prev => ({ ...prev, isScreenshotJustNow: !!val }));
+      const setScreenshotted = (val?: boolean) => setScreenshotJustNow(!!val);
       onIsScreenshottedJustNow?.({ setScreenshotted });
     });
 
     return () => {
       remove();
     };
-  }, [setIOSScreenCapture, onIsScreenshottedJustNow]);
+  }, [setScreenshotJustNow, onIsScreenshottedJustNow]);
 
   return {
     isScreenshotJustNow,
@@ -130,9 +119,7 @@ export function useIOSScreenshotted(options?: {
 /**
  * @description call this hook only once on the top level of your app
  */
-export function useAppPreventScreenshotOnScreen({}: {
-  isTop?: boolean;
-} = {}) {
+export function useAppPreventScreenshotOnScreen({}: { isTop?: boolean } = {}) {
   // Screenshot prevention is handled by individual screen hooks
   // This hook is for future global prevention logic
   return {};

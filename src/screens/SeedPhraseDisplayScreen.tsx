@@ -1,14 +1,8 @@
+import React, { useState } from 'react';
+import { Pressable, StatusBar, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePreventScreenshot } from '@/core/hooks/native/security';
 import { SeedPhraseDisplayScreenProps } from '@/types/navigation';
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StatusBar,
-  TouchableOpacity,
-  Pressable,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from '@/utils/i18n';
 
 const ProgressIndicator = () => (
@@ -29,10 +23,7 @@ const SeedWordCard = ({ word, index }: { word: string; index: number }) => (
   </View>
 );
 
-const SeedPhraseDisplayScreen: React.FC<SeedPhraseDisplayScreenProps> = ({
-  route,
-  navigation,
-}) => {
+const SeedPhraseDisplayScreen: React.FC<SeedPhraseDisplayScreenProps> = ({ route, navigation }) => {
   const { mnemonic } = route.params;
   const { t } = useTranslation();
 

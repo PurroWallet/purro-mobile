@@ -1,12 +1,12 @@
-import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import type { AccountStackParamList } from '../AccountStackNavigator';
 import type { NavigationProp } from '@react-navigation/native';
-import SheetHeader from '../components/SheetHeader';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import React from 'react';
+import { Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from '@/components/Icon';
 import { useTranslation } from '@/utils/i18n';
+import type { AccountStackParamList } from '../AccountStackNavigator';
+import SheetHeader from '../components/SheetHeader';
 
 type Props = NativeStackScreenProps<AccountStackParamList, 'AddAccount'> & {
   onClose: () => void;
@@ -36,7 +36,7 @@ const AddAccountScreen: React.FC<Props> = ({
 
   const handleCreateNew = () => {
     console.log('AddAccountScreen - Creating new account, navigating to unlock screen');
-    
+
     // Navigate to unlock screen for creating new account
     navigation.navigate('Unlock', {
       isNewAccount: true,
@@ -52,7 +52,6 @@ const AddAccountScreen: React.FC<Props> = ({
     console.log('AddAccountScreen - Import private key, navigating to sheet screen');
     navigation.navigate('ImportPrivateKey');
   };
-
 
   const options: AccountOption[] = [
     {
@@ -81,16 +80,13 @@ const AddAccountScreen: React.FC<Props> = ({
   return (
     <BottomSheetScrollView className="flex-1 bg-[#161616]">
       {/* Header */}
-      <SheetHeader
-        title={t('accountBottomSheet.addAccount')}
-        onBack={handleBack}
-      />
+      <SheetHeader title={t('accountBottomSheet.addAccount')} onBack={handleBack} />
       <View className="mb-6" />
 
       {/* Options List */}
       <View className="px-5 pt-5">
         <View className="gap-2">
-          {options.map(option => (
+          {options.map((option) => (
             <TouchableOpacity
               key={option.id}
               onPress={option.action}
@@ -101,9 +97,7 @@ const AddAccountScreen: React.FC<Props> = ({
               </View>
               <View className="flex-1">
                 <Text className="text-lg text-[#F9F9F9]">{t(option.title)}</Text>
-                <Text className="text-sm text-[#8D94A3]">
-                  {t(option.subtitle)}
-                </Text>
+                <Text className="text-sm text-[#8D94A3]">{t(option.subtitle)}</Text>
               </View>
             </TouchableOpacity>
           ))}

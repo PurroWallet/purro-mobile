@@ -1,7 +1,7 @@
+import { useColorScheme } from 'nativewind';
 import React from 'react';
 import type { ViewProps } from 'react-native';
 import { View } from 'react-native';
-import { useColorScheme } from 'nativewind';
 import { useIcon } from './useIcon';
 
 export interface IconProps extends Pick<ViewProps, 'className' | 'style'> {
@@ -30,11 +30,7 @@ export const Icon: React.FC<IconProps> = ({
     const LucideComponent = resolution.Component;
     return (
       <View className={className} style={style}>
-        <LucideComponent
-          size={size}
-          strokeWidth={strokeWidth}
-          color={iconColor}
-        />
+        <LucideComponent size={size} strokeWidth={strokeWidth} color={iconColor} />
       </View>
     );
   }

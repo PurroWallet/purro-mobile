@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { WalletSuccessScreenProps } from '@/types/navigation';
 import { useTranslation } from '@/utils/i18n';
@@ -9,9 +9,7 @@ import { useTranslation } from '@/utils/i18n';
  * Shown after successful wallet creation
  * Following Figma design: node-id=260-1901
  */
-const WalletSuccessScreen: React.FC<WalletSuccessScreenProps> = ({
-  navigation,
-}) => {
+const WalletSuccessScreen: React.FC<WalletSuccessScreenProps> = ({ navigation }) => {
   const { t } = useTranslation();
   const handleGetStarted = () => {
     // Navigate to Home screen
@@ -34,9 +32,7 @@ const WalletSuccessScreen: React.FC<WalletSuccessScreenProps> = ({
 
         {/* Success Message */}
         <View className="items-center gap-4">
-          <Text className="text-center text-h4 text-text-primary">
-            {t('walletSuccess.title')}
-          </Text>
+          <Text className="text-center text-h4 text-text-primary">{t('walletSuccess.title')}</Text>
           <Text className="text-center text-button text-text-secondary">
             {t('walletSuccess.subtitle')}
           </Text>

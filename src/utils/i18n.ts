@@ -3,10 +3,7 @@
  */
 
 import i18n from 'i18next';
-import {
-  initReactI18next,
-  useTranslation as useI18nTranslation,
-} from 'react-i18next';
+import { initReactI18next, useTranslation as useI18nTranslation } from 'react-i18next';
 import messages from '@/locales/en/messages.json';
 
 // English translations
@@ -27,8 +24,7 @@ const en = {
       createWallet: 'Create wallet',
       importWallet: 'Import existing wallet',
       termsRequired: 'Terms Required',
-      acceptTerms:
-        'Please accept the Terms of Service and Privacy Policy to continue.',
+      acceptTerms: 'Please accept the Terms of Service and Privacy Policy to continue.',
     },
     seedPhrase: {
       title: 'Your Seed Phrase',
@@ -55,8 +51,7 @@ const en = {
     },
     biometrics: {
       enable: 'Enable Biometric Authentication?',
-      enableMessage:
-        'Would you like to use Face ID / Touch ID to unlock your wallet?',
+      enableMessage: 'Would you like to use Face ID / Touch ID to unlock your wallet?',
       faceId: 'Face ID',
       touchId: 'Touch ID',
       fingerprint: 'Fingerprint',

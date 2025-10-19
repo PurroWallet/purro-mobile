@@ -1,17 +1,11 @@
+import { Wallet } from 'ethers';
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Alert,
-  ScrollView,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { FormProvider } from 'react-hook-form';
+import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
 import { FormInput } from '@/components';
 import { useZodForm, ZodFormValues } from '@/core/hooks/form/useZodForm';
-import { Wallet } from 'ethers';
 import type { ImportPrivateKeyScreenProps } from '@/types/navigation';
 import { useTranslation } from '@/utils/i18n';
 
@@ -36,33 +30,33 @@ const ImportPrivateKeyScreen: React.FC<ImportPrivateKeyScreenProps> = ({ navigat
 
   const handleImport = async (values: ImportPrivateKeyFormValues) => {
     if (isImporting) return;
-    
+
     setIsImporting(true);
     try {
       // Validate private key format
       let privateKey = values.privateKey.trim();
-      
+
       // Remove 0x prefix if present
       if (privateKey.startsWith('0x')) {
         privateKey = privateKey.slice(2);
       }
-      
+
       // Check if it's a valid hex string of 64 characters (32 bytes)
       if (!/^[a-fA-F0-9]{64}$/.test(privateKey)) {
         throw new Error(t('importPrivateKey.errors.invalidFormat'));
       }
-      
+
       // Try to create a wallet from the private key to validate it
       try {
         const wallet = new Wallet('0x' + privateKey);
         if (!wallet.address) {
           throw new Error(t('importPrivateKey.errors.invalidKey'));
         }
-        
+
         // Create a synthetic mnemonic for private key import
         // This is needed for the current wallet architecture
         const syntheticMnemonic = `PRIVATE_KEY:${privateKey}:${wallet.address}`;
-        
+
         // Navigate to password creation screen with the synthetic mnemonic
         navigation.navigate('CreatePassword', {
           mnemonic: syntheticMnemonic,
@@ -86,14 +80,11 @@ const ImportPrivateKeyScreen: React.FC<ImportPrivateKeyScreenProps> = ({ navigat
     form.handleSubmit(handleImport)();
   };
 
-
   return (
     <SafeAreaView className="flex-1 bg-background-primary">
       <ScrollView className="flex-1 px-5">
         <View className="py-5">
-          <Text className="text-h4 text-text-primary mb-2">
-            {t('importPrivateKey.title')}
-          </Text>
+          <Text className="text-h4 text-text-primary mb-2">{t('importPrivateKey.title')}</Text>
           <Text className="text-button text-text-secondary mb-8">
             {t('importPrivateKey.subtitle')}
           </Text>

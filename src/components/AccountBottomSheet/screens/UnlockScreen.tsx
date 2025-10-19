@@ -1,24 +1,24 @@
+import { BottomSheetView } from '@gorhom/bottom-sheet';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { Eye, EyeOff } from 'lucide-react-native';
 import React, { useCallback, useState } from 'react';
+import { FormProvider } from 'react-hook-form';
 import {
-  View,
-  Text,
-  TouchableOpacity,
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  Text,
   TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import { BottomSheetView } from '@gorhom/bottom-sheet';
-import { FormProvider } from 'react-hook-form';
-import { Eye, EyeOff } from 'lucide-react-native';
-import { apisLock } from '@/core/apis';
-import { useZodForm, ZodFormValues } from '@/core/hooks/form/useZodForm';
 import { z } from 'zod';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { apisLock } from '@/core/apis';
+import { walletController } from '@/core/controllers/WalletController';
+import { useZodForm, ZodFormValues } from '@/core/hooks/form/useZodForm';
+import { useTranslation } from '@/utils/i18n';
 import type { AccountStackParamList } from '../AccountStackNavigator';
 import SheetHeader from '../components/SheetHeader';
-import { walletController } from '@/core/controllers/WalletController';
-import { useTranslation } from '@/utils/i18n';
 
 const unlockSchema = z.object({
   password: z.string().min(1, 'Password is required'),
@@ -44,8 +44,8 @@ const UnlockScreen: React.FC<Props> = ({
   parentNavigation: _parentNavigation,
   route,
 }) => {
-  const { mnemonic, isImport, isPrivateKeyImport, isNewAccount } =
-    (route.params || {}) as RouteParams;
+  const { mnemonic, isImport, isPrivateKeyImport, isNewAccount } = (route.params ||
+    {}) as RouteParams;
 
   const [showPassword, setShowPassword] = useState(false);
   const [isUnlocking, setIsUnlocking] = useState(false);
@@ -75,42 +75,34 @@ const UnlockScreen: React.FC<Props> = ({
           await walletController.addNewAccount();
         } else if (isImport && mnemonic) {
           // Import wallet
-            if (isPrivateKeyImport) {
-              // Handle private key import
-              await walletController.importWalletWithPrivateKey(mnemonic);
-            } else {
-              // Handle mnemonic import
-              await walletController.importWalletWithMnemonic(mnemonic, values.password);
-            }
+          if (isPrivateKeyImport) {
+            // Handle private key import
+            await walletController.importWalletWithPrivateKey(mnemonic);
+          } else {
+            // Handle mnemonic import
+            await walletController.importWalletWithMnemonic(mnemonic, values.password);
+          }
         }
 
         // Navigate to success screen
         navigation.navigate('Success', {
-            title: isNewAccount
-              ? t('accountBottomSheet.success.accountCreated.title')
-              : t('accountBottomSheet.success.walletImported.title'),
-            message: isNewAccount
-              ? t('accountBottomSheet.success.accountCreated.message')
-              : t('accountBottomSheet.success.walletImported.message'),
+          title: isNewAccount
+            ? t('accountBottomSheet.success.accountCreated.title')
+            : t('accountBottomSheet.success.walletImported.title'),
+          message: isNewAccount
+            ? t('accountBottomSheet.success.accountCreated.message')
+            : t('accountBottomSheet.success.walletImported.message'),
         });
       } catch (error) {
         console.error('Error unlocking wallet:', error);
         form.setError('password', {
-            message: t('accountBottomSheet.errors.incorrectPassword'),
+          message: t('accountBottomSheet.errors.incorrectPassword'),
         });
       } finally {
         setIsUnlocking(false);
       }
     },
-    [
-      isUnlocking,
-      isNewAccount,
-      isImport,
-      isPrivateKeyImport,
-      mnemonic,
-      form,
-      navigation,
-    ],
+    [isUnlocking, isNewAccount, isImport, isPrivateKeyImport, mnemonic, form, navigation],
   );
 
   const handleSubmit = () => {
@@ -141,12 +133,12 @@ const UnlockScreen: React.FC<Props> = ({
               {isNewAccount
                 ? t('accountBottomSheet.passwordPromptCreate')
                 : isImport
-                ? t(
-                    isPrivateKeyImport
-                      ? 'accountBottomSheet.passwordPromptImportPrivateKey'
-                      : 'accountBottomSheet.passwordPromptImportMnemonic',
-                  )
-                : t('accountBottomSheet.passwordPromptUnlock')}
+                  ? t(
+                      isPrivateKeyImport
+                        ? 'accountBottomSheet.passwordPromptImportPrivateKey'
+                        : 'accountBottomSheet.passwordPromptImportMnemonic',
+                    )
+                  : t('accountBottomSheet.passwordPromptUnlock')}
             </Text>
 
             <FormProvider {...form}>
@@ -158,7 +150,7 @@ const UnlockScreen: React.FC<Props> = ({
                   <TextInput
                     className="flex-1 text-lg text-text-primary"
                     value={passwordValue}
-                    onChangeText={text => form.setValue('password', text)}
+                    onChangeText={(text) => form.setValue('password', text)}
                     placeholder={t('accountBottomSheet.passwordPlaceholder')}
                     placeholderTextColor="rgb(var(--color-text-secondary))"
                     secureTextEntry={!showPassword}
@@ -168,10 +160,7 @@ const UnlockScreen: React.FC<Props> = ({
                     returnKeyType="done"
                     onSubmitEditing={handleSubmit}
                   />
-                  <TouchableOpacity
-                    className="ml-2"
-                    onPress={() => setShowPassword(!showPassword)}
-                  >
+                  <TouchableOpacity className="ml-2" onPress={() => setShowPassword(!showPassword)}>
                     {showPassword ? (
                       <EyeOff size={20} color="rgb(var(--color-text-secondary))" />
                     ) : (
@@ -191,9 +180,7 @@ const UnlockScreen: React.FC<Props> = ({
         <View className="absolute bottom-10 w-full px-6">
           <TouchableOpacity
             className={`w-full min-h-12 items-center justify-center rounded-xl px-6 py-4 ${
-              !passwordValue.trim() || isUnlocking
-                ? 'bg-background-secondary'
-                : 'bg-brand-primary'
+              !passwordValue.trim() || isUnlocking ? 'bg-background-secondary' : 'bg-brand-primary'
             }`}
             onPress={handleSubmit}
             disabled={!passwordValue.trim() || isUnlocking}
@@ -205,8 +192,8 @@ const UnlockScreen: React.FC<Props> = ({
                 {isNewAccount
                   ? t('accountBottomSheet.actions.createAccount')
                   : isImport
-                  ? t('accountBottomSheet.actions.importWallet')
-                  : t('accountBottomSheet.actions.unlock')}
+                    ? t('accountBottomSheet.actions.importWallet')
+                    : t('accountBottomSheet.actions.unlock')}
               </Text>
             )}
           </TouchableOpacity>

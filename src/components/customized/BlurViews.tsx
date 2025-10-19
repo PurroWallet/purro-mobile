@@ -1,5 +1,5 @@
-import React from 'react';
 import { BlurView } from '@react-native-community/blur';
+import React from 'react';
 
 import { useIsOnBackground } from '../../core/hooks/useLock';
 import { IS_ANDROID } from '../../core/native/utils';

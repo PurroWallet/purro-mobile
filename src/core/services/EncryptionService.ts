@@ -1,5 +1,5 @@
-import Aes from 'react-native-aes-crypto';
 import { Buffer } from 'buffer';
+import Aes from 'react-native-aes-crypto';
 
 /**
  * Encryption Service - Password-based encryption for sensitive data
@@ -13,13 +13,7 @@ export class EncryptionService {
     iterations: number = 5000,
   ): Promise<Buffer> {
     const saltBase64 = salt.toString('base64');
-    const keyBase64 = await Aes.pbkdf2(
-      password,
-      saltBase64,
-      iterations,
-      256,
-      'sha256',
-    );
+    const keyBase64 = await Aes.pbkdf2(password, saltBase64, iterations, 256, 'sha256');
     return Buffer.from(keyBase64, 'base64');
   }
 
@@ -85,12 +79,7 @@ export class EncryptionService {
 
       console.time('🔐 Decrypt - AES decryption');
       // Decrypt using react-native-aes-crypto
-      const decrypted = await Aes.decrypt(
-        encrypted.cipher,
-        key,
-        iv,
-        'aes-256-cbc',
-      );
+      const decrypted = await Aes.decrypt(encrypted.cipher, key, iv, 'aes-256-cbc');
       console.timeEnd('🔐 Decrypt - AES decryption');
 
       console.log('🔐 Decrypt - Decryption successful, parsing JSON...');

@@ -8,4 +8,3 @@ export function makeDebugBorder(color = 'red', width = 1) {
     borderColor: color,
   };
 }
-

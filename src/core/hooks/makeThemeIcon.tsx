@@ -17,4 +17,3 @@ export function makeThemeIconFromCC(Component: any, theme: string) {
     </View>
   );
 }
-
