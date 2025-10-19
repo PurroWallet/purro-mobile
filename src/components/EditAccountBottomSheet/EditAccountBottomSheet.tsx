@@ -17,7 +17,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { BottomSheetBackdrop } from '@gorhom/bottom-sheet';
 import BottomSheetHandle from '@/components/BottomSheetHandle';
-import { useBottomSheetAnimationConfigs } from '@/hooks/useBottomSheetAnimationConfigs';
+import { useBottomSheetAnimationConfigs } from '@/core/hooks/useBottomSheetAnimationConfigs';
 import { Platform } from 'react-native';
 
 interface Account {
@@ -269,7 +269,11 @@ const EditAccountBottomSheet = forwardRef<EditAccountBottomSheetRef, EditAccount
         disabled={option.type === 'toggle'}
       >
         <View className="flex-row items-center gap-3.5 flex-1">
-          <Icon name={option.icon} size={24} color="#8E8E93" />
+          <Icon
+            name={option.icon}
+            size={24}
+            color="rgb(var(--color-text-secondary))"
+          />
           <Text className="text-lg font-normal text-text-primary">{option.title}</Text>
         </View>
         {option.type === 'toggle' ? (
@@ -281,7 +285,11 @@ const EditAccountBottomSheet = forwardRef<EditAccountBottomSheetRef, EditAccount
             ios_backgroundColor="#3F434D"
           />
         ) : (
-          <Icon name="ChevronRight" size={16} color="#8E8E93" />
+          <Icon
+            name="ChevronRight"
+            size={16}
+            color="rgb(var(--color-text-secondary))"
+          />
         )}
       </TouchableOpacity>
     );
@@ -358,12 +366,19 @@ const EditAccountBottomSheet = forwardRef<EditAccountBottomSheetRef, EditAccount
           />
         )}
       </View>
-      <Icon name={option.icon} size={20} color="#FFFFFF" />
+      <Icon
+        name={option.icon}
+        size={20}
+        color="rgb(var(--color-text-primary))"
+      />
     </TouchableOpacity>
   );
 
   const renderHeader = () => (
-    <View className="flex-row items-center justify-between pt-6 pb-4 w-full" style={{ paddingBottom: insets.bottom + 16, backgroundColor: '#373B43' }}>
+    <View
+      className="flex-row items-center justify-between pt-6 pb-4 w-full"
+      style={{ paddingBottom: insets.bottom + 16, backgroundColor: '#373B43' }}
+    >
       <TouchableOpacity className="w-6 h-6 items-center justify-center" onPress={() => {
         if (showSettings) {
           setShowSettings(false);
@@ -372,11 +387,15 @@ const EditAccountBottomSheet = forwardRef<EditAccountBottomSheetRef, EditAccount
           onClose();
         }
       }}>
-        <Icon name="Close" size={24} color="#FFFFFF" />
+        <Icon name="Close" size={24} color="rgb(var(--color-text-primary))" />
       </TouchableOpacity>
       <Text className="text-xl font-medium text-text-primary absolute left-0 right-0 text-center">{showSettings ? t('settings.title') : t('accountBottomSheet.editAccount')}</Text>
       <TouchableOpacity className="w-6 h-6 items-center justify-center" onPress={() => setShowSettings(!showSettings)}>
-        <Icon name={showSettings ? "Close" : "Settings"} size={24} color="#007AFF" />
+        <Icon
+          name={showSettings ? 'Close' : 'Settings'}
+          size={24}
+          color={showSettings ? 'rgb(var(--color-text-primary))' : 'rgb(var(--color-brand-primary))'}
+        />
       </TouchableOpacity>
     </View>
   );
@@ -389,7 +408,7 @@ const EditAccountBottomSheet = forwardRef<EditAccountBottomSheetRef, EditAccount
         </Text>
       </View>
       <TouchableOpacity className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-background-secondary items-center justify-center border border-background-primary">
-        <Icon name="Camera" size={20} color="#FFFFFF" />
+        <Icon name="Camera" size={20} color="rgb(var(--color-text-primary))" />
       </TouchableOpacity>
     </View>
   );
@@ -400,7 +419,7 @@ const EditAccountBottomSheet = forwardRef<EditAccountBottomSheetRef, EditAccount
       onPress={handleDeleteAccount}
       activeOpacity={0.8}
     >
-      <Icon name="Trash" size={20} color="#ED7D75" />
+      <Icon name="Trash" size={20} color="rgb(var(--color-system-error))" />
       <Text className="text-lg font-normal text-red-400">{t('accountBottomSheet.deleteAccount')}</Text>
     </TouchableOpacity>
   );

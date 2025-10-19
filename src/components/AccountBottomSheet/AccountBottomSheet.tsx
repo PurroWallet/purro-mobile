@@ -9,7 +9,7 @@ import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import type { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import type { NavigationProp } from '@react-navigation/native';
 import { BottomSheetBackdrop } from '@gorhom/bottom-sheet';
-import { useBottomSheetAnimationConfigs } from '@/hooks/useBottomSheetAnimationConfigs';
+import { useBottomSheetAnimationConfigs } from '@/core/hooks/useBottomSheetAnimationConfigs';
 import AccountStackNavigator from './AccountStackNavigator';
 import CustomBackground from './CustomBackground';
 
@@ -58,8 +58,6 @@ const AccountBottomSheet = forwardRef<
     [],
   );
 
-  // Custom handle
-
   // Custom background
   const renderBackground = useCallback(
     (props: any) => <CustomBackground {...props} />,
@@ -88,12 +86,6 @@ const AccountBottomSheet = forwardRef<
         if (index === -1) {
           onClose();
         }
-      }}
-      style={{
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
-        overflow: 'hidden',
-        paddingTop: 10,
       }}
       backgroundComponent={renderBackground}
       handleComponent={null}

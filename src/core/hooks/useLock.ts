@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { AppState, AppStateStatus } from 'react-native';
-import { apisWallet } from '../core/apis/wallet';
+import { apisWallet } from '../apis/wallet';
 
 export function useIsOnBackground() {
   const [isOnBackground, setIsOnBackground] = useState(false);

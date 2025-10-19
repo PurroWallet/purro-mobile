@@ -16,14 +16,33 @@
       "title": "Cụm từ khôi phục của bạn",
       "confirmation": "Tôi đã lưu cụm từ khôi phục",
       "warning": "Hãy lưu trữ cụm từ khôi phục ở nơi an toàn và ngoại tuyến, không chia sẻ với bất kỳ ai. Đây là cách duy nhất để khôi phục ví của bạn.",
-      "continue": "Tiếp tục"
+      "actions": {
+        "continue": "Tiếp tục"
+      }
     },
     "verify": {
       "title": "Xác minh cụm từ khôi phục",
       "subtitle": "Cánh cổng của bạn đến với Hyperliquid",
       "wordLabel": "Từ số {{number}}",
-      "placeholder": "Nhập từ",
-      "continue": "Tiếp tục"
+      "actions": {
+        "continue": "Tiếp tục"
+      }
+    },
+    "backup": {
+      "title": "Sao lưu cụm từ khôi phục",
+      "subtitle": "Nhập mật khẩu để xem cụm từ khôi phục",
+      "form": {
+        "label": "Mật khẩu",
+        "placeholder": "Nhập mật khẩu của bạn"
+      },
+      "warning": {
+        "title": "⚠️ Cảnh báo bảo mật",
+        "description": "• Không chia sẻ cụm từ khôi phục với bất kỳ ai\n• Lưu trữ ở nơi an toàn và ngoại tuyến\n• Đây là cách duy nhất để khôi phục ví"
+      },
+      "actions": {
+        "loading": "Đang mở khóa...",
+        "submit": "Mở khóa"
+      }
     }
   },
   "password": {
@@ -44,11 +63,19 @@
     }
   },
   "unlock": {
-    "title": "Mở khóa",
+    "title": "Mở khóa Purro Wallet",
     "subtitle": "Nhập mật khẩu của bạn",
-    "passwordPlaceholder": "Mật khẩu",
-    "unlock": "Mở khóa",
-    "forgotPassword": "Quên mật khẩu?",
+    "form": {
+      "label": "Mật khẩu",
+      "placeholder": "Nhập mật khẩu của bạn"
+    },
+    "actions": {
+      "submit": "Mở khóa"
+    },
+    "biometrics": {
+      "cancelled": "Đã hủy xác thực sinh trắc học. Vui lòng nhập mật khẩu.",
+      "failed": "Xác thực sinh trắc học thất bại. Vui lòng nhập mật khẩu."
+    },
     "errors": {
       "incorrect": "Mật khẩu không đúng",
       "failed": "Không thể mở khóa ví"
@@ -57,6 +84,7 @@
   "home": {
     "title": "Trang chủ",
     "balance": "Số dư",
+    "balanceValue": "{{value}}",
     "send": "Gửi",
     "receive": "Nhận",
     "swap": "Swap",
@@ -71,7 +99,20 @@
       "perpetuals": "Perpetuals"
     },
     "totalTokens": "Tổng token",
-    "addTestnetToken": "Thêm token Testnet"
+    "addTestnetToken": "Thêm token Testnet",
+    "createAccount": "Tạo tài khoản mới",
+    "createAccountDescription": "Thêm nhanh một tài khoản ví khác",
+    "tabs": {
+      "evm": "EVM",
+      "spot": "Spot",
+      "perpetuals": "Perpetuals"
+    },
+    "nav": {
+      "home": "Trang chủ",
+      "swap": "Swap",
+      "nft": "NFT",
+      "dapps": "DApps"
+    }
   },
   "accountBottomSheet": {
     "yourAccounts": "Tài khoản của bạn",
@@ -93,8 +134,13 @@
   },
   "settings": {
     "title": "Cài đặt",
-    "security": "Bảo mật",
-    "about": "Giới thiệu"
+    "notifications": "Thông báo",
+    "biometric": "Xác thực sinh trắc học",
+    "darkMode": "Chế độ tối",
+    "changePassword": "Đổi mật khẩu",
+    "exportWallet": "Xuất ví",
+    "about": "Giới thiệu",
+    "help": "Trợ giúp"
   },
   "errors": {
     "generic": {
@@ -104,7 +150,8 @@
     },
     "wallet": {
       "createFailed": "Không thể tạo ví. Vui lòng thử lại.",
-      "importFailed": "Không thể nhập ví. Vui lòng thử lại."
+      "importFailed": "Không thể nhập ví. Vui lòng thử lại.",
+      "resetFailed": "Không thể đặt lại ví. Vui lòng thử lại."
     }
   },
   "networks": {
@@ -120,5 +167,104 @@
     "back": "Quay lại",
     "next": "Tiếp theo",
     "error": "Lỗi"
+  },
+  "importMethods": {
+    "title": "Nhập ví",
+    "subtitle": "Chọn phương thức nhập ví",
+    "seed": {
+      "title": "Nhập cụm từ khôi phục",
+      "subtitle": "Sử dụng cụm từ 12 hoặc 24 từ"
+    },
+    "privateKey": {
+      "title": "Nhập Private Key",
+      "subtitle": "Sử dụng private key để nhập ví một địa chỉ"
+    },
+    "warning": {
+      "title": "Lưu ý bảo mật",
+      "description": "Không chia sẻ cụm từ khôi phục hoặc private key với bất kỳ ai. Hãy lưu trữ ở nơi an toàn."
+    }
+  },
+  "importSeedPhrase": {
+    "title": "Nhập cụm từ khôi phục",
+    "subtitle": "Nhập cụm từ 12 từ để khôi phục ví của bạn",
+    "form": {
+      "label": "Cụm từ khôi phục",
+      "placeholder": "Nhập cụm từ khôi phục (12 từ)"
+    },
+    "guidelines": {
+      "title": "Cách nhập cụm từ khôi phục:",
+      "description": "• Nhập mỗi từ cách nhau bằng khoảng trắng\n• Kiểm tra chính tả từng từ\n• Đảm bảo đúng thứ tự\n• Kiểm tra lại trước khi nhập"
+    },
+    "actions": {
+      "loading": "Đang kiểm tra...",
+      "submit": "Tiếp tục"
+    },
+    "errors": {
+      "invalidWords": "Cụm từ khôi phục không hợp lệ. Phải gồm chính xác 12 từ."
+    },
+    "alert": {
+      "title": "Cụm từ khôi phục không hợp lệ",
+      "generic": "Không thể xác thực cụm từ khôi phục. Vui lòng thử lại."
+    }
+  },
+  "importPrivateKey": {
+    "title": "Nhập Private Key",
+    "subtitle": "Nhập private key để nhập ví một địa chỉ",
+    "form": {
+      "label": "Private Key",
+      "placeholder": "Nhập private key (64 ký tự hex)"
+    },
+    "warning": {
+      "title": "⚠️ Cảnh báo bảo mật",
+      "description": "• Private key cho phép toàn quyền kiểm soát ví\n• Không chia sẻ private key với bất kỳ ai\n• Chỉ nhập từ nguồn đáng tin cậy\n• Hãy cân nhắc dùng cụm từ khôi phục"
+    },
+    "actions": {
+      "loading": "Đang nhập...",
+      "submit": "Nhập ví"
+    },
+    "errors": {
+      "invalidFormat": "Private key không hợp lệ. Phải gồm 64 ký tự hex.",
+      "invalidKey": "Private key không hợp lệ. Vui lòng kiểm tra lại."
+    },
+    "alert": {
+      "title": "Nhập thất bại",
+      "generic": "Không thể nhập private key. Vui lòng thử lại."
+    }
+  },
+  "importWallet": {
+    "title": "Nhập ví",
+    "subtitle": "Nhập cụm từ 12 hoặc 24 từ để khôi phục ví",
+    "form": {
+      "mnemonic": {
+        "label": "Cụm từ khôi phục",
+        "placeholder": "Nhập cụm từ khôi phục (12 hoặc 24 từ)"
+      },
+      "password": {
+        "label": "Mật khẩu",
+        "placeholder": "Tạo mật khẩu"
+      },
+      "confirmPassword": {
+        "label": "Xác nhận mật khẩu",
+        "placeholder": "Nhập lại mật khẩu"
+      }
+    },
+    "actions": {
+      "loading": "Đang nhập...",
+      "submit": "Nhập ví"
+    },
+    "errors": {
+      "invalidWords": "Cụm từ khôi phục không hợp lệ. Phải gồm 12 hoặc 24 từ."
+    },
+    "alert": {
+      "title": "Nhập thất bại",
+      "generic": "Không thể nhập ví. Vui lòng kiểm tra cụm từ khôi phục và thử lại."
+    }
+  },
+  "walletSuccess": {
+    "title": "Ví của bạn đã được tạo thành công.",
+    "subtitle": "Bắt đầu ngay thôi.",
+    "actions": {
+      "cta": "Bắt đầu"
+    }
   }
 }

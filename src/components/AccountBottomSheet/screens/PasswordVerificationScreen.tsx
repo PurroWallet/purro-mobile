@@ -78,21 +78,21 @@ const PasswordVerificationScreen: React.FC<Props> = ({
             <Text className="text-lg text-[#F9F9F9] mb-2">
               Enter Password
             </Text>
-            <Text className="text-sm text-[#8D94A3] mb-6">
+            <Text className="mb-6 text-sm text-text-secondary">
               Enter your password to view your private key
             </Text>
 
             <View className="mb-5">
-              <Text className="text-sm text-[#F9F9F9] mb-2">
+              <Text className="mb-2 text-sm text-text-primary">
                 Password
               </Text>
-              <View className="flex-row items-center rounded-xl border border-[#494F5B] px-4 py-4">
+              <View className="flex-row items-center rounded-xl border border-border-primary px-4 py-4">
                 <TextInput
-                  className="flex-1 text-lg text-[#F9F9F9]"
+                  className="flex-1 text-lg text-text-primary"
                   value={password}
                   onChangeText={setPassword}
                   placeholder="Enter your password"
-                  placeholderTextColor="#8D94A3"
+                  placeholderTextColor="rgb(var(--color-text-secondary))"
                   secureTextEntry={!showPassword}
                   autoCapitalize="none"
                   autoComplete="password"
@@ -103,9 +103,9 @@ const PasswordVerificationScreen: React.FC<Props> = ({
                   onPress={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
-                    <EyeOff size={20} color="#8D94A3" />
+                    <EyeOff size={20} color="rgb(var(--color-text-secondary))" />
                   ) : (
-                    <Eye size={20} color="#8D94A3" />
+                    <Eye size={20} color="rgb(var(--color-text-secondary))" />
                   )}
                 </TouchableOpacity>
               </View>
@@ -115,14 +115,14 @@ const PasswordVerificationScreen: React.FC<Props> = ({
           <View className="px-5 pb-6">
             <TouchableOpacity
               className={`w-full min-h-12 items-center justify-center rounded-xl px-6 py-4 ${
-                !password || isLoading ? 'bg-[#373B43]' : 'bg-[#059288]'
+                !password || isLoading ? 'bg-background-secondary' : 'bg-brand-primary'
               }`}
               onPress={handleVerify}
               disabled={!password || isLoading}
             >
               <Text
                 className={`text-base font-medium ${
-                  !password || isLoading ? 'text-[#8D94A3]' : 'text-[#F9F9F9]'
+                  !password || isLoading ? 'text-text-secondary' : 'text-button-primary-text'
                 }`}
               >
                 {isLoading ? 'Verifying...' : 'Verify'}

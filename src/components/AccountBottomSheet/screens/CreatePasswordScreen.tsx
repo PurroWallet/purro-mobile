@@ -2,18 +2,20 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   Alert,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
 import { BottomSheetView } from '@gorhom/bottom-sheet';
-import { Eye, EyeOff } from 'lucide-react-native';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { walletController } from '@/core/controllers/WalletController';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AccountStackParamList } from '../AccountStackNavigator';
 import SheetHeader from '../components/SheetHeader';
+import { PasswordInputForm } from '@/components';
+import z from 'zod';
 
 type Props = NativeStackScreenProps<AccountStackParamList, 'CreatePassword'> & {
   onClose: () => void;
@@ -26,6 +28,24 @@ interface RouteParams {
   isNewAccount?: boolean;
 }
 
+const passwordSchema = z
+  .object({
+    password: z
+      .string()
+      .min(8, 'Password must be at least 8 characters long')
+      .regex(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+        'Password must contain at least one uppercase letter, one lowercase letter, and one number'
+      ),
+    confirmPassword: z.string().min(1, 'Please confirm your password'),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  });
+
+type PasswordFormData = z.infer<typeof passwordSchema>;
+
 const CreatePasswordScreen: React.FC<Props> = ({ 
   navigation, 
   onClose, 
@@ -33,28 +53,22 @@ const CreatePasswordScreen: React.FC<Props> = ({
   route 
 }) => {
   const { mnemonic, isPrivateKeyImport, isNewAccount } = (route.params || {}) as RouteParams;
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const validatePassword = (pwd: string): boolean => {
-    // Basic password validation
-    return pwd.length >= 8;
-  };
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isValid },
+  } = useForm<PasswordFormData>({
+    resolver: zodResolver(passwordSchema),
+    mode: 'onChange',
+    defaultValues: {
+      password: '',
+      confirmPassword: '',
+    },
+  });
 
-  const handleCreateWallet = async () => {
-    if (!validatePassword(password)) {
-      Alert.alert('Error', 'Password must be at least 8 characters long');
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match');
-      return;
-    }
-
+  const onSubmit = async (data: PasswordFormData) => {
     try {
       setIsLoading(true);
 
@@ -62,7 +76,7 @@ const CreatePasswordScreen: React.FC<Props> = ({
 
       if (isNewAccount) {
         // Create new account
-        const result = await walletController.createWallet(password);
+        const result = await walletController.createWallet(data.password);
         addresses = result.addresses;
       } else if (mnemonic) {
         // Import existing wallet
@@ -71,7 +85,7 @@ const CreatePasswordScreen: React.FC<Props> = ({
           addresses = await walletController.importWalletWithPrivateKey(mnemonic);
         } else {
           // Handle mnemonic import
-          addresses = await walletController.importWalletWithMnemonic(mnemonic, password);
+          addresses = await walletController.importWalletWithMnemonic(mnemonic, data.password);
         }
       }
 
@@ -105,91 +119,45 @@ const CreatePasswordScreen: React.FC<Props> = ({
 
         <View className="flex-1 px-5 justify-between">
           <View className="flex-1">
-            <Text className="text-lg text-[#F9F9F9] mb-2">
+            <Text className="mb-2 text-lg text-text-primary">
               Create Password
             </Text>
-            <Text className="text-sm text-[#8D94A3] mb-6">
+            <Text className="mb-6 text-sm text-text-secondary">
               Set a password to secure your wallet
             </Text>
 
-            <View className="mb-5">
-              <Text className="text-sm text-[#F9F9F9] mb-2">
-                Password
-              </Text>
-              <View className="flex-row items-center rounded-xl border border-[#494F5B] px-4 py-4">
-                <TextInput
-                  className="flex-1 text-lg text-[#F9F9F9]"
-                  value={password}
-                  onChangeText={setPassword}
-                  placeholder="Enter your password"
-                  placeholderTextColor="#8D94A3"
-                  secureTextEntry={!showPassword}
-                  autoCapitalize="none"
-                  autoComplete="password"
-                  textContentType="password"
-                />
-                <TouchableOpacity
-                  className="ml-2"
-                  onPress={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeOff size={20} color="#8D94A3" />
-                  ) : (
-                    <Eye size={20} color="#8D94A3" />
-                  )}
-                </TouchableOpacity>
-              </View>
-            </View>
+            <PasswordInputForm
+              name="password"
+              label="Password"
+              placeholder="Enter your password"
+            />
 
-            <View className="mb-5">
-              <Text className="text-sm text-[#F9F9F9] mb-2">
-                Confirm Password
-              </Text>
-              <View className="flex-row items-center rounded-xl border border-[#494F5B] px-4 py-4">
-                <TextInput
-                  className="flex-1 text-lg text-[#F9F9F9]"
-                  value={confirmPassword}
-                  onChangeText={setConfirmPassword}
-                  placeholder="Confirm your password"
-                  placeholderTextColor="#8D94A3"
-                  secureTextEntry={!showConfirmPassword}
-                  autoCapitalize="none"
-                  autoComplete="password"
-                  textContentType="password"
-                />
-                <TouchableOpacity
-                  className="ml-2"
-                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff size={20} color="#8D94A3" />
-                  ) : (
-                    <Eye size={20} color="#8D94A3" />
-                  )}
-                </TouchableOpacity>
-              </View>
-            </View>
+            <PasswordInputForm
+              name="confirmPassword"
+              label="Confirm Password"
+              placeholder="Confirm your password"
+            />
 
-            <Text className="text-sm leading-5 text-[#8D94A3] mt-2">
-              Password must be at least 8 characters long
+            <Text className="mt-2 text-sm leading-5 text-text-secondary">
+              Password must be at least 8 characters long and contain uppercase, lowercase, and numbers
             </Text>
           </View>
 
           <View className="px-5 pb-6">
             <TouchableOpacity
               className={`w-full min-h-12 items-center justify-center rounded-xl px-6 py-4 ${
-                (!password || !confirmPassword || !validatePassword(password) || isLoading)
-                  ? 'bg-[#373B43]'
-                  : 'bg-[#059288]'
+                (!isValid || isLoading)
+                  ? 'bg-background-secondary'
+                  : 'bg-brand-primary'
               }`}
-              onPress={handleCreateWallet}
-              disabled={!password || !confirmPassword || !validatePassword(password) || isLoading}
+              onPress={handleSubmit(onSubmit)}
+              disabled={!isValid || isLoading}
             >
               <Text
                 className={`text-base font-medium ${
-                  (!password || !confirmPassword || !validatePassword(password) || isLoading)
-                    ? 'text-[#8D94A3]'
-                    : 'text-[#F9F9F9]'
+                  (!isValid || isLoading)
+                    ? 'text-text-secondary'
+                    : 'text-button-primary-text'
                 }`}
               >
                 {isLoading ? 'Importing...' : 'Import Wallet'}

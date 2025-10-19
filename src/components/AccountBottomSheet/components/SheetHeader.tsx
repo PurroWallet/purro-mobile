@@ -27,10 +27,7 @@ const SheetHeader: React.FC<SheetHeaderProps> = ({
           <ChevronLeft size={24} color={iconColor} />
         </TouchableOpacity>
       )}
-      <Text
-        className="text-center text-xl font-medium"
-        style={{ color: textColor }}
-      >
+      <Text className="text-center text-xl font-medium" style={{ color: textColor }}>
         {title}
       </Text>
     </View>

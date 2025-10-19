@@ -1,8 +1,7 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
 import { BlurView } from '@react-native-community/blur';
 
-import { useIsOnBackground } from '../../hooks/useLock';
+import { useIsOnBackground } from '../../core/hooks/useLock';
 import { IS_ANDROID } from '../../core/native/utils';
 
 export function BackgroundSecureBlurView() {
@@ -11,7 +10,7 @@ export function BackgroundSecureBlurView() {
 
   return (
     <BlurView
-      style={StyleSheet.absoluteFill}
+      className="absolute inset-0"
       blurType="light"
       blurAmount={10}
       reducedTransparencyFallbackColor="#161616"
@@ -26,7 +25,7 @@ export function SafeTipModalBlurView() {
 
   return (
     <BlurView
-      style={StyleSheet.absoluteFill}
+      className="absolute inset-0"
       blurType="light"
       blurAmount={10}
       reducedTransparencyFallbackColor="#161616"

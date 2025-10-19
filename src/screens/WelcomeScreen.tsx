@@ -8,14 +8,16 @@ import {
 } from 'react-native';
 import { useTranslation } from '@/utils/i18n';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useCreateWallet } from '@/hooks/wallet/useCreateWallet';
+import { useCreateWallet } from '@/core/hooks/wallet/useCreateWallet';
 // import { useSocialLogin } from '@/hooks/auth/useSocialLogin';
 import { Icon } from '@/components/Icon';
+import { useThemeMode } from '@/core/hooks/useTheme';
 import type { WelcomeScreenProps } from '@/types/navigation';
 
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
   const { t } = useTranslation();
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const { themeMode } = useThemeMode();
 
   const { getSeedPhrase } = useCreateWallet();
   // const { loginWithGoogle, loginWithFacebook, isLoading, loadingProvider } =
@@ -95,7 +97,15 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
       <View className="flex-1 items-center justify-center px-5">
         <View className="mb-8">
           <View className="h-[120px] w-[120px] items-center justify-center rounded-full bg-background-secondary">
-            <Icon name="RabbyLogo" size={60} color="#ffffff" />
+            <Icon
+              name="RabbyLogo"
+              size={60}
+              color={
+                themeMode === 'light'
+                  ? 'rgb(var(--color-brand-primary))'
+                  : 'rgb(var(--color-text-primary))'
+              }
+            />
           </View>
         </View>
 

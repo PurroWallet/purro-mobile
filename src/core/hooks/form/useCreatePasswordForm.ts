@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { Alert } from 'react-native';
 import { z } from 'zod';
-import { useZodForm, ZodFormValues } from '@/hooks/form/useZodForm';
+import { useZodForm, ZodFormValues } from '@/core/hooks/form/useZodForm';
 import { apisWallet } from '@/core/apis';
 
 const createPasswordSchema = z

@@ -10,7 +10,7 @@ import {
 import { BottomSheetView } from '@gorhom/bottom-sheet';
 import { FormProvider } from 'react-hook-form';
 import { z } from 'zod';
-import { useZodForm, ZodFormValues } from '@/hooks/form/useZodForm';
+import { useZodForm, ZodFormValues } from '@/core/hooks/form/useZodForm';
 import { walletController } from '@/core/controllers/WalletController';
 import { apisLock } from '@/core/apis';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';

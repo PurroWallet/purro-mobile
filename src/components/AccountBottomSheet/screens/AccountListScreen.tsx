@@ -73,10 +73,6 @@ const AccountListScreen: React.FC<Props> = ({
     }, []),
   );
 
-  useEffect(() => {
-    // Reload when currentAccount changes
-  }, [currentAccount]);
-
   const loadAccounts = async () => {
     try {
       console.log('📋 AccountListScreen - Loading accounts...');
@@ -119,7 +115,7 @@ const AccountListScreen: React.FC<Props> = ({
   const currentAccountAddress = currentAccount?.address || '';
 
   return (
-    <BottomSheetView className="flex-1 bg-[#161616]">
+    <BottomSheetView className="flex-1 bg-background-primary">
       {/* Header - Avatar + Current Account + Settings Icon */}
       <View className="flex-row items-center justify-between px-6 py-6">
         <View className="flex-row items-center gap-2.5">
@@ -129,10 +125,10 @@ const AccountListScreen: React.FC<Props> = ({
             resizeMode="cover"
           />
           <View>
-            <Text className="text-xl font-semibold text-[#F9F9F9]">
+            <Text className="text-xl font-semibold text-text-primary">
               {currentAccountName}
             </Text>
-            <Text className="text-sm text-[#8D94A3]">
+            <Text className="text-sm text-text-secondary">
               {formatAddress(currentAccountAddress)}
             </Text>
           </View>
@@ -141,14 +137,14 @@ const AccountListScreen: React.FC<Props> = ({
           onPress={handleSettings}
           className="h-6 w-6 items-center justify-center"
         >
-          <Settings size={24} color="#F9F9F9" />
+          <Settings size={24} color="rgb(var(--color-text-primary))" />
         </TouchableOpacity>
       </View>
 
       {/* Scrollable Content */}
       <ScrollView className="flex-1 px-5">
         {/* Networks Section */}
-        <View className="rounded-2xl bg-[#25272C]/60 px-5 py-0">
+        <View className="rounded-2xl bg-background-secondary/60 px-5 py-0">
           {networks.map((network, index) => (
             <View key={network.id}>
               <TouchableOpacity
@@ -158,19 +154,19 @@ const AccountListScreen: React.FC<Props> = ({
                 }
               >
                 <View className="flex-1 flex-row items-center gap-4">
-                  <View className="h-4 w-4 items-center justify-center rounded-full bg-[#97FCE4]">
-                    <View className="h-2 w-2 rounded-full bg-[#97FCE4]" />
+                  <View className="h-4 w-4 items-center justify-center rounded-full bg-brand-light">
+                    <View className="h-2 w-2 rounded-full bg-brand-primary" />
                   </View>
                   <View className="flex-1 flex-row items-center gap-2.5 px-3">
-                    <Text className="text-base text-[#F9F9F9]">
+                    <Text className="text-base text-text-primary">
                       {network.name}
                     </Text>
-                    <Text className="flex-1 text-right text-base text-[#8D94A3]">
+                    <Text className="flex-1 text-right text-base text-text-secondary">
                       {network.address}
                     </Text>
                   </View>
                   <View className="h-4 w-4 items-center justify-center">
-                    <ChevronRight size={16} color="#FFFFFF" />
+                    <ChevronRight size={16} color="rgb(var(--color-text-primary))" />
                   </View>
                 </View>
               </TouchableOpacity>
@@ -180,7 +176,7 @@ const AccountListScreen: React.FC<Props> = ({
 
         {/* Your Accounts Section */}
         <View className="mt-6 pb-2">
-          <Text className="mb-4 text-lg font-semibold text-[#F9F9F9]">
+          <Text className="mb-4 text-lg font-semibold text-text-primary">
             Your Accounts
           </Text>
           <View className="gap-2">
@@ -192,8 +188,8 @@ const AccountListScreen: React.FC<Props> = ({
                   onPress={() => handleAccountPress(account)}
                   className={`flex-row items-center justify-between rounded-xl px-4 py-4 ${
                     isSelected
-                      ? 'bg-[#059288]/20 border border-[#059288]'
-                      : 'bg-[#25272C]/60'
+                      ? 'bg-brand-primary/20 border border-brand-primary'
+                      : 'bg-background-secondary/60'
                   }`}
                 >
                   <View className="flex-row items-center gap-4">
@@ -206,13 +202,13 @@ const AccountListScreen: React.FC<Props> = ({
                       <Text
                         className={`text-lg ${
                           isSelected
-                            ? 'text-[#059288] font-semibold'
-                            : 'text-[#F9F9F9]'
+                            ? 'text-brand-primary font-semibold'
+                            : 'text-text-primary'
                         }`}
                       >
                         {account.alianName || `Account ${index + 1}`}
                       </Text>
-                      <Text className="text-sm text-[#8D94A3]">
+                      <Text className="text-sm text-text-secondary">
                         {formatAddress(account.address)}
                       </Text>
                     </View>
@@ -222,7 +218,7 @@ const AccountListScreen: React.FC<Props> = ({
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                     className="h-8 w-8 items-center justify-center"
                   >
-                    <Edit2 size={20} color="#F9F9F9" />
+                    <Edit2 size={20} color="rgb(var(--color-text-primary))" />
                   </TouchableOpacity>
                 </TouchableOpacity>
               );
@@ -235,9 +231,9 @@ const AccountListScreen: React.FC<Props> = ({
       <View className="absolute bottom-10 w-full px-6">
         <TouchableOpacity
           onPress={handleAddAccount}
-          className="flex-row items-center justify-center rounded-xl bg-[#059288] px-6 py-4"
+          className="flex-row items-center justify-center rounded-xl bg-brand-primary px-6 py-4"
         >
-          <Text className="text-lg font-medium text-[#F9F9F9]">
+          <Text className="text-lg font-medium text-button-primary-text">
             Add Account
           </Text>
         </TouchableOpacity>

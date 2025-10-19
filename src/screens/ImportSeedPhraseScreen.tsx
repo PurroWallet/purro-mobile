@@ -10,12 +10,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { FormProvider } from 'react-hook-form';
 import { z } from 'zod';
 import { FormInput } from '@/components';
-import { useZodForm, ZodFormValues } from '@/hooks/form/useZodForm';
+import { useZodForm, ZodFormValues } from '@/core/hooks/form/useZodForm';
 import type { ImportSeedPhraseScreenProps } from '@/types/navigation';
+import { useTranslation } from '@/utils/i18n';
 
 const importSeedPhraseSchema = z.object({
   mnemonic: z.string().min(1, 'Seed phrase is required'),
-}).refine((data) => {
+}).refine(data => {
   const words = data.mnemonic.trim().split(/\s+/);
   // Check if it's exactly 12 words
   if (words.length !== 12) {
@@ -31,6 +32,7 @@ type ImportSeedPhraseFormValues = ZodFormValues<typeof importSeedPhraseSchema>;
 
 const ImportSeedPhraseScreen: React.FC<ImportSeedPhraseScreenProps> = ({ navigation }) => {
   const [isImporting, setIsImporting] = useState(false);
+  const { t } = useTranslation();
 
   const form = useZodForm(importSeedPhraseSchema, {
     defaultValues: {
@@ -49,7 +51,7 @@ const ImportSeedPhraseScreen: React.FC<ImportSeedPhraseScreenProps> = ({ navigat
       // Validate mnemonic format
       const mnemonicWords = values.mnemonic.trim().split(/\s+/);
       if (mnemonicWords.length !== 12) {
-        throw new Error('Invalid seed phrase. Must be exactly 12 words.');
+        throw new Error(t('importSeedPhrase.errors.invalidWords'));
       }
 
       // Navigate to password creation screen with the validated mnemonic
@@ -57,8 +59,8 @@ const ImportSeedPhraseScreen: React.FC<ImportSeedPhraseScreenProps> = ({ navigat
     } catch (error) {
       console.error('Error validating seed phrase:', error);
       Alert.alert(
-        'Invalid Seed Phrase',
-        error instanceof Error ? error.message : 'Failed to validate seed phrase. Please try again.',
+        t('importSeedPhrase.alert.title'),
+        error instanceof Error ? error.message : t('importSeedPhrase.alert.generic'),
       );
     } finally {
       setIsImporting(false);
@@ -74,18 +76,18 @@ const ImportSeedPhraseScreen: React.FC<ImportSeedPhraseScreenProps> = ({ navigat
       <ScrollView className="flex-1 px-5">
         <View className="py-5">
           <Text className="text-h4 text-text-primary mb-2">
-            Import Seed Phrase
+            {t('importSeedPhrase.title')}
           </Text>
           <Text className="text-button text-text-secondary mb-8">
-            Enter your 12-word seed phrase to restore your wallet
+            {t('importSeedPhrase.subtitle')}
           </Text>
 
           <FormProvider {...form}>
             <View className="gap-4">
               <FormInput
                 name="mnemonic"
-                label="Seed Phrase"
-                placeholder="Enter your seed phrase (12 words)"
+                label={t('importSeedPhrase.form.label')}
+                placeholder={t('importSeedPhrase.form.placeholder')}
                 multiline
                 numberOfLines={4}
                 textAlignVertical="top"
@@ -99,13 +101,10 @@ const ImportSeedPhraseScreen: React.FC<ImportSeedPhraseScreenProps> = ({ navigat
 
           <View className="mt-6 rounded-xl bg-[rgba(106,114,130,0.1)] p-4">
             <Text className="mb-2 text-[14px] font-semibold text-text-primary">
-              How to enter your seed phrase:
+              {t('importSeedPhrase.guidelines.title')}
             </Text>
             <Text className="text-[14px] leading-[20px] text-text-secondary">
-              • Enter each word separated by a space{'\n'}
-              • Make sure all words are spelled correctly{'\n'}
-              • Include all words in the correct order{'\n'}
-              • Double-check before importing
+              {t('importSeedPhrase.guidelines.description')}
             </Text>
           </View>
         </View>
@@ -126,7 +125,9 @@ const ImportSeedPhraseScreen: React.FC<ImportSeedPhraseScreenProps> = ({ navigat
                 : 'text-button-primary-text'
             }`}
           >
-            {isImporting ? 'Validating...' : 'Continue'}
+            {isImporting
+              ? t('importSeedPhrase.actions.loading')
+              : t('importSeedPhrase.actions.submit')}
           </Text>
         </TouchableOpacity>
       </View>

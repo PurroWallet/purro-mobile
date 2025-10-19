@@ -87,7 +87,10 @@ const CreatePasswordScreen: React.FC<CreatePasswordScreenProps> = ({
               className="p-2"
               onPress={() => navigation.goBack()}
             >
-              <Icon name="ChevronLeft" size={24} color="#007AFF" />
+              <Icon
+                name="ChevronLeft"
+                size={24}
+              />
             </TouchableOpacity>
             <Text className="text-h4 text-text-primary">
               {isImport
@@ -126,7 +129,7 @@ const CreatePasswordScreen: React.FC<CreatePasswordScreenProps> = ({
                   <Icon
                     name={showPassword ? 'EyeOff' : 'Eye'}
                     size={20}
-                    color="#8E8E93"
+                    color="rgb(var(--color-text-secondary))"
                   />
                 </TouchableOpacity>
               </View>
@@ -155,7 +158,7 @@ const CreatePasswordScreen: React.FC<CreatePasswordScreenProps> = ({
                   <Icon
                     name={showConfirmPassword ? 'EyeOff' : 'Eye'}
                     size={20}
-                    color="#8E8E93"
+                    color="rgb(var(--color-text-secondary))"
                   />
                 </TouchableOpacity>
               </View>

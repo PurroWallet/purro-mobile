@@ -1,4 +1,4 @@
-import { usePreventScreenshot } from '@/hooks/native/security';
+import { usePreventScreenshot } from '@/core/hooks/native/security';
 import { SeedPhraseDisplayScreenProps } from '@/types/navigation';
 import React, { useState } from 'react';
 import {
@@ -9,6 +9,7 @@ import {
   Pressable,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from '@/utils/i18n';
 
 const ProgressIndicator = () => (
   <View className="mb-14 w-[240px]">
@@ -33,6 +34,7 @@ const SeedPhraseDisplayScreen: React.FC<SeedPhraseDisplayScreenProps> = ({
   navigation,
 }) => {
   const { mnemonic } = route.params;
+  const { t } = useTranslation();
 
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [words] = useState(() => mnemonic.split(' '));
@@ -60,7 +62,7 @@ const SeedPhraseDisplayScreen: React.FC<SeedPhraseDisplayScreenProps> = ({
         <ProgressIndicator />
 
         <Text className="mb-14 w-[335px] text-center text-h4 text-text-primary">
-          Your Seed Phrase
+          {t('seedPhrase.display.title')}
         </Text>
 
         <View className="w-full max-w-[362px] flex-row flex-wrap justify-center gap-[10px]">
@@ -83,14 +85,13 @@ const SeedPhraseDisplayScreen: React.FC<SeedPhraseDisplayScreenProps> = ({
             )}
           </View>
           <Text className="text-label text-text-primary">
-            I've saved my seed phrase
+            {t('seedPhrase.display.confirmation')}
           </Text>
         </Pressable>
 
         <View className="flex-row gap-2 px-5">
           <Text className="flex-1 text-label leading-[19.6px] text-text-primary">
-            Store your seed phrase in a safe & offline place, never share it
-            with anyone. This is the only way to recover your wallet.
+            {t('seedPhrase.display.warning')}
           </Text>
         </View>
 
@@ -102,7 +103,7 @@ const SeedPhraseDisplayScreen: React.FC<SeedPhraseDisplayScreenProps> = ({
           <Text
             className={`text-button ${isConfirmed ? 'text-button-primary-text' : 'text-button-primary-disabled-text'}`}
           >
-            Continue
+            {t('seedPhrase.display.actions.continue')}
           </Text>
         </TouchableOpacity>
       </View>

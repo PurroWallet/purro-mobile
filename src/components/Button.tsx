@@ -1,19 +1,13 @@
 import React from 'react';
-import {
-  TouchableOpacity,
-  Text,
-  StyleSheet,
-  ViewStyle,
-  TextStyle,
-} from 'react-native';
+import { TouchableOpacity, Text } from 'react-native';
 
 interface ButtonProps {
   type?: 'primary' | 'secondary';
   title: string;
   onPress: () => void;
   disabled?: boolean;
-  containerStyle?: ViewStyle;
-  buttonStyle?: ViewStyle;
+  className?: string;
+  textClassName?: string;
 }
 
 export function Button({
@@ -21,66 +15,28 @@ export function Button({
   title,
   onPress,
   disabled = false,
-  containerStyle,
-  buttonStyle,
+  className,
+  textClassName,
 }: ButtonProps) {
   return (
     <TouchableOpacity
-      style={[
-        styles.container,
-        type === 'primary'
-          ? styles.primaryContainer
-          : styles.secondaryContainer,
-        disabled && styles.disabled,
-        containerStyle,
-      ]}
+      className={`items-center justify-center rounded-xl px-4 py-3 ${
+        type === 'primary' ? 'bg-brand-primary' : 'bg-button-secondary'
+      } ${disabled ? 'opacity-50' : ''} ${className ?? ''}`}
       onPress={onPress}
       disabled={disabled}
       activeOpacity={0.7}
     >
       <Text
-        style={[
-          styles.text,
-          type === 'primary' ? styles.primaryText : styles.secondaryText,
-          disabled && styles.disabledText,
-          buttonStyle,
-        ]}
+        className={`text-base font-semibold ${
+          type === 'primary'
+            ? 'text-button-primary-text'
+            : 'text-button-secondary-text'
+        } ${disabled ? 'text-text-disabled' : ''} ${textClassName ?? ''}`}
       >
         {title}
       </Text>
     </TouchableOpacity>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  primaryContainer: {
-    backgroundColor: '#007AFF',
-  },
-  secondaryContainer: {
-    backgroundColor: '#F0F0F0',
-  },
-  disabled: {
-    opacity: 0.5,
-  },
-  text: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  primaryText: {
-    color: '#FFFFFF',
-  },
-  secondaryText: {
-    color: '#000000',
-  },
-  disabledText: {
-    color: '#999999',
-  },
-});
 

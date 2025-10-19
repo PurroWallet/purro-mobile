@@ -7,10 +7,11 @@
       "@/atoms/*": ["src/atoms/*"],
       "@/components/*": ["src/components/*"],
       "@/core/*": ["src/core/*"],
-      "@/hooks/*": ["src/hooks/*"],
+      "@/hooks/*": ["src/core/hooks/*"],
       "@/navigation/*": ["src/navigation/*"],
       "@/providers/*": ["src/providers/*"],
       "@/screens/*": ["src/screens/*"],
+      "@/theme/*": ["src/theme/*"],
       "@/types/*": ["src/types/*"]
     }
   },

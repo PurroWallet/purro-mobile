@@ -10,9 +10,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { FormProvider } from 'react-hook-form';
 import { z } from 'zod';
 import { FormInput } from '@/components';
-import { useZodForm, ZodFormValues } from '@/hooks/form/useZodForm';
+import { useZodForm, ZodFormValues } from '@/core/hooks/form/useZodForm';
 import { apisWallet } from '@/core/apis';
 import type { ImportWalletScreenProps } from '@/types/navigation';
+import { useTranslation } from '@/utils/i18n';
 
 const importWalletSchema = z.object({
   mnemonic: z.string().min(1, 'Seed phrase is required'),
@@ -32,6 +33,7 @@ type ImportWalletFormValues = ZodFormValues<typeof importWalletSchema>;
 
 const ImportWalletScreen: React.FC<ImportWalletScreenProps> = ({ navigation }) => {
   const [isImporting, setIsImporting] = useState(false);
+  const { t } = useTranslation();
 
   const form = useZodForm(importWalletSchema, {
     defaultValues: {
@@ -53,7 +55,7 @@ const ImportWalletScreen: React.FC<ImportWalletScreenProps> = ({ navigation }) =
       // Validate mnemonic format
       const words = values.mnemonic.trim().split(/\s+/);
       if (words.length !== 12 && words.length !== 24) {
-        throw new Error('Invalid seed phrase. Must be 12 or 24 words.');
+        throw new Error(t('importWallet.errors.invalidWords'));
       }
 
       // Import wallet
@@ -67,8 +69,8 @@ const ImportWalletScreen: React.FC<ImportWalletScreenProps> = ({ navigation }) =
     } catch (error) {
       console.error('Error importing wallet:', error);
       Alert.alert(
-        'Import Failed',
-        error instanceof Error ? error.message : 'Failed to import wallet. Please check your seed phrase and try again.',
+        t('importWallet.alert.title'),
+        error instanceof Error ? error.message : t('importWallet.alert.generic'),
       );
     } finally {
       setIsImporting(false);
@@ -84,18 +86,18 @@ const ImportWalletScreen: React.FC<ImportWalletScreenProps> = ({ navigation }) =
       <ScrollView className="flex-1 px-5">
         <View className="py-5">
           <Text className="text-h4 text-text-primary mb-2">
-            Import Wallet
+            {t('importWallet.title')}
           </Text>
           <Text className="text-button text-text-secondary mb-8">
-            Enter your 12 or 24-word seed phrase to restore your wallet
+            {t('importWallet.subtitle')}
           </Text>
 
           <FormProvider {...form}>
             <View className="gap-4">
               <FormInput
                 name="mnemonic"
-                label="Seed Phrase"
-                placeholder="Enter your seed phrase (12 or 24 words)"
+                label={t('importWallet.form.mnemonic.label')}
+                placeholder={t('importWallet.form.mnemonic.placeholder')}
                 multiline
                 numberOfLines={3}
                 textAlignVertical="top"
@@ -107,8 +109,8 @@ const ImportWalletScreen: React.FC<ImportWalletScreenProps> = ({ navigation }) =
 
               <FormInput
                 name="password"
-                label="Password"
-                placeholder="Create a password"
+                label={t('importWallet.form.password.label')}
+                placeholder={t('importWallet.form.password.placeholder')}
                 secureTextEntry
                 autoCapitalize="none"
                 returnKeyType="next"
@@ -117,8 +119,8 @@ const ImportWalletScreen: React.FC<ImportWalletScreenProps> = ({ navigation }) =
 
               <FormInput
                 name="confirmPassword"
-                label="Confirm Password"
-                placeholder="Confirm your password"
+                label={t('importWallet.form.confirmPassword.label')}
+                placeholder={t('importWallet.form.confirmPassword.placeholder')}
                 secureTextEntry
                 autoCapitalize="none"
                 returnKeyType="done"
@@ -144,7 +146,9 @@ const ImportWalletScreen: React.FC<ImportWalletScreenProps> = ({ navigation }) =
                 : 'text-button-primary-text'
             }`}
           >
-            {isImporting ? 'Importing...' : 'Import Wallet'}
+            {isImporting
+              ? t('importWallet.actions.loading')
+              : t('importWallet.actions.submit')}
           </Text>
         </TouchableOpacity>
       </View>

@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
-// import { useTranslation } from '@/utils/i18n';
+import { useTranslation } from '@/utils/i18n';
 import { walletController } from '@/core/controllers/WalletController';
 import { useAtom } from 'jotai';
 import { walletExists } from '@/atoms/app';
@@ -60,6 +60,7 @@ interface Token {
 }
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
+  const { t } = useTranslation();
   const [currentAccount, setCurrentAccount] = useState<Account | null>(null);
   const accountBottomSheetRef = useRef<AccountBottomSheetRef>(null);
   const [, setWalletExists] = useAtom(walletExists);
@@ -180,14 +181,14 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       });
     } catch (error) {
       console.error('Error resetting wallet:', error);
-      Alert.alert('Error', 'Failed to reset wallet');
+      Alert.alert(t('errors.generic.title'), t('errors.wallet.resetFailed'));
     }
   };
 
   return (
-    <View className="flex-1 bg-[#161616]">
+    <View className="flex-1 bg-background-primary">
       {/* Header with Glassmorphism */}
-      <View className="bg-[#161616]/75 backdrop-blur-md">
+      <View className="bg-background-primary/75 backdrop-blur-md">
         <SafeAreaView edges={['top']}>
           {/* Status Bar Area */}
           <View className="px-6 pt-5 pb-4">
@@ -199,11 +200,11 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
               >
                 <RNImage
                   source={DefaultIcon}
-                  className="w-10 h-10 rounded-full border border-[#494F5B]"
+                className="w-10 h-10 rounded-full border border-border-primary"
                   resizeMode="cover"
                 />
                 <View>
-                  <Text className="text-[#8D94A3] text-sm">
+                  <Text className="text-text-secondary text-sm">
                     {currentAccount?.address
                       ? `${currentAccount.address.slice(
                           0,
@@ -211,14 +212,14 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                         )}...${currentAccount.address.slice(-4)}`
                       : '@kycdict'}
                   </Text>
-                  <Text className="text-[#F9F9F9] text-2xl font-medium">
+                  <Text className="text-text-primary text-2xl font-medium">
                     {currentAccount?.alianName || 'Account 1'}
                   </Text>
                 </View>
               </TouchableOpacity>
 
               <TouchableOpacity>
-                <Search size={24} color="#FFFFFF" />
+                <Search size={24} color="rgb(var(--color-text-primary))" />
               </TouchableOpacity>
             </View>
           </View>
@@ -231,28 +232,30 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       >
         {/* Balance Section */}
         <View className="items-center pt-10 pb-0">
-          <Text className="text-[#F9F9F9] text-5xl font-semibold">$254.48</Text>
+          <Text className="text-text-primary text-5xl font-semibold">
+            {t('home.balanceValue', { value: '$254.48' })}
+          </Text>
         </View>
         {/* Action Buttons */}
         <View className="flex-row gap-2 px-6 py-5">
-          <TouchableOpacity className="flex-1 bg-[#25272C] rounded-xl py-6 items-center gap-3">
-            <Send size={24} color="#1DE4CF" />
-            <Text className="text-[#F9F9F9] text-sm">Send</Text>
+          <TouchableOpacity className="flex-1 rounded-xl bg-background-secondary py-4 items-center gap-3">
+            <Send size={24} />
+            <Text className="text-text-primary text-sm">{t('home.send')}</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity className="flex-1 bg-[#25272C] rounded-xl py-6 items-center gap-3">
-            <ArrowDownToLine size={24} color="#1DE4CF" />
-            <Text className="text-[#F9F9F9] text-sm">Receive</Text>
+          <TouchableOpacity className="flex-1 rounded-xl bg-background-secondary py-4 items-center gap-3">
+            <ArrowDownToLine size={24}  />
+                  <Text className="text-text-primary text-sm">{t('home.receive')}</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity className="flex-1 bg-[#25272C] rounded-xl py-6 items-center gap-3">
-            <Repeat size={24} color="#1DE4CF" />
-            <Text className="text-[#F9F9F9] text-sm">Swap</Text>
+          <TouchableOpacity className="flex-1 rounded-xl bg-background-secondary py-4 items-center gap-3">
+            <Repeat size={24}  />
+                  <Text className="text-text-primary text-sm">{t('home.swap')}</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity className="flex-1 bg-[#25272C] rounded-xl py-6 items-center gap-3">
-            <GitBranch size={24} color="#1DE4CF" />
-            <Text className="text-[#F9F9F9] text-sm">Bridge</Text>
+          <TouchableOpacity className="flex-1 rounded-xl bg-background-secondary py-4 items-center gap-3">
+            <GitBranch size={24}  />
+                  <Text className="text-text-primary text-sm">{t('home.bridge')}</Text>
           </TouchableOpacity>
         </View>
         {/* Accounts Horizontal Scroll */}
@@ -262,48 +265,48 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ paddingHorizontal: 20, gap: 10 }}
           >
-            <View className="bg-[#25272C]/60 rounded-xl px-4 py-4 flex-row items-center gap-3.5 min-w-[320px]">
+            <View className="rounded-xl bg-background-secondary/60 px-4 py-4 flex-row items-center gap-3.5 min-w-[320px]">
               <RNImage
                 source={DefaultIcon}
-                className="w-10 h-10 rounded-full border-2 border-[#161616]"
+                className="w-10 h-10 rounded-full border-2 border-background-primary"
                 resizeMode="cover"
               />
               <View className="flex-1">
-                <Text className="text-[#F9F9F9] text-lg">
-                  Create New Account
+                <Text className="text-text-primary text-lg">
+                  {t('home.createAccount')}
                 </Text>
-                <Text className="text-[#8D94A3] text-sm">
-                  Lorem ipsum fake text
+                <Text className="text-text-secondary text-sm">
+                  {t('home.createAccountDescription')}
                 </Text>
               </View>
-              <ChevronRight size={24} color="#FFFFFF" />
+              <ChevronRight size={24} color="rgb(var(--color-text-primary))" />
             </View>
 
-            <View className="bg-[#25272C]/60 rounded-xl px-4 py-4 flex-row items-center gap-3.5 min-w-[320px]">
+            <View className="rounded-xl bg-background-secondary/60 px-4 py-4 flex-row items-center gap-3.5 min-w-[320px]">
               <RNImage
                 source={DefaultIcon}
-                className="w-10 h-10 rounded-full border-2 border-[#161616]"
+                className="w-10 h-10 rounded-full border-2 border-background-primary"
                 resizeMode="cover"
               />
               <View className="flex-1">
-                <Text className="text-[#F9F9F9] text-lg">
-                  Create New Account
+                <Text className="text-text-primary text-lg">
+                  {t('home.createAccount')}
                 </Text>
-                <Text className="text-[#8D94A3] text-sm">
-                  Lorem ipsum fake text
+                <Text className="text-text-secondary text-sm">
+                  {t('home.createAccountDescription')}
                 </Text>
               </View>
-              <ChevronRight size={24} color="#FFFFFF" />
+            <ChevronRight size={24} color="rgb(var(--color-text-primary))" />
             </View>
           </ScrollView>
         </View>
         {/* Perps Section */}
         <View className="px-5 pt-10 pb-10">
           <View className="flex-row justify-between items-center px-0 pb-4">
-            <Text className="text-[#F9F9F9] text-lg font-semibold">Perps</Text>
+          <Text className="text-text-primary text-lg font-semibold">{t('home.perps')}</Text>
             <TouchableOpacity>
-              <Text className="text-[#1DE4CF] text-sm font-medium">
-                View more
+              <Text className="text-brand-primary text-sm font-medium">
+                {t('home.viewMore')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -311,7 +314,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           {perpPositions.map(position => (
             <View
               key={position.id}
-              className="bg-[#25272C] rounded-xl px-4 py-1 flex-row items-center gap-5 mb-2"
+              className="rounded-xl bg-background-secondary px-4 py-1 flex-row items-center gap-5 mb-2"
             >
               <RNImage
                 source={DefaultIcon}
@@ -320,18 +323,18 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
               />
               <View className="flex-1 flex-row justify-between items-center py-5">
                 <View className="gap-3">
-                  <Text className="text-[#F9F9F9] text-xl font-medium">
+                  <Text className="text-text-primary text-xl font-medium">
                     {position.name}
                   </Text>
-                  <Text className="text-[#8D94A3] text-sm">
+                  <Text className="text-text-secondary text-sm">
                     {position.multiplier}
                   </Text>
                 </View>
                 <View className="items-end gap-3">
-                  <Text className="text-[#F9F9F9] text-xl font-medium text-right">
+                  <Text className="text-text-primary text-xl font-medium text-right">
                     {position.value}
                   </Text>
-                  <Text className="text-[#ED7D75] text-sm">
+                  <Text className="text-system-error text-sm">
                     {position.change}
                   </Text>
                 </View>
@@ -342,76 +345,74 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         {/* EVM Section */}
         <View className="px-5 pb-10">
           {/* Tab Navigation */}
-          <View className="flex-row items-center justify-between border-b border-[#3F434D] pb-0 mb-4">
+          <View className="flex-row items-center justify-between border-b border-border-secondary pb-0 mb-4">
             <View className="flex-row">
               <TouchableOpacity
                 className={`px-2.5 py-2.5 ${
-                  selectedTab === 'EVM' ? 'border-b-2 border-[#F9F9F9]' : ''
+                  selectedTab === 'EVM' ? 'border-b-2 border-text-primary' : ''
                 }`}
                 onPress={() => setSelectedTab('EVM')}
               >
                 <Text
                   className={`text-lg font-semibold ${
-                    selectedTab === 'EVM' ? 'text-[#F9F9F9]' : 'text-[#6A7282]'
+                    selectedTab === 'EVM' ? 'text-text-primary' : 'text-text-secondary'
                   }`}
                 >
-                  EVM
+                  {t('home.tabs.evm')}
                 </Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 className={`px-2.5 py-2.5 ${
-                  selectedTab === 'Spot' ? 'border-b-2 border-[#F9F9F9]' : ''
+                  selectedTab === 'Spot' ? 'border-b-2 border-text-primary' : ''
                 }`}
                 onPress={() => setSelectedTab('Spot')}
               >
                 <Text
                   className={`text-lg font-semibold ${
-                    selectedTab === 'Spot' ? 'text-[#F9F9F9]' : 'text-[#6A7282]'
+                    selectedTab === 'Spot' ? 'text-text-primary' : 'text-text-secondary'
                   }`}
                 >
-                  Spot
+                  {t('home.tabs.spot')}
                 </Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 className={`px-2.5 py-2.5 ${
-                  selectedTab === 'Perpetuals'
-                    ? 'border-b-2 border-[#F9F9F9]'
-                    : ''
+                  selectedTab === 'Perpetuals' ? 'border-b-2 border-text-primary' : ''
                 }`}
                 onPress={() => setSelectedTab('Perpetuals')}
               >
                 <Text
                   className={`text-lg font-semibold ${
                     selectedTab === 'Perpetuals'
-                      ? 'text-[#F9F9F9]'
-                      : 'text-[#6A7282]'
+                      ? 'text-text-primary'
+                      : 'text-text-secondary'
                   }`}
                 >
-                  Perpetuals
+                  {t('home.tabs.perpetuals')}
                 </Text>
               </TouchableOpacity>
             </View>
 
-            <ChevronDown size={20} color="#FFFFFF" />
+            <ChevronDown size={20} color="rgb(var(--color-text-primary))" />
           </View>
 
           {/* Balance Cards */}
           <View className="flex-row gap-2 mb-2">
-            <View className="flex-1 bg-[#25272C]/60 rounded-xl p-5">
-              <Text className="text-[#6A7282] text-base mb-3.5">
-                Total balance
+            <View className="flex-1 rounded-xl bg-background-secondary/60 p-5">
+              <Text className="text-text-secondary text-base mb-3.5">
+                {t('home.totalBalance')}
               </Text>
-              <Text className="text-[#F9F9F9] text-2xl font-medium">
+              <Text className="text-text-primary text-2xl font-medium">
                 $345.64
               </Text>
             </View>
-            <View className="flex-1 bg-[#25272C]/60 rounded-xl p-5">
-              <Text className="text-[#6A7282] text-base mb-3.5">
-                Total tokens
+            <View className="flex-1 rounded-xl bg-background-secondary/60 p-5">
+              <Text className="text-text-secondary text-base mb-3.5">
+                {t('home.totalTokens')}
               </Text>
-              <Text className="text-[#F9F9F9] text-2xl font-medium">1</Text>
+              <Text className="text-text-primary text-2xl font-medium">1</Text>
             </View>
           </View>
 
@@ -419,7 +420,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           {tokens.map(token => (
             <View
               key={token.id}
-              className="bg-[#25272C] rounded-xl px-4 py-5 flex-row items-center gap-5 mb-2"
+              className="rounded-xl bg-background-secondary px-4 py-5 flex-row items-center gap-5 mb-2"
             >
               <RNImage
                 source={DefaultIcon}
@@ -428,19 +429,19 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
               />
               <View className="flex-1 flex-row justify-between items-center py-5">
                 <View className="gap-3">
-                  <Text className="text-[#F9F9F9] text-xl font-medium">
+                  <Text className="text-text-primary text-xl font-medium">
                     {token.name}
                   </Text>
                   <View className="flex-row gap-1.5">
-                    <Text className="text-[#F9F9F9] text-sm">
+                    <Text className="text-text-primary text-sm">
                       {token.balance}
                     </Text>
-                    <Text className="text-[#8D94A3] text-sm">
+                    <Text className="text-text-secondary text-sm">
                       {token.symbol}
                     </Text>
                   </View>
                 </View>
-                <Text className="text-[#F9F9F9] text-xl font-medium">
+                <Text className="text-text-primary text-xl font-medium">
                   {token.value}
                 </Text>
               </View>
@@ -448,56 +449,56 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           ))}
 
           {/* Add Token Button */}
-          <TouchableOpacity className="bg-[#25272C] rounded-xl px-4 py-6 flex-row items-center justify-center gap-2">
-            <Plus size={16} color="#FFFFFF" />
-            <Text className="text-[#F9F9F9] text-base text-right">
-              Add Testnet token
+          <TouchableOpacity className="rounded-xl bg-background-secondary px-4 py-6 flex-row items-center justify-center gap-2">
+          <Plus size={16} color="rgb(var(--color-text-primary))" />
+            <Text className="text-text-primary text-base text-right">
+              {t('home.addTestnetToken')}
             </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
       {/* Bottom Navigation (Glassmorphism) */}
-      <View className="absolute bottom-0 left-0 right-0 bg-[#25272C] px-8">
+      <View className="absolute bottom-0 left-0 right-0 bg-background-secondary px-8">
         <SafeAreaView edges={['bottom']}>
           <View className="flex-row justify-between items-center">
-            <TouchableOpacity className="items-center py-2.5 border-t-2 border-[#1DE4CF]">
+            <TouchableOpacity className="items-center py-2.5 border-t-2 border-brand-primary">
               <Home
                 size={24}
-                color="#1DE4CF"
+                
                 strokeWidth={2}
                 className="mb-1"
               />
-              <Text className="text-[#1DE4CF] text-xs font-medium">Home</Text>
+              <Text className="text-brand-primary text-xs font-medium">{t('home.nav.home')}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity className="items-center py-2.5">
               <ArrowLeftRight
                 size={24}
-                color="#8D94A3"
+                color="rgb(var(--color-text-secondary))"
                 strokeWidth={2}
                 className="mb-1"
               />
-              <Text className="text-[#8D94A3] text-xs">Swap</Text>
+              <Text className="text-text-secondary text-xs">{t('home.nav.swap')}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity className="items-center py-2.5">
               <Image
                 size={24}
-                color="#8D94A3"
+                color="rgb(var(--color-text-secondary))"
                 strokeWidth={2}
                 className="mb-1"
               />
-              <Text className="text-[#8D94A3] text-xs">NFT</Text>
+              <Text className="text-text-secondary text-xs">{t('home.nav.nft')}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity className="items-center py-2.5">
               <Compass
                 size={24}
-                color="#8D94A3"
+                color="rgb(var(--color-text-secondary))"
                 strokeWidth={2}
                 className="mb-1"
               />
-              <Text className="text-[#8D94A3] text-xs">DApps</Text>
+              <Text className="text-text-secondary text-xs">{t('home.nav.dapps')}</Text>
             </TouchableOpacity>
           </View>
         </SafeAreaView>

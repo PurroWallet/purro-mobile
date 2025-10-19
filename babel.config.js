@@ -14,11 +14,11 @@ module.exports = function (api) {
           extensions: ['.ios.js', '.android.js', '.js', '.ts', '.tsx', '.json'],
           alias: {
             '@': './src',
+            '@/theme': './src/theme',
           },
         }
       ],
-      'react-native-reanimated/plugin',
-      'react-native-worklets/plugin',
+      'react-native-reanimated/plugin'
     ],
   };
 };

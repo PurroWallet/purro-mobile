@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Switch, Alert, ScrollView } from 'react-native';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { ChevronRight } from 'lucide-react-native';
@@ -6,11 +6,13 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { NavigationProp } from '@react-navigation/native';
 import type { AccountStackParamList } from '../AccountStackNavigator';
 import SheetHeader from '../components/SheetHeader';
-import { useBiometrics } from '@/hooks/biometrics';
+import { useBiometrics } from '@/core/hooks/biometrics';
 import { apisLock, apisWallet, apisKeychain } from '@/core/apis';
 import { KEYCHAIN_AUTH_TYPES } from '@/core/services/keychain';
 import { useAtom } from 'jotai';
 import { walletExists } from '@/atoms/app';
+import { useThemeMode } from '@/core/hooks/useTheme';
+import type { ThemeMode } from '@/theme';
 
 type Props = NativeStackScreenProps<AccountStackParamList, 'Settings'> & {
   parentNavigation: NavigationProp<any>;
@@ -36,23 +38,23 @@ const SettingItem: React.FC<SettingsOption> = ({
 }) => (
   <TouchableOpacity
     className={`flex-row items-center justify-between rounded-xl px-4 py-4 ${
-      danger ? 'bg-[rgba(255,107,107,0.1)]' : 'bg-[#25272C]/60'
+      danger ? 'bg-system-error/10' : 'bg-background-secondary/60'
     }`}
     onPress={onPress}
     disabled={!onPress}
     activeOpacity={onPress ? 0.8 : 1}
   >
     <View className="flex-1">
-      <Text className={`text-lg font-semibold ${danger ? 'text-[#FF6B6B]' : 'text-[#F9F9F9]'}`}>
+      <Text className={`text-lg font-semibold ${danger ? 'text-system-error' : 'text-text-primary'}`}>
         {title}
       </Text>
       {subtitle && (
-        <Text className="mt-1 text-sm text-[#8D94A3]">{subtitle}</Text>
+        <Text className="mt-1 text-sm text-text-secondary">{subtitle}</Text>
       )}
     </View>
     {rightComponent ||
       (showArrow && (
-        <ChevronRight size={20} color="#FFFFFF" />
+        <ChevronRight size={20} color="rgb(var(--color-text-primary))" />
       ))}
   </TouchableOpacity>
 );
@@ -60,7 +62,7 @@ const SettingItem: React.FC<SettingsOption> = ({
 // Section Header Component
 const SectionHeader: React.FC<{ title: string }> = ({ title }) => (
   <View className="mt-6 mb-3">
-    <Text className="text-sm font-semibold uppercase tracking-[1px] text-[#8D94A3]">
+    <Text className="text-sm font-semibold uppercase tracking-[1px] text-text-secondary">
       {title}
     </Text>
   </View>
@@ -73,6 +75,7 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
     toggleBiometrics,
     fetchBiometrics,
   } = useBiometrics({ autoFetch: true });
+  const { themeMode, setThemeMode } = useThemeMode();
 
   const [isEnablingBiometrics, setIsEnablingBiometrics] = useState(false);
 
@@ -192,6 +195,23 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
     ]);
   };
 
+  const handleChangeTheme = (nextMode: ThemeMode) => {
+    setThemeMode(nextMode);
+  };
+
+  const themeToggleOptions = useMemo(() => {
+    const isDark = themeMode === 'dark';
+
+    return {
+      label: isDark ? 'Dark Mode' : 'Light Mode',
+      subtitle: isDark
+        ? 'Switch to light theme'
+        : 'Switch to dark theme',
+      nextMode: isDark ? 'light' : 'dark',
+      value: isDark,
+    };
+  }, [themeMode]);
+
   const handleBackupWallet = () => {
     navigation.navigate('SeedPhraseBackup');
   };
@@ -292,6 +312,26 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
               title="Change Password"
               subtitle="Update your wallet password"
               onPress={handleChangePassword}
+            />
+            <SettingItem
+              title="Theme"
+              subtitle={themeToggleOptions.subtitle}
+              onPress={() => handleChangeTheme(themeToggleOptions.nextMode)}
+              rightComponent={
+                <View className="min-w-[51px] items-center justify-center pr-2">
+                  <Switch
+                    value={themeToggleOptions.value}
+                    onValueChange={() =>
+                      handleChangeTheme(themeToggleOptions.nextMode)
+                    }
+                    trackColor={{
+                      false: '#373B43',
+                      true: '#059288',
+                    }}
+                    thumbColor="#FFFFFF"
+                  />
+                </View>
+              }
             />
           </View>
         </View>

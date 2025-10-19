@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, AppState, AppStateStatus, Platform } from 'react-native';
+import { AppState, AppStateStatus, Platform } from 'react-native';
 import { BlurView } from '@react-native-community/blur';
 
 export interface PrivacyBlurProps {
@@ -48,10 +48,10 @@ export const PrivacyBlur: React.FC<PrivacyBlurProps> = ({
       {children}
       {showBlur && (
         <BlurView
-          style={StyleSheet.absoluteFillObject}
+          className="absolute inset-0"
           blurType={blurType}
           blurAmount={blurAmount}
-          reducedTransparencyFallbackColor="#161616"
+          reducedTransparencyFallbackColor="rgb(var(--color-background-primary))"
         />
       )}
     </>

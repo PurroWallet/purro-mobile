@@ -5,6 +5,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AccountStackParamList } from '../AccountStackNavigator';
 import type { NavigationProp } from '@react-navigation/native';
 import SheetHeader from '../components/SheetHeader';
+import { Icon } from '@/components/Icon';
 
 type Props = NativeStackScreenProps<AccountStackParamList, 'AddAccount'> & {
   onClose: () => void;
@@ -55,21 +56,21 @@ const AddAccountScreen: React.FC<Props> = ({
       id: 'create',
       title: 'Create New Account',
       subtitle: 'Add a new account to your wallet',
-      icon: 'plus-circle',
+      icon: 'PlusCircle',
       action: handleCreateNew,
     },
     {
       id: 'import-seed',
       title: 'Import Recovery Phrase',
       subtitle: 'Import an existing wallet using recovery phrase',
-      icon: 'file-text',
+      icon: 'FileText',
       action: handleImportSeedPhrase,
     },
     {
       id: 'import-key',
       title: 'Import Private Key',
       subtitle: 'Import an existing wallet using private key',
-      icon: 'key',
+      icon: 'Key',
       action: handleImportPrivateKey,
     },
   ];
@@ -93,7 +94,7 @@ const AddAccountScreen: React.FC<Props> = ({
               className="flex-row items-center gap-3.5 rounded-xl bg-[#25272C]/60 px-4 py-4"
             >
               <View className="h-9 w-9 items-center justify-center rounded-full bg-[#3F434D]">
-                <Text className="text-2xl">📝</Text>
+                <Icon name={option.icon} size={24} color="#F9F9F9" />
               </View>
               <View className="flex-1">
                 <Text className="text-lg text-[#F9F9F9]">{option.title}</Text>

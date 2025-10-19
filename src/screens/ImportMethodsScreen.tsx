@@ -9,6 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Icon } from '@/components/Icon';
 import { Colors } from '@/constants/colors';
 import type { ImportMethodsScreenProps } from '@/types/navigation';
+import { useTranslation } from '@/utils/i18n';
 
 // ImportOption component moved outside the component to avoid recreation on each render
 const ImportOption = ({
@@ -43,6 +44,7 @@ const ImportOption = ({
 );
 
 const ImportMethodsScreen: React.FC<ImportMethodsScreenProps> = ({ navigation }) => {
+  const { t } = useTranslation();
   const handleImportSeedPhrase = () => {
     navigation.navigate('ImportSeedPhrase');
   };
@@ -67,27 +69,27 @@ const ImportMethodsScreen: React.FC<ImportMethodsScreenProps> = ({ navigation })
           <Icon name="ArrowLeft" size={24} color={Colors.brand.primary} />
         </TouchableOpacity>
         <Text className="text-[20px] font-semibold text-text-primary">
-          Import Wallet
+          {t('importMethods.title')}
         </Text>
         <View className="h-10 w-10" />
       </View>
 
       <ScrollView className="flex-1 px-5 pt-8">
         <Text className="mb-8 text-center text-h4 text-text-primary">
-          Choose how to import your wallet
+          {t('importMethods.subtitle')}
         </Text>
 
         <ImportOption
           icon="ImportMnemonic"
-          title="Import Seed Phrase"
-          subtitle="Use your 12 or 24-word recovery phrase"
+          title={t('importMethods.seed.title')}
+          subtitle={t('importMethods.seed.subtitle')}
           onPress={handleImportSeedPhrase}
         />
 
         <ImportOption
           icon="ImportPrivateKey"
-          title="Import Private Key"
-          subtitle="Use your private key to import a single address"
+          title={t('importMethods.privateKey.title')}
+          subtitle={t('importMethods.privateKey.subtitle')}
           onPress={handleImportPrivateKey}
         />
 
@@ -95,11 +97,11 @@ const ImportMethodsScreen: React.FC<ImportMethodsScreenProps> = ({ navigation })
           <View className="flex-row items-center mb-2">
             <Icon name="Warning" size={16} color={Colors.system.warning} />
             <Text className="ml-2 text-[14px] font-semibold text-[#EBAB16]">
-              Security Note
+              {t('importMethods.warning.title')}
             </Text>
           </View>
           <Text className="text-[14px] leading-[20px] text-text-secondary">
-            Never share your seed phrase or private key with anyone. Store them in a secure location.
+            {t('importMethods.warning.description')}
           </Text>
         </View>
       </ScrollView>

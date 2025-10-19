@@ -109,25 +109,25 @@ const EditAccountScreen: React.FC<Props> = ({ navigation, route }) => {
       <View className="mt-6 gap-2 px-6">
         <TouchableOpacity
           onPress={handleEditName}
-          className="flex-row items-center justify-between rounded-xl bg-[#25272C] px-4 py-4"
+          className="flex-row items-center justify-between rounded-xl bg-background-secondary px-4 py-4"
         >
           <View className="flex-1 flex-row items-center gap-2 pr-4">
-            <Text className="text-lg text-[#F9F9F9]">Account Name</Text>
-            <Text className="flex-1 text-right text-lg text-[#8D94A3]">
+            <Text className="text-lg text-text-primary">Account Name</Text>
+            <Text className="flex-1 text-right text-lg text-text-secondary">
               {account.alianName || 'Unnamed'}
             </Text>
           </View>
-          <ChevronRight size={20} color="#FFFFFF" />
+          <ChevronRight size={20} color="rgb(var(--color-text-primary))" />
         </TouchableOpacity>
 
         <TouchableOpacity
           onPress={handleShowPrivateKey}
-          className="flex-row items-center justify-between rounded-xl bg-[#25272C] px-4 py-4"
+          className="flex-row items-center justify-between rounded-xl bg-background-secondary px-4 py-4"
         >
           <View className="flex-1 flex-row items-center gap-2 pr-4">
-            <Text className="text-lg text-[#F9F9F9]">Show Private Key</Text>
+            <Text className="text-lg text-text-primary">Show Private Key</Text>
           </View>
-          <ChevronRight size={20} color="#FFFFFF" />
+          <ChevronRight size={20} color="rgb(var(--color-text-primary))" />
         </TouchableOpacity>
 
       </View>
@@ -136,10 +136,10 @@ const EditAccountScreen: React.FC<Props> = ({ navigation, route }) => {
       <View className="mt-8 mb-10 px-6">
         <TouchableOpacity
           onPress={handleDeleteAccount}
-          className="flex-row items-center justify-center gap-2 rounded-xl bg-[#25272C] py-4"
+          className="flex-row items-center justify-center gap-2 rounded-xl bg-background-secondary py-4"
         >
-          <Trash2 size={20} color="#ED7D75" />
-          <Text className="text-base font-medium text-[#ED7D75]">
+          <Trash2 size={20} color="rgb(var(--color-system-error))" />
+          <Text className="text-base font-medium text-system-error">
             Delete Account
           </Text>
         </TouchableOpacity>

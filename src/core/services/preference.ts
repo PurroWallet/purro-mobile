@@ -12,6 +12,7 @@ const getStorage = (): MMKV => {
     try {
       storage = new MMKV({
         id: MMKV_FILE_NAMES.PREFERENCES,
+        encryptionKey: 'purro_preferences_v1',
       });
     } catch (error) {
       throw new Error(
@@ -26,6 +27,7 @@ export interface PreferenceData {
   biometricsEnabled?: boolean;
   language?: string;
   currency?: string;
+  themeMode?: 'light' | 'dark';
 }
 
 class PreferenceService {

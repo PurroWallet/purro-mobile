@@ -1,6 +1,7 @@
 import React from 'react';
 import type { ViewProps } from 'react-native';
 import { View } from 'react-native';
+import { useColorScheme } from 'nativewind';
 import { useIcon } from './useIcon';
 
 export interface IconProps extends Pick<ViewProps, 'className' | 'style'> {
@@ -13,18 +14,27 @@ export interface IconProps extends Pick<ViewProps, 'className' | 'style'> {
 export const Icon: React.FC<IconProps> = ({
   name,
   size = 24,
-  color = 'currentColor',
+  color,
   strokeWidth = 2,
   className,
   style,
 }) => {
   const resolution = useIcon(name);
+  const { colorScheme } = useColorScheme();
+
+  // Nếu không truyền color, dùng màu mặc định theo theme
+  const defaultColor = colorScheme === 'dark' ? '#ffffff' : '#000000';
+  const iconColor = color ?? defaultColor;
 
   if (resolution.type === 'lucide') {
     const LucideComponent = resolution.Component;
     return (
       <View className={className} style={style}>
-        <LucideComponent size={size} color={color} strokeWidth={strokeWidth} />
+        <LucideComponent
+          size={size}
+          strokeWidth={strokeWidth}
+          color={iconColor}
+        />
       </View>
     );
   }
@@ -33,7 +43,7 @@ export const Icon: React.FC<IconProps> = ({
     const CustomComponent = resolution.Component;
     return (
       <View className={className} style={style}>
-        <CustomComponent size={size} color={color} />
+        <CustomComponent size={size} color={iconColor} />
       </View>
     );
   }

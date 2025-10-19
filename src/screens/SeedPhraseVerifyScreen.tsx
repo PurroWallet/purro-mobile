@@ -6,8 +6,9 @@ import shuffle from 'lodash/shuffle';
 import sortBy from 'lodash/sortBy';
 import range from 'lodash/range';
 import { FormInput } from '@/components';
-import { useProtectedScreen } from '@/hooks/security';
+import { useProtectedScreen } from '@/core/hooks/security';
 import { SeedPhraseVerifyScreenProps } from '@/types/navigation';
+import { useTranslation } from '@/utils/i18n';
 
 const ProgressIndicator = () => (
   <View className="mb-14 w-[240px]">
@@ -45,7 +46,7 @@ const WordInput = ({
   <FormInput
     name={name}
     label={label}
-    placeholder="Enter word"
+    placeholder={label}
     autoCapitalize="none"
     autoCorrect={false}
     textContentType="oneTimeCode"
@@ -59,6 +60,7 @@ const SeedPhraseVerifyScreen: React.FC<SeedPhraseVerifyScreenProps> = ({
   navigation,
 }) => {
   const { mnemonic } = route.params;
+  const { t } = useTranslation();
 
   const words = useMemo(() => mnemonic.split(' '), [mnemonic]);
   const createVerificationPlan = useCallback(() => {
@@ -139,10 +141,10 @@ const SeedPhraseVerifyScreen: React.FC<SeedPhraseVerifyScreenProps> = ({
 
         <View className="items-center gap-4">
           <Text className="w-[335px] text-center text-h4 text-text-primary">
-            Verify seed phrase
+            {t('seedPhrase.verify.title')}
           </Text>
           <Text className="w-[335px] text-center text-button text-text-secondary">
-            Your Gateway to Hyperliquid
+            {t('seedPhrase.verify.subtitle')}
           </Text>
         </View>
 
@@ -152,7 +154,9 @@ const SeedPhraseVerifyScreen: React.FC<SeedPhraseVerifyScreenProps> = ({
               <WordInput
                 key={field.name}
                 name={field.name}
-                label={`Word #${field.position + 1}`}
+                label={t('seedPhrase.verify.wordLabel', {
+                  number: field.position + 1,
+                })}
                 returnKeyType={
                   index === verificationFields.length - 1 ? 'done' : 'next'
                 }
@@ -176,7 +180,7 @@ const SeedPhraseVerifyScreen: React.FC<SeedPhraseVerifyScreenProps> = ({
           <Text
             className={`text-button ${canContinue ? 'text-button-primary-text' : 'text-button-primary-disabled-text'}`}
           >
-            Continue
+            {t('seedPhrase.verify.actions.continue')}
           </Text>
         </TouchableOpacity>
       </View>

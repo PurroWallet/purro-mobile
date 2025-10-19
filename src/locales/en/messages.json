@@ -16,14 +16,33 @@
       "title": "Your Seed Phrase",
       "confirmation": "I've saved my seed phrase",
       "warning": "Store your seed phrase in a safe & offline place, never share it with anyone. This is the only way to recover your wallet.",
-      "continue": "Continue"
+      "actions": {
+        "continue": "Continue"
+      }
     },
     "verify": {
       "title": "Verify seed phrase",
       "subtitle": "Your Gateway to Hyperliquid",
       "wordLabel": "Word #{{number}}",
-      "placeholder": "Enter word",
-      "continue": "Continue"
+      "actions": {
+        "continue": "Continue"
+      }
+    },
+    "backup": {
+      "title": "Backup Seed Phrase",
+      "subtitle": "Enter your password to access your seed phrase",
+      "form": {
+        "label": "Password",
+        "placeholder": "Enter your password"
+      },
+      "warning": {
+        "title": "⚠️ Security Warning",
+        "description": "• Never share your seed phrase with anyone\n• Store it in a safe & offline place\n• This is the only way to recover your wallet"
+      },
+      "actions": {
+        "loading": "Unlocking...",
+        "submit": "Unlock"
+      }
     }
   },
   "password": {
@@ -44,11 +63,19 @@
     }
   },
   "unlock": {
-    "title": "Unlock",
+    "title": "Unlock Purro Wallet",
     "subtitle": "Enter your password",
-    "passwordPlaceholder": "Password",
-    "unlock": "Unlock",
-    "forgotPassword": "Forgot Password?",
+    "form": {
+      "label": "Password",
+      "placeholder": "Enter your password"
+    },
+    "actions": {
+      "submit": "Unlock"
+    },
+    "biometrics": {
+      "cancelled": "Biometric authentication cancelled. Please enter your password.",
+      "failed": "Biometric authentication failed. Please enter your password."
+    },
     "errors": {
       "incorrect": "Incorrect password",
       "failed": "Failed to unlock wallet"
@@ -57,6 +84,7 @@
   "home": {
     "title": "Home",
     "balance": "Balance",
+    "balanceValue": "{{value}}",
     "send": "Send",
     "receive": "Receive",
     "swap": "Swap",
@@ -71,7 +99,20 @@
       "perpetuals": "Perpetuals"
     },
     "totalTokens": "Total tokens",
-    "addTestnetToken": "Add Testnet token"
+    "addTestnetToken": "Add Testnet token",
+    "createAccount": "Create New Account",
+    "createAccountDescription": "Quickly add another wallet account",
+    "tabs": {
+      "evm": "EVM",
+      "spot": "Spot",
+      "perpetuals": "Perpetuals"
+    },
+    "nav": {
+      "home": "Home",
+      "swap": "Swap",
+      "nft": "NFT",
+      "dapps": "DApps"
+    }
   },
   "accountBottomSheet": {
     "yourAccounts": "Your Accounts",
@@ -109,7 +150,8 @@
     },
     "wallet": {
       "createFailed": "Failed to create wallet. Please try again.",
-      "importFailed": "Failed to import wallet. Please try again."
+      "importFailed": "Failed to import wallet. Please try again.",
+      "resetFailed": "Failed to reset wallet. Please try again."
     }
   },
   "networks": {
@@ -125,5 +167,104 @@
     "back": "Back",
     "next": "Next",
     "error": "Error"
+  },
+  "importMethods": {
+    "title": "Import Wallet",
+    "subtitle": "Choose how to import your wallet",
+    "seed": {
+      "title": "Import Seed Phrase",
+      "subtitle": "Use your 12 or 24-word recovery phrase"
+    },
+    "privateKey": {
+      "title": "Import Private Key",
+      "subtitle": "Use your private key to import a single address"
+    },
+    "warning": {
+      "title": "Security Note",
+      "description": "Never share your seed phrase or private key with anyone. Store them in a secure location."
+    }
+  },
+  "importSeedPhrase": {
+    "title": "Import Seed Phrase",
+    "subtitle": "Enter your 12-word seed phrase to restore your wallet",
+    "form": {
+      "label": "Seed Phrase",
+      "placeholder": "Enter your seed phrase (12 words)"
+    },
+    "guidelines": {
+      "title": "How to enter your seed phrase:",
+      "description": "• Enter each word separated by a space\n• Make sure all words are spelled correctly\n• Include all words in the correct order\n• Double-check before importing"
+    },
+    "actions": {
+      "loading": "Validating...",
+      "submit": "Continue"
+    },
+    "errors": {
+      "invalidWords": "Invalid seed phrase. Must be exactly 12 words."
+    },
+    "alert": {
+      "title": "Invalid Seed Phrase",
+      "generic": "Failed to validate seed phrase. Please try again."
+    }
+  },
+  "importPrivateKey": {
+    "title": "Import Private Key",
+    "subtitle": "Enter your private key to import a single address wallet",
+    "form": {
+      "label": "Private Key",
+      "placeholder": "Enter your private key (64 hex characters)"
+    },
+    "warning": {
+      "title": "⚠️ Security Warning",
+      "description": "• Private keys give full control over your wallet\n• Never share your private key with anyone\n• Import only from trusted sources\n• Consider using seed phrase import instead"
+    },
+    "actions": {
+      "loading": "Importing...",
+      "submit": "Import Wallet"
+    },
+    "errors": {
+      "invalidFormat": "Invalid private key format. Must be 64 hexadecimal characters.",
+      "invalidKey": "Invalid private key. Please check your input."
+    },
+    "alert": {
+      "title": "Import Failed",
+      "generic": "Failed to import private key. Please try again."
+    }
+  },
+  "importWallet": {
+    "title": "Import Wallet",
+    "subtitle": "Enter your 12 or 24-word seed phrase to restore your wallet",
+    "form": {
+      "mnemonic": {
+        "label": "Seed Phrase",
+        "placeholder": "Enter your seed phrase (12 or 24 words)"
+      },
+      "password": {
+        "label": "Password",
+        "placeholder": "Create a password"
+      },
+      "confirmPassword": {
+        "label": "Confirm Password",
+        "placeholder": "Confirm your password"
+      }
+    },
+    "actions": {
+      "loading": "Importing...",
+      "submit": "Import Wallet"
+    },
+    "errors": {
+      "invalidWords": "Invalid seed phrase. Must be 12 or 24 words."
+    },
+    "alert": {
+      "title": "Import Failed",
+      "generic": "Failed to import wallet. Please check your seed phrase and try again."
+    }
+  },
+  "walletSuccess": {
+    "title": "Your wallet is successfully created.",
+    "subtitle": "Get started now.",
+    "actions": {
+      "cta": "Get started"
+    }
   }
 }

@@ -11,8 +11,9 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PasswordInputForm } from '@/components';
 import { z } from 'zod';
-import { useZodForm, ZodFormValues } from '@/hooks/form/useZodForm';
+import { useZodForm, ZodFormValues } from '@/core/hooks/form/useZodForm';
 import { FormProvider } from 'react-hook-form';
+import { useTranslation } from '@/utils/i18n';
 
 const unlockSchema = z.object({
   password: z.string().min(1, 'Password is required'),
@@ -23,6 +24,7 @@ type UnlockFormValues = ZodFormValues<typeof unlockSchema>;
 const SeedPhraseBackupScreen: React.FC<SeedPhraseBackupScreenProps> = ({
   navigation,
 }) => {
+  const { t } = useTranslation();
   const [isUnlocking, setIsUnlocking] = useState(false);
   
   const form = useZodForm(unlockSchema, {
@@ -71,10 +73,10 @@ const SeedPhraseBackupScreen: React.FC<SeedPhraseBackupScreenProps> = ({
         <View className="w-full gap-8 pt-16">
           <View className="items-center gap-4">
             <Text className="w-[335px] text-center text-h4 text-text-primary">
-              Backup Seed Phrase
+              {t('seedPhrase.backup.title')}
             </Text>
             <Text className="w-[335px] text-center text-button text-text-secondary">
-              Enter your password to access your seed phrase
+              {t('seedPhrase.backup.subtitle')}
             </Text>
           </View>
 
@@ -82,8 +84,8 @@ const SeedPhraseBackupScreen: React.FC<SeedPhraseBackupScreenProps> = ({
             <View className="w-full gap-4">
               <PasswordInputForm
                 name="password"
-                label="Password"
-                placeholder="Enter your password"
+                label={t('seedPhrase.backup.form.label')}
+                placeholder={t('seedPhrase.backup.form.placeholder')}
                 secureTextEntry
                 autoCapitalize="none"
                 textContentType="password"
@@ -95,12 +97,10 @@ const SeedPhraseBackupScreen: React.FC<SeedPhraseBackupScreenProps> = ({
 
           <View className="rounded-xl bg-[rgba(255,107,107,0.1)] p-4">
             <Text className="mb-2 text-[14px] font-semibold text-[#FF6B6B]">
-              ⚠️ Security Warning
+              {t('seedPhrase.backup.warning.title')}
             </Text>
             <Text className="text-[14px] leading-[20px] text-text-secondary">
-              • Never share your seed phrase with anyone{'\n'}
-              • Store it in a safe & offline place{'\n'}
-              • This is the only way to recover your wallet
+              {t('seedPhrase.backup.warning.description')}
             </Text>
           </View>
         </View>
@@ -120,7 +120,9 @@ const SeedPhraseBackupScreen: React.FC<SeedPhraseBackupScreenProps> = ({
                   : 'text-button-primary-text'
               }`}
             >
-              {isUnlocking ? 'Unlocking...' : 'Unlock'}
+              {isUnlocking
+                ? t('seedPhrase.backup.actions.loading')
+                : t('seedPhrase.backup.actions.submit')}
             </Text>
           </TouchableOpacity>
         </View>

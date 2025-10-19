@@ -22,11 +22,12 @@ import { apisWallet } from '@/core/apis/wallet';
 import { screenProtection } from '@/core/services/screenProtection';
 import { excludeFilesFromBackup } from '@/core/utils/appFS';
 import { PrivacyBlur } from '@/components/PrivacyBlur';
+import { ThemeProvider } from '@/providers/ThemeProvider';
 
 // Screenshot protection components (Rabby pattern)
 import { BackgroundSecureBlurView } from '@/components/customized/BlurViews';
 import { GlobalSecurityTipStubModal } from '@/components/SecurityTipStubModal';
-import { useAppPreventScreenshotOnScreen } from '@/hooks/native/security';
+import { useAppPreventScreenshotOnScreen } from '@/core/hooks/native/security';
 
 // Import screens
 import WelcomeScreen from './src/screens/WelcomeScreen';
@@ -36,7 +37,6 @@ import CreatePasswordScreen from './src/screens/CreatePasswordScreen';
 import WalletSuccessScreen from './src/screens/WalletSuccessScreen';
 import UnlockScreen from './src/screens/UnlockScreen';
 import HomeScreen from './src/screens/HomeScreen';
-import SettingsScreen from './src/screens/SettingsScreen';
 import ImportMethodsScreen from './src/screens/ImportMethodsScreen';
 import ImportSeedPhraseScreen from './src/screens/ImportSeedPhraseScreen';
 import ImportPrivateKeyScreen from './src/screens/ImportPrivateKeyScreen';
@@ -123,7 +123,8 @@ const App: React.FC = () => {
       <GestureHandlerRootView className="flex-1">
         <BottomSheetModalProvider>
           <PrivacyBlur>
-            <NavigationContainer>
+            <ThemeProvider>
+              <NavigationContainer>
               <StatusBar barStyle="light-content" backgroundColor="#161616" />
               <Stack.Navigator
                 initialRouteName={initialRoute as keyof RootStackParamList}
@@ -201,13 +202,13 @@ const App: React.FC = () => {
 
                 {/* Main App Flow */}
                 <Stack.Screen name="Home" component={HomeScreen} />
-                <Stack.Screen name="Settings" component={SettingsScreen} />
               </Stack.Navigator>
 
               {/* Screenshot protection components (Rabby pattern) */}
               <BackgroundSecureBlurView />
               <GlobalSecurityTipStubModal />
-            </NavigationContainer>
+              </NavigationContainer>
+            </ThemeProvider>
           </PrivacyBlur>
         </BottomSheetModalProvider>
       </GestureHandlerRootView>

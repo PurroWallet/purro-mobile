@@ -39,8 +39,8 @@ const SuccessScreen: React.FC<Props> = ({
       
       <View className="flex-1 items-center justify-center px-5 py-10">
         {/* Success Icon */}
-        <View className="mb-6 h-20 w-20 items-center justify-center rounded-full bg-[#059288]/20">
-          <Check size={40} color="#059288" />
+        <View className="mb-6 h-20 w-20 items-center justify-center rounded-full bg-brand-primary/20">
+          <Check size={40} />
         </View>
 
         {/* Title */}

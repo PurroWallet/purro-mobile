@@ -12,7 +12,7 @@ import { BottomSheetView } from '@gorhom/bottom-sheet';
 import { FormProvider } from 'react-hook-form';
 import { Eye, EyeOff } from 'lucide-react-native';
 import { apisLock } from '@/core/apis';
-import { useZodForm, ZodFormValues } from '@/hooks/form/useZodForm';
+import { useZodForm, ZodFormValues } from '@/core/hooks/form/useZodForm';
 import { z } from 'zod';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AccountStackParamList } from '../AccountStackNavigator';
@@ -127,8 +127,8 @@ const UnlockScreen: React.FC<Props> = ({
 
         <View className="flex-1 px-5 justify-between">
           <View className="flex-1">
-            <Text className="text-lg text-[#F9F9F9] mb-2">Enter Password</Text>
-            <Text className="text-sm text-[#8D94A3] mb-6">
+            <Text className="mb-2 text-lg text-text-primary">Enter Password</Text>
+            <Text className="mb-6 text-sm text-text-secondary">
               {isNewAccount
                 ? 'Enter your password to create a new account'
                 : isImport
@@ -138,14 +138,14 @@ const UnlockScreen: React.FC<Props> = ({
 
             <FormProvider {...form}>
               <View className="mb-5">
-                <Text className="text-sm text-[#F9F9F9] mb-2">Password</Text>
-                <View className="flex-row items-center rounded-xl border border-[#494F5B] px-4 py-4">
+                <Text className="mb-2 text-sm text-text-primary">Password</Text>
+                <View className="flex-row items-center rounded-xl border border-border-primary px-4 py-4">
                   <TextInput
-                    className="flex-1 text-lg text-[#F9F9F9]"
+                    className="flex-1 text-lg text-text-primary"
                     value={passwordValue}
                     onChangeText={text => form.setValue('password', text)}
                     placeholder="Enter your password"
-                    placeholderTextColor="#8D94A3"
+                    placeholderTextColor="rgb(var(--color-text-secondary))"
                     secureTextEntry={!showPassword}
                     autoCapitalize="none"
                     autoComplete="password"
@@ -158,14 +158,14 @@ const UnlockScreen: React.FC<Props> = ({
                     onPress={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
-                      <EyeOff size={20} color="#8D94A3" />
+                      <EyeOff size={20} color="rgb(var(--color-text-secondary))" />
                     ) : (
-                      <Eye size={20} color="#8D94A3" />
+                      <Eye size={20} color="rgb(var(--color-text-secondary))" />
                     )}
                   </TouchableOpacity>
                 </View>
                 {form.formState.errors.password && (
-                  <Text className="mt-2 text-sm text-[#FF6B6B]">
+                  <Text className="mt-2 text-sm text-system-error">
                     {form.formState.errors.password.message}
                   </Text>
                 )}
@@ -177,16 +177,16 @@ const UnlockScreen: React.FC<Props> = ({
           <TouchableOpacity
             className={`w-full min-h-12 items-center justify-center rounded-xl px-6 py-4 ${
               !passwordValue.trim() || isUnlocking
-                ? 'bg-[#373B43]'
-                : 'bg-[#059288]'
+                ? 'bg-background-secondary'
+                : 'bg-brand-primary'
             }`}
             onPress={handleSubmit}
             disabled={!passwordValue.trim() || isUnlocking}
           >
             {isUnlocking ? (
-              <ActivityIndicator size="small" color="#FFFFFF" />
+              <ActivityIndicator size="small" color="rgb(var(--color-text-primary))" />
             ) : (
-              <Text className="text-base font-medium text-[#F9F9F9]">
+              <Text className="text-base font-medium text-button-primary-text">
                 {isNewAccount
                   ? 'Create Account'
                   : isImport

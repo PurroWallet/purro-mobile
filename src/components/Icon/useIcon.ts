@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import type { LucideProps } from 'lucide-react-native';
 import * as LucideIcons from 'lucide-react-native';
-import { customIcons } from '@/assets/icons/customIcons';
+import { customIcons } from '@/assets/icons';
 
 type LucideIconComponent = React.ComponentType<LucideProps>;
 type CustomIconComponent = React.ComponentType<{ size?: number; color?: string }>;

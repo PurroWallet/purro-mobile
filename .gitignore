@@ -3,7 +3,7 @@
 .DS_Store
 src-rabby/
 .kilocodemodes
-bun.lock
+yarn.lock
 .vscode/
 
 # Xcode

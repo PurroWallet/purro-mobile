@@ -6,13 +6,13 @@ import { Colors } from '../constants/colors';
 import { PasswordInputForm } from '../components';
 import KeyboardAvoidingView from '../components/KeyboardAvoidingView';
 import { apisKeychain, apisLock } from '../core/apis';
-import { useBiometrics } from '../hooks/biometrics';
-import { useUnlockForm } from '../hooks/form/useUnlockForm';
+import { useBiometrics } from '../core/hooks/biometrics';
+import { useUnlockForm } from '../core/hooks/form/useUnlockForm';
 import { useTranslation } from '../utils/i18n';
 import type { UnlockScreenProps } from '../types/navigation';
 
 const UnlockScreen: FC<UnlockScreenProps> = ({ navigation }) => {
-  useTranslation();
+  const { t } = useTranslation();
   const [biometricAttempted, setBiometricAttempted] = useState(false);
   const { computed, fetchBiometrics } = useBiometrics({ autoFetch: true });
   const { form, handleSubmit, isUnlocking, setIsUnlocking } = useUnlockForm({
@@ -58,12 +58,12 @@ const UnlockScreen: FC<UnlockScreenProps> = ({ navigation }) => {
             }
 
             setError('password', {
-              message: 'Biometric authentication cancelled. Please enter your password.',
+              message: t('unlock.biometrics.cancelled'),
             });
           } catch (error) {
             console.error('❌ Biometric unlock error:', error);
             setError('password', {
-              message: 'Biometric authentication failed. Please enter your password.',
+              message: t('unlock.biometrics.failed'),
             });
           } finally {
             setIsUnlocking(false);
@@ -101,7 +101,7 @@ const UnlockScreen: FC<UnlockScreenProps> = ({ navigation }) => {
       <View className="flex-1 items-center justify-center px-5">
         <View className="mb-8 h-[120px] w-[120px] rounded-[60px] bg-background-secondary" />
         <Text className="text-center text-h4 text-text-primary">
-          Unlock Purro Wallet
+          {t('unlock.title')}
         </Text>
       </View>
 
@@ -110,8 +110,8 @@ const UnlockScreen: FC<UnlockScreenProps> = ({ navigation }) => {
           <View className="gap-4">
             <PasswordInputForm
               name="password"
-              label="Password"
-              placeholder="Enter your password"
+              label={t('unlock.form.label')}
+              placeholder={t('unlock.form.placeholder')}
               autoCapitalize="none"
               textContentType="password"
               returnKeyType="done"
@@ -128,7 +128,7 @@ const UnlockScreen: FC<UnlockScreenProps> = ({ navigation }) => {
               {isUnlocking ? (
                 <ActivityIndicator size="small" color={Colors.text.primary} />
               ) : (
-                <Text className="text-button text-button-primary-text">Unlock</Text>
+                <Text className="text-button text-button-primary-text">{t('unlock.actions.submit')}</Text>
               )}
             </TouchableOpacity>
           </View>

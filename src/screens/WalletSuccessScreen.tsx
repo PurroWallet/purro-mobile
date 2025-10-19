@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { WalletSuccessScreenProps } from '@/types/navigation';
+import { useTranslation } from '@/utils/i18n';
 
 /**
  * Wallet Success Screen
@@ -11,6 +12,7 @@ import type { WalletSuccessScreenProps } from '@/types/navigation';
 const WalletSuccessScreen: React.FC<WalletSuccessScreenProps> = ({
   navigation,
 }) => {
+  const { t } = useTranslation();
   const handleGetStarted = () => {
     // Navigate to Home screen
     navigation.reset({
@@ -33,10 +35,10 @@ const WalletSuccessScreen: React.FC<WalletSuccessScreenProps> = ({
         {/* Success Message */}
         <View className="items-center gap-4">
           <Text className="text-center text-h4 text-text-primary">
-            Your wallet is{'\n'}successfully created.
+            {t('walletSuccess.title')}
           </Text>
           <Text className="text-center text-button text-text-secondary">
-            Get started now.
+            {t('walletSuccess.subtitle')}
           </Text>
         </View>
       </View>
@@ -47,7 +49,9 @@ const WalletSuccessScreen: React.FC<WalletSuccessScreenProps> = ({
         onPress={handleGetStarted}
         activeOpacity={0.8}
       >
-        <Text className="text-button text-button-primary-text">Get started</Text>
+        <Text className="text-button text-button-primary-text">
+          {t('walletSuccess.actions.cta')}
+        </Text>
       </TouchableOpacity>
     </SafeAreaView>
   );
