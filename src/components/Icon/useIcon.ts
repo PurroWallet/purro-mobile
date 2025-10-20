@@ -4,7 +4,10 @@ import { useMemo } from 'react';
 import { customIcons } from '@/assets/icons';
 
 type LucideIconComponent = React.ComponentType<LucideProps>;
-type CustomIconComponent = React.ComponentType<{ size?: number; color?: string }>;
+type CustomIconComponent = React.ComponentType<{
+  size?: number;
+  color?: string;
+}>;
 
 export type IconResolution =
   | { type: 'lucide'; Component: LucideIconComponent }

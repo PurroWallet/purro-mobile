@@ -78,6 +78,19 @@ yarn-error.log
 !.yarn/sdks
 !.yarn/versions
 
-ios/
-android/
-assets/
+# iOS specific
+ios/build/
+ios/Pods/
+ios/*.xcodeproj/xcuserdata/
+ios/*.xcodeproj/project.xcworkspace/xcuserdata/
+ios/Podfile.lock
+
+# Android specific
+android/build/
+android/app/build/
+android/.gradle/
+android/app/src/main/assets/
+
+# Assets (keep structure, ignore content)
+assets/dist/
+assets/*.ttf

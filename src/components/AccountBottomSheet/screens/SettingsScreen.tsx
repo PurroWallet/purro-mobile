@@ -1,12 +1,13 @@
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import type { NavigationProp } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { ChevronRight } from 'lucide-react-native';
+import { useColorScheme } from 'nativewind';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Alert, ScrollView, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { Icon } from '@/components/Icon';
+import ThemeToggle from '@/components/ThemeToggle';
 import { apisKeychain, apisLock, apisWallet } from '@/core/apis';
 import { useBiometrics } from '@/core/hooks/biometrics';
-import { useThemeMode } from '@/core/hooks/useTheme';
 import { KEYCHAIN_AUTH_TYPES } from '@/core/services/keychain';
 import { useAppStore } from '@/stores/appStore';
 import type { ThemeMode } from '@/theme';
@@ -52,8 +53,7 @@ const SettingItem: React.FC<SettingsOption> = ({
       </Text>
       {subtitle && <Text className="mt-1 text-sm text-text-secondary">{subtitle}</Text>}
     </View>
-    {rightComponent ||
-      (showArrow && <ChevronRight size={20} color="rgb(var(--color-text-primary))" />)}
+    {rightComponent || (showArrow && <Icon name="ChevronRight" size={20} />)}
   </TouchableOpacity>
 );
 
@@ -69,13 +69,13 @@ const SectionHeader: React.FC<{ title: string }> = ({ title }) => (
 const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
   const setWalletExists = useAppStore((state) => state.setWalletExists);
   const { t } = useTranslation();
+  const { colorScheme, setColorScheme } = useColorScheme();
+  const isDarkMode = colorScheme === 'dark';
   const {
     computed: { isBiometricsEnabled, defaultTypeLabel, couldSetupBiometrics },
     toggleBiometrics,
     fetchBiometrics,
   } = useBiometrics({ autoFetch: true });
-
-  const { themeMode, setThemeMode } = useThemeMode();
 
   const [isEnablingBiometrics, setIsEnablingBiometrics] = useState(false);
 
@@ -211,27 +211,25 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
   };
 
   const handleChangeTheme = (nextMode: ThemeMode) => {
-    setThemeMode(nextMode);
+    setColorScheme(nextMode);
   };
 
   const themeToggleOptions = useMemo(() => {
-    const isDark = themeMode === 'dark';
-
     return {
       label: t(
-        isDark
+        isDarkMode
           ? 'accountBottomSheet.settingsScreen.theme.darkTitle'
           : 'accountBottomSheet.settingsScreen.theme.lightTitle',
       ),
       subtitle: t(
-        isDark
+        isDarkMode
           ? 'accountBottomSheet.settingsScreen.theme.lightSubtitle'
           : 'accountBottomSheet.settingsScreen.theme.darkSubtitle',
       ),
-      nextMode: isDark ? 'light' : 'dark',
-      value: isDark,
+      nextMode: isDarkMode ? 'light' : 'dark',
+      value: isDarkMode,
     };
-  }, [themeMode, t]);
+  }, [isDarkMode, t]);
 
   const handleBackupWallet = () => {
     navigation.navigate('SeedPhraseBackup');
@@ -293,7 +291,12 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
   };
 
   return (
-    <BottomSheetScrollView className="flex-1">
+    <BottomSheetScrollView
+      className="flex-1"
+      style={{
+        backgroundColor: isDarkMode ? 'rgb(22 22 22)' : 'rgb(249 250 251)',
+      }}
+    >
       {/* Header */}
       <SheetHeader
         title={t('accountBottomSheet.settingsScreen.headerTitle')}
@@ -347,21 +350,7 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
               title={t('accountBottomSheet.settingsScreen.theme.title')}
               subtitle={themeToggleOptions.subtitle}
               onPress={() => handleChangeTheme(themeToggleOptions.nextMode as ThemeMode)}
-              rightComponent={
-                <View className="min-w-[51px] items-center justify-center pr-2">
-                  <Switch
-                    value={themeToggleOptions.value}
-                    onValueChange={() =>
-                      handleChangeTheme(themeToggleOptions.nextMode as ThemeMode)
-                    }
-                    trackColor={{
-                      false: '#373B43',
-                      true: '#059288',
-                    }}
-                    thumbColor="#FFFFFF"
-                  />
-                </View>
-              }
+              rightComponent={<ThemeToggle />}
             />
           </View>
         </View>

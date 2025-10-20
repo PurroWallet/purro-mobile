@@ -59,6 +59,7 @@
     "react-native-keychain": "^8.2.0",
     "react-native-mmkv": "^3.3.0",
     "react-native-reanimated": "^3.15.4",
+    "react-native-redash": "^18.1.4",
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "^4.16.0",
     "react-native-screenshot-prevent": "^1.2.1",

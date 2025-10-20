@@ -1,6 +1,7 @@
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import type { NavigationProp } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useColorScheme } from 'nativewind';
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from '@/components/Icon';
@@ -27,6 +28,8 @@ const AddAccountScreen: React.FC<Props> = ({
   parentNavigation: _parentNavigation,
 }) => {
   const { t } = useTranslation();
+  const { colorScheme } = useColorScheme();
+  const isDarkMode = colorScheme === 'dark';
 
   const handleBack = () => {
     console.log('AddAccountScreen - Back button pressed via handleBack');
@@ -78,7 +81,12 @@ const AddAccountScreen: React.FC<Props> = ({
   ];
 
   return (
-    <BottomSheetScrollView className="flex-1 bg-[#161616]">
+    <BottomSheetScrollView
+      className="flex-1"
+      style={{
+        backgroundColor: isDarkMode ? 'rgb(22 22 22)' : 'rgb(249 250 251)',
+      }}
+    >
       {/* Header */}
       <SheetHeader title={t('accountBottomSheet.addAccount')} onBack={handleBack} />
       <View className="mb-6" />
@@ -90,14 +98,14 @@ const AddAccountScreen: React.FC<Props> = ({
             <TouchableOpacity
               key={option.id}
               onPress={option.action}
-              className="flex-row items-center gap-3.5 rounded-xl bg-[#25272C]/60 px-4 py-4"
+              className="flex-row items-center gap-3.5 rounded-xl bg-background-secondary/60 px-4 py-4"
             >
-              <View className="h-9 w-9 items-center justify-center rounded-full bg-[#3F434D]">
-                <Icon name={option.icon} size={24} color="#F9F9F9" />
+              <View className="h-9 w-9 items-center justify-center rounded-full bg-brand-secondary">
+                <Icon name={option.icon} size={24} />
               </View>
               <View className="flex-1">
-                <Text className="text-lg text-[#F9F9F9]">{t(option.title)}</Text>
-                <Text className="text-sm text-[#8D94A3]">{t(option.subtitle)}</Text>
+                <Text className="text-lg text-text-primary">{t(option.title)}</Text>
+                <Text className="text-sm text-text-secondary">{t(option.subtitle)}</Text>
               </View>
             </TouchableOpacity>
           ))}

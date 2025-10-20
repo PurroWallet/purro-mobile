@@ -4,6 +4,7 @@ import {
   createNativeStackNavigator,
   NativeStackNavigationOptions,
 } from '@react-navigation/native-stack';
+import { useColorScheme } from 'nativewind';
 import React, { useMemo } from 'react';
 import AccountListScreen from './screens/AccountListScreen.tsx';
 import AddAccountScreen from './screens/AddAccountScreen.tsx';
@@ -55,17 +56,21 @@ const AccountStackNavigator: React.FC<AccountStackNavigatorProps> = ({
   navigation: parentNavigation,
   onResetWallet: _onResetWallet,
 }) => {
+  const { colorScheme } = useColorScheme();
+  const isDarkMode = colorScheme === 'dark';
+
   const screenOptions = useMemo<NativeStackNavigationOptions>(
     () => ({
       headerShown: false,
       contentStyle: {
-        backgroundColor: '#161616',
+        // Sử dụng màu từ theme thay vì hardcode
+        backgroundColor: isDarkMode ? 'rgb(22 22 22)' : 'rgb(249 250 251)',
       },
       animation: 'slide_from_right',
       gestureEnabled: true,
       fullScreenGestureEnabled: true,
     }),
-    [],
+    [isDarkMode],
   );
 
   return (

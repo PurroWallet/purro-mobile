@@ -1,10 +1,8 @@
-import { BottomSheetBackdrop, BottomSheetModal } from '@gorhom/bottom-sheet';
-import type { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import type { NavigationProp } from '@react-navigation/native';
-import React, { forwardRef, useCallback, useImperativeHandle, useMemo, useRef } from 'react';
-import { useBottomSheetAnimationConfigs } from '@/core/hooks/useBottomSheetAnimationConfigs';
+import React, { forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
+import { Platform } from 'react-native';
+import BaseBottomSheet, { type BaseBottomSheetRef } from '@/components/BaseBottomSheet';
 import AccountStackNavigator from './AccountStackNavigator';
-import CustomBackground from './CustomBackground';
 
 interface Account {
   address: string;
@@ -28,29 +26,10 @@ export interface AccountBottomSheetRef {
 
 const AccountBottomSheet = forwardRef<AccountBottomSheetRef, AccountBottomSheetProps>(
   ({ onClose, currentAccount, onAccountSelect, navigation, onResetWallet }, ref) => {
-    const bottomSheetRef = useRef<BottomSheetModalMethods>(null);
+    const bottomSheetRef = useRef<BaseBottomSheetRef>(null);
 
-    // Snap points for the bottom sheet - using fixed height for navigator
-    const snapPoints = useMemo(() => ['90%'], []);
-
-    // Custom animation configs
-    const animationConfigs = useBottomSheetAnimationConfigs();
-
-    // Custom backdrop
-    const renderBackdrop = useCallback(
-      (props: any) => (
-        <BottomSheetBackdrop
-          {...props}
-          disappearsOnIndex={-1}
-          appearsOnIndex={0}
-          pressBehavior="close"
-        />
-      ),
-      [],
-    );
-
-    // Custom background
-    const renderBackground = useCallback((props: any) => <CustomBackground {...props} />, []);
+    // Snap points cho bottom sheet - sử dụng giá trị phù hợp
+    const snapPoints = useMemo(() => ['85%'], []);
 
     // Expose present/dismiss methods
     useImperativeHandle(ref, () => ({
@@ -63,22 +42,14 @@ const AccountBottomSheet = forwardRef<AccountBottomSheetRef, AccountBottomSheetP
     }));
 
     return (
-      <BottomSheetModal
+      <BaseBottomSheet
         ref={bottomSheetRef}
-        index={0}
+        onClose={onClose}
         snapPoints={snapPoints}
-        animationConfigs={animationConfigs}
+        enableHandle={true}
         stackBehavior="push"
-        enableDynamicSizing={false}
-        onChange={(index: number) => {
-          if (index === -1) {
-            onClose();
-          }
-        }}
-        backgroundComponent={renderBackground}
-        handleComponent={null}
-        backdropComponent={renderBackdrop}
-        enablePanDownToClose={true}
+        keyboardBehavior={Platform.OS === 'ios' ? 'interactive' : undefined}
+        keyboardBlurBehavior="restore"
       >
         <AccountStackNavigator
           onClose={onClose}
@@ -87,7 +58,7 @@ const AccountBottomSheet = forwardRef<AccountBottomSheetRef, AccountBottomSheetP
           navigation={navigation}
           onResetWallet={onResetWallet}
         />
-      </BottomSheetModal>
+      </BaseBottomSheet>
     );
   },
 );

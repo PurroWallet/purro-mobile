@@ -1,13 +1,13 @@
-import { BottomSheetBackdrop, BottomSheetModal, BottomSheetView } from '@gorhom/bottom-sheet';
-import type { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
+import { BottomSheetView } from '@gorhom/bottom-sheet';
 import Clipboard from '@react-native-clipboard/clipboard';
-import React, { forwardRef, useCallback, useImperativeHandle, useRef, useState } from 'react';
-import { Alert, Platform, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useColorScheme } from 'nativewind';
+import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
+import { Alert, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import BottomSheetHandle from '@/components/BottomSheetHandle';
+import BaseBottomSheet, { type BaseBottomSheetRef } from '@/components/BaseBottomSheet';
 import { Icon } from '@/components/Icon';
+import ThemeToggle from '@/components/ThemeToggle';
 import { walletController } from '@/core/controllers/WalletController';
-import { useBottomSheetAnimationConfigs } from '@/core/hooks/useBottomSheetAnimationConfigs';
 import { useTranslation } from '@/utils/i18n';
 
 interface Account {
@@ -35,44 +35,28 @@ interface EditOption {
   action: () => void;
 }
 
+interface SettingOption {
+  id: string;
+  title: string;
+  icon: string;
+  type: 'toggle' | 'action';
+  value?: boolean;
+  action?: () => void;
+  rightComponent?: React.ReactNode;
+}
+
 const EditAccountBottomSheet = forwardRef<EditAccountBottomSheetRef, EditAccountBottomSheetProps>(
   ({ onClose, account }, ref) => {
     const { t } = useTranslation();
+    const { colorScheme } = useColorScheme();
+    const isDarkMode = colorScheme === 'dark';
     const insets = useSafeAreaInsets();
-    const bottomSheetRef = useRef<BottomSheetModalMethods>(null);
+    const bottomSheetRef = useRef<BaseBottomSheetRef>(null);
     const [editingAlias, setEditingAlias] = useState(false);
     const [aliasText, setAliasText] = useState('');
     const [showSettings, setShowSettings] = useState(false);
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
     const [biometricEnabled, setBiometricEnabled] = useState(false);
-    const [darkMode, setDarkMode] = useState(true);
-
-    // Custom animation configs
-    const animationConfigs = useBottomSheetAnimationConfigs();
-
-    // Custom backdrop
-    const renderBackdrop = useCallback(
-      (props: any) => (
-        <BottomSheetBackdrop
-          {...props}
-          disappearsOnIndex={-1}
-          appearsOnIndex={0}
-          pressBehavior="close"
-          onPress={() => {
-            if (showSettings) {
-              setShowSettings(false);
-            } else {
-              bottomSheetRef.current?.dismiss();
-              onClose();
-            }
-          }}
-        />
-      ),
-      [showSettings, onClose],
-    );
-
-    // Custom handle
-    const renderHandle = useCallback((props: any) => <BottomSheetHandle {...props} />, []);
 
     useImperativeHandle(ref, () => ({
       present: () => {
@@ -200,8 +184,11 @@ const EditAccountBottomSheet = forwardRef<EditAccountBottomSheetRef, EditAccount
           title: t('settings.darkMode'),
           icon: 'Moon',
           type: 'toggle' as const,
-          value: darkMode,
-          action: () => setDarkMode(!darkMode),
+          value: isDarkMode,
+          action: () => {
+            // Sẽ sử dụng ThemeToggle component thay vì action trực tiếp
+          },
+          rightComponent: <ThemeToggle />,
         },
         {
           id: 'change-password',
@@ -233,7 +220,7 @@ const EditAccountBottomSheet = forwardRef<EditAccountBottomSheetRef, EditAccount
         },
       ];
 
-      const renderSettingOption = (option: any) => (
+      const renderSettingOption = (option: SettingOption) => (
         <TouchableOpacity
           key={option.id}
           className="flex-row items-center bg-background-secondary rounded-xl p-4 justify-between mb-2"
@@ -245,17 +232,18 @@ const EditAccountBottomSheet = forwardRef<EditAccountBottomSheetRef, EditAccount
             <Icon name={option.icon} size={24} color="rgb(var(--color-text-secondary))" />
             <Text className="text-lg font-normal text-text-primary">{option.title}</Text>
           </View>
-          {option.type === 'toggle' ? (
-            <Switch
-              value={option.value}
-              onValueChange={option.action}
-              trackColor={{ false: '#3F434D', true: '#007AFF' }}
-              thumbColor={option.value ? '#FFFFFF' : '#FFFFFF'}
-              ios_backgroundColor="#3F434D"
-            />
-          ) : (
-            <Icon name="ChevronRight" size={16} color="rgb(var(--color-text-secondary))" />
-          )}
+          {option.rightComponent ||
+            (option.type === 'toggle' ? (
+              <Switch
+                value={option.value}
+                onValueChange={option.action}
+                trackColor={{ false: '#3F434D', true: '#007AFF' }}
+                thumbColor={option.value ? '#FFFFFF' : '#FFFFFF'}
+                ios_backgroundColor="#3F434D"
+              />
+            ) : (
+              <Icon name="ChevronRight" size={16} color="rgb(var(--color-text-secondary))" />
+            ))}
         </TouchableOpacity>
       );
 
@@ -393,44 +381,26 @@ const EditAccountBottomSheet = forwardRef<EditAccountBottomSheetRef, EditAccount
     );
 
     return (
-      <>
-        <BottomSheetModal
-          ref={bottomSheetRef}
-          index={0}
-          snapPoints={['80%']}
-          animationConfigs={animationConfigs}
-          stackBehavior="push"
-          onChange={(index: number) => {
-            if (index === -1) {
-              onClose();
-            }
-          }}
-          backgroundStyle={{
-            backgroundColor: '#161616',
-            borderTopLeftRadius: 20,
-            borderTopRightRadius: 20,
-          }}
-          handleComponent={renderHandle}
-          backdropComponent={renderBackdrop}
-          enablePanDownToClose={true}
-          keyboardBehavior={Platform.OS === 'ios' ? 'interactive' : undefined}
-          keyboardBlurBehavior="restore"
-          android_keyboardInputMode={Platform.OS === 'android' ? 'adjustResize' : undefined}
-        >
-          <BottomSheetView className="flex-1 px-5 items-center">
-            {renderHeader()}
-            {showSettings ? (
-              renderSettingsContent()
-            ) : (
-              <>
-                {renderAvatar()}
-                <View className="w-full gap-4 mb-8">{editOptions.map(renderEditOption)}</View>
-                {renderDeleteButton()}
-              </>
-            )}
-          </BottomSheetView>
-        </BottomSheetModal>
-      </>
+      <BaseBottomSheet
+        ref={bottomSheetRef}
+        onClose={onClose}
+        snapPoints={['80%']}
+        enableHandle={true}
+        stackBehavior="push"
+      >
+        <BottomSheetView className="flex-1 px-5 items-center">
+          {renderHeader()}
+          {showSettings ? (
+            renderSettingsContent()
+          ) : (
+            <>
+              {renderAvatar()}
+              <View className="w-full gap-4 mb-8">{editOptions.map(renderEditOption)}</View>
+              {renderDeleteButton()}
+            </>
+          )}
+        </BottomSheetView>
+      </BaseBottomSheet>
     );
   },
 );

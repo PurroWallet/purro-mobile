@@ -1,11 +1,13 @@
-import { BottomSheetView } from '@gorhom/bottom-sheet';
+import { BottomSheetScrollView, BottomSheetView } from '@gorhom/bottom-sheet';
 import type { NavigationProp } from '@react-navigation/native';
 import { useFocusEffect } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ChevronRight, Edit2, Settings } from 'lucide-react-native';
+import { useColorScheme } from 'nativewind';
 import React, { useEffect, useState } from 'react';
 import { Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import DefaultIcon from '@/assets/common/icon.png';
+import { Icon } from '@/components/Icon';
 import { walletController } from '@/core/controllers/WalletController';
 import type { AccountStackParamList } from '../AccountStackNavigator';
 
@@ -37,6 +39,8 @@ const AccountListScreen: React.FC<Props> = ({
   onAccountSelect,
   parentNavigation: _parentNavigation,
 }) => {
+  const { colorScheme } = useColorScheme();
+  const isDarkMode = colorScheme === 'dark';
   const [accounts, setAccounts] = useState<Account[]>([]);
 
   // Mock networks data based on Figma design
@@ -110,7 +114,12 @@ const AccountListScreen: React.FC<Props> = ({
   const currentAccountAddress = currentAccount?.address || '';
 
   return (
-    <BottomSheetView className="flex-1 bg-background-primary">
+    <BottomSheetView
+      className="flex-1"
+      style={{
+        backgroundColor: isDarkMode ? 'rgb(22 22 22)' : 'rgb(249 250 251)',
+      }}
+    >
       {/* Header - Avatar + Current Account + Settings Icon */}
       <View className="flex-row items-center justify-between px-6 py-6">
         <View className="flex-row items-center gap-2.5">
@@ -123,43 +132,45 @@ const AccountListScreen: React.FC<Props> = ({
           </View>
         </View>
         <TouchableOpacity onPress={handleSettings} className="h-6 w-6 items-center justify-center">
-          <Settings size={24} color="rgb(var(--color-text-primary))" />
+          <Icon name="Settings" size={24} />
         </TouchableOpacity>
       </View>
 
       {/* Scrollable Content */}
-      <ScrollView className="flex-1 px-5">
+      <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 100 }}>
         {/* Networks Section */}
-        <View className="rounded-2xl bg-background-secondary/60 px-5 py-0">
-          {networks.map((network, index) => (
-            <View key={network.id}>
-              <TouchableOpacity
-                className="flex-row items-center justify-between py-4"
-                style={index < networks.length - 1 ? styles.networkBorder : undefined}
-              >
-                <View className="flex-1 flex-row items-center gap-4">
-                  <View className="h-4 w-4 items-center justify-center rounded-full bg-brand-light">
-                    <View className="h-2 w-2 rounded-full bg-brand-primary" />
+        <View className="px-5">
+          <View className="rounded-2xl bg-background-secondary/60 px-5 py-0">
+            {networks.map((network, index) => (
+              <View key={network.id}>
+                <TouchableOpacity
+                  className="flex-row items-center justify-between py-4"
+                  style={index < networks.length - 1 ? styles.networkBorder : undefined}
+                >
+                  <View className="flex-1 flex-row items-center gap-4">
+                    <View className="h-4 w-4 items-center justify-center rounded-full bg-brand-light">
+                      <View className="h-2 w-2 rounded-full bg-brand-primary" />
+                    </View>
+                    <View className="flex-1 flex-row items-center gap-2.5 px-3">
+                      <Text className="text-base text-text-primary">{network.name}</Text>
+                      <Text className="flex-1 text-right text-base text-text-secondary">
+                        {network.address}
+                      </Text>
+                    </View>
+                    <View className="h-4 w-4 items-center justify-center">
+                      <Icon name="ChevronRight" size={16} />
+                    </View>
                   </View>
-                  <View className="flex-1 flex-row items-center gap-2.5 px-3">
-                    <Text className="text-base text-text-primary">{network.name}</Text>
-                    <Text className="flex-1 text-right text-base text-text-secondary">
-                      {network.address}
-                    </Text>
-                  </View>
-                  <View className="h-4 w-4 items-center justify-center">
-                    <ChevronRight size={16} color="rgb(var(--color-text-primary))" />
-                  </View>
-                </View>
-              </TouchableOpacity>
-            </View>
-          ))}
+                </TouchableOpacity>
+              </View>
+            ))}
+          </View>
         </View>
 
         {/* Your Accounts Section */}
-        <View className="mt-6 pb-2">
+        <View className="px-5 mt-6">
           <Text className="mb-4 text-lg font-semibold text-text-primary">Your Accounts</Text>
-          <View className="gap-2">
+          <View className="gap-2 pb-2">
             {accounts.map((account, index) => {
               const isSelected = currentAccount?.address === account.address;
               return (
@@ -196,24 +207,24 @@ const AccountListScreen: React.FC<Props> = ({
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                     className="h-8 w-8 items-center justify-center"
                   >
-                    <Edit2 size={20} color="rgb(var(--color-text-primary))" />
+                    <Icon name="Edit2" size={20} />
                   </TouchableOpacity>
                 </TouchableOpacity>
               );
             })}
           </View>
         </View>
-      </ScrollView>
 
-      {/* Add Account Button - Fixed at bottom */}
-      <View className="absolute bottom-10 w-full px-6">
-        <TouchableOpacity
-          onPress={handleAddAccount}
-          className="flex-row items-center justify-center rounded-xl bg-brand-primary px-6 py-4"
-        >
-          <Text className="text-lg font-medium text-button-primary-text">Add Account</Text>
-        </TouchableOpacity>
-      </View>
+        {/* Add Account Button - Fixed at bottom */}
+        <View className="mt-6 px-6 pb-6">
+          <TouchableOpacity
+            onPress={handleAddAccount}
+            className="flex-row items-center justify-center rounded-xl bg-brand-primary px-6 py-4"
+          >
+            <Text className="text-lg font-medium text-button-primary-text">Add Account</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
     </BottomSheetView>
   );
 };

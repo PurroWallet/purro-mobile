@@ -1,10 +1,11 @@
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import Clipboard from '@react-native-clipboard/clipboard';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { ChevronRight, Trash2 } from 'lucide-react-native';
+import { useColorScheme } from 'nativewind';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, Image, Text, TouchableOpacity, View } from 'react-native';
 import DefaultIcon from '@/assets/common/icon.png';
+import { Icon } from '@/components/Icon';
 import { walletController } from '@/core/controllers/WalletController';
 import { useTranslation } from '@/utils/i18n';
 import type { AccountStackParamList } from '../AccountStackNavigator';
@@ -14,6 +15,8 @@ type Props = NativeStackScreenProps<AccountStackParamList, 'EditAccount'>;
 
 const EditAccountScreen: React.FC<Props> = ({ navigation, route }) => {
   const { accountAddress } = route.params;
+  const { colorScheme } = useColorScheme();
+  const isDarkMode = colorScheme === 'dark';
   const [account, setAccount] = useState<any>(null);
   const { t } = useTranslation();
 
@@ -94,14 +97,24 @@ const EditAccountScreen: React.FC<Props> = ({ navigation, route }) => {
 
   if (!account) {
     return (
-      <View className="flex-1 items-center justify-center">
-        <Text className="text-[#F9F9F9]">{t('common.loading')}</Text>
+      <View
+        className="flex-1 items-center justify-center"
+        style={{
+          backgroundColor: isDarkMode ? 'rgb(22 22 22)' : 'rgb(249 250 251)',
+        }}
+      >
+        <Text className="text-text-primary">{t('common.loading')}</Text>
       </View>
     );
   }
 
   return (
-    <BottomSheetScrollView className="flex-1 bg-[#161616]">
+    <BottomSheetScrollView
+      className="flex-1"
+      style={{
+        backgroundColor: isDarkMode ? 'rgb(22 22 22)' : 'rgb(249 250 251)',
+      }}
+    >
       {/* Header */}
       <SheetHeader title={t('accountBottomSheet.editAccount')} onBack={handleBack} />
       <View className="mb-6" />
@@ -123,7 +136,7 @@ const EditAccountScreen: React.FC<Props> = ({ navigation, route }) => {
               {account.alianName || 'Unnamed'}
             </Text>
           </View>
-          <ChevronRight size={20} color="rgb(var(--color-text-primary))" />
+          <Icon name="ChevronRight" size={20} />
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -135,7 +148,7 @@ const EditAccountScreen: React.FC<Props> = ({ navigation, route }) => {
               {t('accountBottomSheet.showPrivateKey')}
             </Text>
           </View>
-          <ChevronRight size={20} color="rgb(var(--color-text-primary))" />
+          <Icon name="ChevronRight" size={20} />
         </TouchableOpacity>
       </View>
 
@@ -145,7 +158,7 @@ const EditAccountScreen: React.FC<Props> = ({ navigation, route }) => {
           onPress={handleDeleteAccount}
           className="flex-row items-center justify-center gap-2 rounded-xl bg-background-secondary py-4"
         >
-          <Trash2 size={20} color="rgb(var(--color-system-error))" />
+          <Icon name="Trash2" size={20} color="rgb(var(--color-system-error))" />
           <Text className="text-base font-medium text-system-error">Delete Account</Text>
         </TouchableOpacity>
       </View>
