@@ -9,7 +9,7 @@ import { Icon } from '@/components/Icon';
 import { walletController } from '@/core/controllers/WalletController';
 import { useTranslation } from '@/utils/i18n';
 import type { AccountStackParamList } from '../AccountStackNavigator';
-import SheetHeader from '../components/SheetHeader';
+import BaseScreen from '../components/BaseScreen';
 
 type Props = NativeStackScreenProps<AccountStackParamList, 'EditAccount'>;
 
@@ -108,61 +108,70 @@ const EditAccountScreen: React.FC<Props> = ({ navigation, route }) => {
     );
   }
 
+  const renderFooter = () => (
+    <View className="absolute bottom-10 w-full px-6">
+      <TouchableOpacity
+        onPress={handleDeleteAccount}
+        className="flex-row items-center justify-center gap-2 rounded-xl bg-background-secondary py-4"
+      >
+        <Icon name="Trash2" size={20} color="rgb(var(--color-system-error))" />
+        <Text className="text-base font-medium text-system-error">
+          {t('accountBottomSheet.delete')}
+        </Text>
+      </TouchableOpacity>
+    </View>
+  );
+
   return (
-    <BottomSheetScrollView
-      className="flex-1"
-      style={{
-        backgroundColor: isDarkMode ? 'rgb(22 22 22)' : 'rgb(249 250 251)',
-      }}
+    <BaseScreen
+      title={t('accountBottomSheet.editAccount')}
+      showBackButton={true}
+      onBack={handleBack}
+      isScrollable={true}
+      footer={renderFooter()}
     >
-      {/* Header */}
-      <SheetHeader title={t('accountBottomSheet.editAccount')} onBack={handleBack} />
-      <View className="mb-6" />
+      <BottomSheetScrollView
+        className="w-full px-5"
+        contentContainerStyle={{
+          paddingBottom: 80,
+        }}
+      >
+        {/* Account Avatar */}
+        <View className="mt-6 items-center justify-center gap-4">
+          <Image source={DefaultIcon} className="w-32 h-32 rounded-full" resizeMode="cover" />
+        </View>
 
-      {/* Account Avatar */}
-      <View className="mt-6 items-center justify-center gap-4">
-        <Image source={DefaultIcon} className="w-12 h-12" resizeMode="cover" />
-      </View>
+        {/* Options List */}
+        <View className="mt-6 gap-2">
+          <TouchableOpacity
+            onPress={handleEditName}
+            className="flex-row items-center justify-between rounded-xl bg-background-secondary px-4 py-4"
+          >
+            <View className="flex-1 flex-row items-center gap-2 pr-4">
+              <Text className="text-lg text-text-primary">
+                {t('accountBottomSheet.accountName')}
+              </Text>
+              <Text className="flex-1 text-right text-lg text-text-secondary">
+                {account.alianName || 'Unnamed'}
+              </Text>
+            </View>
+            <Icon name="ChevronRight" size={20} />
+          </TouchableOpacity>
 
-      {/* Options List */}
-      <View className="mt-6 gap-2 px-6">
-        <TouchableOpacity
-          onPress={handleEditName}
-          className="flex-row items-center justify-between rounded-xl bg-background-secondary px-4 py-4"
-        >
-          <View className="flex-1 flex-row items-center gap-2 pr-4">
-            <Text className="text-lg text-text-primary">{t('accountBottomSheet.accountName')}</Text>
-            <Text className="flex-1 text-right text-lg text-text-secondary">
-              {account.alianName || 'Unnamed'}
-            </Text>
-          </View>
-          <Icon name="ChevronRight" size={20} />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={handleShowPrivateKey}
-          className="flex-row items-center justify-between rounded-xl bg-background-secondary px-4 py-4"
-        >
-          <View className="flex-1 flex-row items-center gap-2 pr-4">
-            <Text className="text-lg text-text-primary">
-              {t('accountBottomSheet.showPrivateKey')}
-            </Text>
-          </View>
-          <Icon name="ChevronRight" size={20} />
-        </TouchableOpacity>
-      </View>
-
-      {/* Delete Button */}
-      <View className="mt-8 mb-10 px-6">
-        <TouchableOpacity
-          onPress={handleDeleteAccount}
-          className="flex-row items-center justify-center gap-2 rounded-xl bg-background-secondary py-4"
-        >
-          <Icon name="Trash2" size={20} color="rgb(var(--color-system-error))" />
-          <Text className="text-base font-medium text-system-error">Delete Account</Text>
-        </TouchableOpacity>
-      </View>
-    </BottomSheetScrollView>
+          <TouchableOpacity
+            onPress={handleShowPrivateKey}
+            className="flex-row items-center justify-between rounded-xl bg-background-secondary px-4 py-4"
+          >
+            <View className="flex-1 flex-row items-center gap-2 pr-4">
+              <Text className="text-lg text-text-primary">
+                {t('accountBottomSheet.showPrivateKey')}
+              </Text>
+            </View>
+            <Icon name="ChevronRight" size={20} />
+          </TouchableOpacity>
+        </View>
+      </BottomSheetScrollView>
+    </BaseScreen>
   );
 };
 

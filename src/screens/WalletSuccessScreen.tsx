@@ -1,6 +1,7 @@
 import React from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Button } from '@/components';
 import type { WalletSuccessScreenProps } from '@/types/navigation';
 import { useTranslation } from '@/utils/i18n';
 
@@ -40,15 +41,12 @@ const WalletSuccessScreen: React.FC<WalletSuccessScreenProps> = ({ navigation })
       </View>
 
       {/* Get Started Button */}
-      <TouchableOpacity
-        className="absolute bottom-10 left-5 right-5 h-14 items-center justify-center rounded-xl bg-brand-primary px-6 py-[18px]"
+      <Button
+        type="primary"
+        title={t('walletSuccess.actions.cta')}
         onPress={handleGetStarted}
-        activeOpacity={0.8}
-      >
-        <Text className="text-button text-button-primary-text">
-          {t('walletSuccess.actions.cta')}
-        </Text>
-      </TouchableOpacity>
+        className="absolute bottom-10 left-5 right-5"
+      />
     </SafeAreaView>
   );
 };

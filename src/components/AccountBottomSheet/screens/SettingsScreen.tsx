@@ -13,7 +13,7 @@ import { useAppStore } from '@/stores/appStore';
 import type { ThemeMode } from '@/theme';
 import { useTranslation } from '@/utils/i18n';
 import type { AccountStackParamList } from '../AccountStackNavigator';
-import SheetHeader from '../components/SheetHeader';
+import BaseScreen from '../components/BaseScreen';
 
 type Props = NativeStackScreenProps<AccountStackParamList, 'Settings'> & {
   parentNavigation: NavigationProp<any>;
@@ -59,8 +59,8 @@ const SettingItem: React.FC<SettingsOption> = ({
 
 // Section Header Component
 const SectionHeader: React.FC<{ title: string }> = ({ title }) => (
-  <View className="mt-6 mb-3">
-    <Text className="text-sm font-semibold uppercase tracking-[1px] text-text-secondary">
+  <View className="">
+    <Text className="text-sm font-semibold uppercase tracking-[1px] text-text-secondary mb-4">
       {title}
     </Text>
   </View>
@@ -291,22 +291,18 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
   };
 
   return (
-    <BottomSheetScrollView
-      className="flex-1"
-      style={{
-        backgroundColor: isDarkMode ? 'rgb(22 22 22)' : 'rgb(249 250 251)',
+    <BaseScreen
+      title={t('accountBottomSheet.settingsScreen.headerTitle')}
+      showBackButton={true}
+      onBack={() => navigation.goBack()}
+      isScrollable={true}
+      contentContainerStyle={{
+        paddingHorizontal: 20,
       }}
     >
-      {/* Header */}
-      <SheetHeader
-        title={t('accountBottomSheet.settingsScreen.headerTitle')}
-        onBack={() => navigation.goBack()}
-      />
-      <View className="mb-4" />
-
-      <ScrollView className="flex-1">
+      <BottomSheetScrollView className="w-full" contentContainerClassName="">
         {/* Security Section */}
-        <View className="px-5">
+        <View className="mb-4">
           <SectionHeader title={t('accountBottomSheet.settingsScreen.sections.security')} />
           <View className="gap-2">
             {couldSetupBiometrics && (
@@ -356,7 +352,7 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
         </View>
 
         {/* Wallet Section */}
-        <View className="px-5 mt-6">
+        <View className="mb-4">
           <SectionHeader title={t('accountBottomSheet.settingsScreen.sections.wallet')} />
           <View className="gap-2">
             <SettingItem
@@ -368,7 +364,7 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
         </View>
 
         {/* About Section */}
-        <View className="px-5 mt-6">
+        <View className="mb-4">
           <SectionHeader title={t('accountBottomSheet.settingsScreen.sections.about')} />
           <View className="gap-2">
             <SettingItem
@@ -398,7 +394,7 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
         </View>
 
         {/* Danger Zone */}
-        <View className="px-5 mt-6 pb-10">
+        <View className="pb-10">
           <SectionHeader title={t('accountBottomSheet.settingsScreen.sections.danger')} />
           <View className="gap-2">
             <SettingItem
@@ -409,8 +405,8 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
             />
           </View>
         </View>
-      </ScrollView>
-    </BottomSheetScrollView>
+      </BottomSheetScrollView>
+    </BaseScreen>
   );
 };
 

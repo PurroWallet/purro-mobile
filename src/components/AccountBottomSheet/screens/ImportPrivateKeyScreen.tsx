@@ -3,11 +3,12 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Wallet } from 'ethers';
 import React, { useState } from 'react';
 import { FormProvider } from 'react-hook-form';
-import { Alert, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Text, View } from 'react-native';
 import { z } from 'zod';
+import { Button, FormInput } from '@/components';
 import { useZodForm, ZodFormValues } from '@/core/hooks/form/useZodForm';
 import type { AccountStackParamList } from '../AccountStackNavigator';
-import SheetHeader from '../components/SheetHeader';
+import BaseScreen from '../components/BaseScreen';
 
 const importPrivateKeySchema = z.object({
   privateKey: z.string().min(1, 'Private key is required'),
@@ -32,6 +33,7 @@ const ImportPrivateKeyScreen: React.FC<Props> = ({ navigation, onClose, parentNa
 
   const isValid = form.formState.isValid;
   const privateKey = form.watch('privateKey');
+  const errors = form.formState.errors;
 
   const handleImport = async (values: ImportPrivateKeyFormValues) => {
     if (isImporting) return;
@@ -82,14 +84,27 @@ const ImportPrivateKeyScreen: React.FC<Props> = ({ navigation, onClose, parentNa
     form.handleSubmit(handleImport)();
   };
 
-  return (
-    <BottomSheetView className="flex-1">
-      {/* Header */}
-      <SheetHeader title="Import Private Key" onBack={() => navigation.goBack()} />
-      <View className="mb-4" />
+  const renderFooter = () => (
+    <View className="absolute bottom-10 w-full px-6">
+      <Button
+        type="primary"
+        title={isImporting ? 'Importing...' : 'Import Wallet'}
+        onPress={handleSubmit}
+        disabled={!isValid || isImporting}
+        className="w-full"
+      />
+    </View>
+  );
 
-      <ScrollView className="flex-1 px-5">
-        <View className="py-2">
+  return (
+    <BaseScreen
+      title="Import Private Key"
+      showBackButton={true}
+      onBack={() => navigation.goBack()}
+      footer={renderFooter()}
+    >
+      <BottomSheetView className="w-full px-5">
+        <View className="py-4">
           <Text className="text-lg text-[#F9F9F9] mb-2">Import Private Key</Text>
           <Text className="text-sm text-[#8D94A3] mb-6">
             Enter your private key to import a single address wallet
@@ -97,19 +112,16 @@ const ImportPrivateKeyScreen: React.FC<Props> = ({ navigation, onClose, parentNa
 
           <FormProvider {...form}>
             <View className="gap-2.5">
-              <View className="rounded-xl border border-[#494F5B] px-4 py-4">
-                <TextInput
-                  value={form.watch('privateKey')}
-                  onChangeText={(text) => form.setValue('privateKey', text)}
-                  placeholder="Enter your private key (64 hex characters)"
-                  placeholderTextColor="#8D94A3"
-                  className="text-lg text-[#F9F9F9]"
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  returnKeyType="done"
-                  onSubmitEditing={handleSubmit}
-                />
-              </View>
+              <FormInput
+                name="privateKey"
+                label="Private Key"
+                placeholder="Enter your private key (64 hex characters)"
+                autoCapitalize="none"
+                autoCorrect={false}
+                returnKeyType="done"
+                onSubmitEditing={handleSubmit}
+                helperText={errors.privateKey?.message}
+              />
             </View>
           </FormProvider>
 
@@ -122,30 +134,8 @@ const ImportPrivateKeyScreen: React.FC<Props> = ({ navigation, onClose, parentNa
             </Text>
           </View>
         </View>
-      </ScrollView>
-
-      <View className="absolute bottom-10 w-full px-6">
-        <TouchableOpacity
-          className={`w-full min-h-12 items-center justify-center rounded-xl px-6 py-4 ${
-            !privateKey || privateKey.trim().length < 64 || isImporting
-              ? 'bg-[#373B43]'
-              : 'bg-[#059288]'
-          }`}
-          onPress={handleSubmit}
-          disabled={!privateKey || privateKey.trim().length < 64 || isImporting}
-        >
-          <Text
-            className={`text-base font-medium ${
-              !privateKey || privateKey.trim().length < 64 || isImporting
-                ? 'text-[#8D94A3]'
-                : 'text-[#F9F9F9]'
-            }`}
-          >
-            {isImporting ? 'Importing...' : 'Import Wallet'}
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </BottomSheetView>
+      </BottomSheetView>
+    </BaseScreen>
   );
 };
 

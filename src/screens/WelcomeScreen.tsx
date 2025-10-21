@@ -1,7 +1,8 @@
 import React, { useCallback, useState } from 'react';
-import { Alert, Pressable, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 // import { useSocialLogin } from '@/hooks/auth/useSocialLogin';
+import { Button } from '@/components';
 import { Icon } from '@/components/Icon';
 import { useThemeMode } from '@/core/hooks/useTheme';
 import { useCreateWallet } from '@/core/hooks/wallet/useCreateWallet';
@@ -126,27 +127,19 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
         </View>
 
         <View className="gap-2">
-          <TouchableOpacity
-            className={`w-full min-h-12 items-center justify-center rounded-xl px-6 py-4 ${acceptedTerms ? 'bg-brand-primary' : 'bg-brand-disabled'}`}
+          <Button
+            type="primary"
+            title={t('welcome.createWallet')}
             onPress={handleCreateWallet}
             disabled={!acceptedTerms}
-            activeOpacity={0.8}
-          >
-            <Text className="text-button text-button-primary-text">
-              {t('welcome.createWallet')}
-            </Text>
-          </TouchableOpacity>
+          />
 
-          <TouchableOpacity
-            className={`w-full min-h-12 items-center justify-center rounded-xl px-6 py-4 ${acceptedTerms ? 'bg-button-secondary' : 'bg-background-secondary opacity-60'}`}
+          <Button
+            type="secondary"
+            title={t('welcome.importWallet')}
             onPress={handleImportWallet}
             disabled={!acceptedTerms}
-            activeOpacity={0.8}
-          >
-            <Text className="text-button text-button-secondary-text">
-              {t('welcome.importWallet')}
-            </Text>
-          </TouchableOpacity>
+          />
         </View>
 
         {/* <View className="gap-2">

@@ -1,20 +1,21 @@
 import { BottomSheetView } from '@gorhom/bottom-sheet';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Eye, EyeOff } from 'lucide-react-native';
 import React, { useState } from 'react';
-import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { FormProvider, useForm } from 'react-hook-form';
+import { Alert, KeyboardAvoidingView, Platform, Text, View } from 'react-native';
+import { z } from 'zod';
+import { Button, PasswordInputForm } from '@/components';
 import { apisLock } from '@/core/apis';
+import { useZodForm, ZodFormValues } from '@/core/hooks/form/useZodForm';
 import { useTranslation } from '@/utils/i18n';
 import type { AccountStackParamList } from '../AccountStackNavigator';
-import SheetHeader from '../components/SheetHeader';
+import BaseScreen from '../components/BaseScreen';
+
+const passwordVerificationSchema = z.object({
+  password: z.string().min(1, 'Password is required'),
+});
+
+type PasswordVerificationFormValues = ZodFormValues<typeof passwordVerificationSchema>;
 
 type Props = NativeStackScreenProps<AccountStackParamList, 'PasswordVerification'> & {
   onClose: () => void;
@@ -27,50 +28,78 @@ interface RouteParams {
 
 const PasswordVerificationScreen: React.FC<Props> = ({ navigation, onClose, route }) => {
   const { accountAddress, onSuccess } = (route.params || {}) as RouteParams;
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { t } = useTranslation();
 
-  const handleVerify = async () => {
-    if (!password) {
-      Alert.alert(t('errors.generic.title'), t('accountBottomSheet.errors.passwordRequired'));
-      return;
-    }
+  const form = useZodForm(passwordVerificationSchema, {
+    defaultValues: {
+      password: '',
+    },
+    mode: 'onChange',
+  });
+
+  const passwordValue = form.watch('password') ?? '';
+  const isValid = form.formState.isValid;
+
+  const handleVerify = async (values: PasswordVerificationFormValues) => {
+    if (isLoading) return;
 
     try {
       setIsLoading(true);
 
       // Verify password
-      const result = await apisLock.verifyPassword(password);
+      const result = await apisLock.verifyPassword(values.password);
 
       if (result.success) {
         // Password is correct, call onSuccess callback
         onSuccess();
       } else {
-        Alert.alert(t('errors.generic.title'), t('accountBottomSheet.errors.incorrectPassword'));
+        form.setError('password', {
+          message: t('accountBottomSheet.errors.incorrectPassword'),
+        });
       }
     } catch (error) {
       console.error('Error verifying password:', error);
-      Alert.alert(t('errors.generic.title'), t('accountBottomSheet.errors.verifyPasswordFailed'));
+      form.setError('password', {
+        message: t('accountBottomSheet.errors.verifyPasswordFailed'),
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handleSubmit = () => {
+    form.handleSubmit(handleVerify)();
+  };
+
+  const renderFooter = () => (
+    <View className="absolute bottom-10 w-full px-6">
+      <Button
+        type="primary"
+        title={
+          isLoading
+            ? t('accountBottomSheet.verifyActions.loading')
+            : t('accountBottomSheet.verifyActions.submit')
+        }
+        onPress={handleSubmit}
+        disabled={!isValid || isLoading}
+        className="w-full"
+      />
+    </View>
+  );
+
   return (
-    <BottomSheetView className="flex-1">
+    <BaseScreen
+      title={t('accountBottomSheet.verifyPasswordTitle')}
+      showBackButton={true}
+      onBack={() => navigation.goBack()}
+      footer={renderFooter()}
+      isScrollable={true}
+    >
       <KeyboardAvoidingView
         className="flex-1"
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        {/* Header */}
-        <SheetHeader
-          title={t('accountBottomSheet.verifyPasswordTitle')}
-          onBack={() => navigation.goBack()}
-        />
-        <View className="mb-4" />
-
         <View className="flex-1 px-5 justify-between">
           <View className="flex-1">
             <Text className="text-lg text-[#F9F9F9] mb-2">
@@ -80,57 +109,24 @@ const PasswordVerificationScreen: React.FC<Props> = ({ navigation, onClose, rout
               {t('accountBottomSheet.verifyPasswordDescription')}
             </Text>
 
-            <View className="mb-5">
-              <Text className="mb-2 text-sm text-text-primary">
-                {t('accountBottomSheet.passwordLabel')}
-              </Text>
-              <View className="flex-row items-center rounded-xl border border-border-primary px-4 py-4">
-                <TextInput
-                  className="flex-1 text-lg text-text-primary"
-                  value={password}
-                  onChangeText={setPassword}
+            <FormProvider {...form}>
+              <View className="mb-4">
+                <PasswordInputForm
+                  name="password"
+                  label={t('accountBottomSheet.passwordLabel')}
                   placeholder={t('accountBottomSheet.passwordPlaceholder')}
-                  placeholderTextColor="rgb(var(--color-text-secondary))"
-                  secureTextEntry={!showPassword}
                   autoCapitalize="none"
                   autoComplete="password"
                   textContentType="password"
                   returnKeyType="done"
-                  onSubmitEditing={handleVerify}
+                  onSubmitEditing={handleSubmit}
                 />
-                <TouchableOpacity className="ml-2" onPress={() => setShowPassword(!showPassword)}>
-                  {showPassword ? (
-                    <EyeOff size={20} color="rgb(var(--color-text-secondary))" />
-                  ) : (
-                    <Eye size={20} color="rgb(var(--color-text-secondary))" />
-                  )}
-                </TouchableOpacity>
               </View>
-            </View>
-          </View>
-
-          <View className="px-5 pb-6">
-            <TouchableOpacity
-              className={`w-full min-h-12 items-center justify-center rounded-xl px-6 py-4 ${
-                !password || isLoading ? 'bg-background-secondary' : 'bg-brand-primary'
-              }`}
-              onPress={handleVerify}
-              disabled={!password || isLoading}
-            >
-              <Text
-                className={`text-base font-medium ${
-                  !password || isLoading ? 'text-text-secondary' : 'text-button-primary-text'
-                }`}
-              >
-                {isLoading
-                  ? t('accountBottomSheet.verifyActions.loading')
-                  : t('accountBottomSheet.verifyActions.submit')}
-              </Text>
-            </TouchableOpacity>
+            </FormProvider>
           </View>
         </View>
       </KeyboardAvoidingView>
-    </BottomSheetView>
+    </BaseScreen>
   );
 };
 

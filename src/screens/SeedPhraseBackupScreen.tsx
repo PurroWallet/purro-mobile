@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { FormProvider } from 'react-hook-form';
-import { Alert, StatusBar, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, StatusBar, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
-import { PasswordInputForm } from '@/components';
+import { Button, PasswordInputForm } from '@/components';
 import { apisWallet } from '@/core/apis';
 import { useZodForm, ZodFormValues } from '@/core/hooks/form/useZodForm';
 import { SeedPhraseBackupScreenProps } from '@/types/navigation';
@@ -98,25 +98,16 @@ const SeedPhraseBackupScreen: React.FC<SeedPhraseBackupScreenProps> = ({ navigat
         </View>
 
         <View className="w-full gap-4">
-          <TouchableOpacity
-            className={`w-full min-h-12 items-center justify-center rounded-xl px-6 py-4 ${
-              !isValid || isUnlocking ? 'bg-button-primary-disabled' : 'bg-brand-primary'
-            }`}
+          <Button
+            type="primary"
+            title={
+              isUnlocking
+                ? t('seedPhrase.backup.actions.loading')
+                : t('seedPhrase.backup.actions.submit')
+            }
             onPress={handleSubmit}
             disabled={!isValid || isUnlocking}
-          >
-            <Text
-              className={`text-button ${
-                !isValid || isUnlocking
-                  ? 'text-button-primary-disabled-text'
-                  : 'text-button-primary-text'
-              }`}
-            >
-              {isUnlocking
-                ? t('seedPhrase.backup.actions.loading')
-                : t('seedPhrase.backup.actions.submit')}
-            </Text>
-          </TouchableOpacity>
+          />
         </View>
       </View>
     </SafeAreaView>

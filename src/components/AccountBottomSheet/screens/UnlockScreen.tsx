@@ -1,24 +1,16 @@
 import { BottomSheetView } from '@gorhom/bottom-sheet';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Eye, EyeOff } from 'lucide-react-native';
 import React, { useCallback, useState } from 'react';
 import { FormProvider } from 'react-hook-form';
-import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Platform, Text, View } from 'react-native';
 import { z } from 'zod';
+import { Button, PasswordInputForm } from '@/components';
 import { apisLock } from '@/core/apis';
 import { walletController } from '@/core/controllers/WalletController';
 import { useZodForm, ZodFormValues } from '@/core/hooks/form/useZodForm';
 import { useTranslation } from '@/utils/i18n';
 import type { AccountStackParamList } from '../AccountStackNavigator';
-import SheetHeader from '../components/SheetHeader';
+import BaseScreen from '../components/BaseScreen';
 
 const unlockSchema = z.object({
   password: z.string().min(1, 'Password is required'),
@@ -47,7 +39,6 @@ const UnlockScreen: React.FC<Props> = ({
   const { mnemonic, isImport, isPrivateKeyImport, isNewAccount } = (route.params ||
     {}) as RouteParams;
 
-  const [showPassword, setShowPassword] = useState(false);
   const [isUnlocking, setIsUnlocking] = useState(false);
   const { t } = useTranslation();
 
@@ -111,19 +102,38 @@ const UnlockScreen: React.FC<Props> = ({
 
   const isDisabled = !passwordValue.trim() || !isValid || isUnlocking;
 
+  const renderFooter = () => (
+    <View className="absolute bottom-10 w-full px-6">
+      <Button
+        type="primary"
+        title={
+          isUnlocking
+            ? '...'
+            : isNewAccount
+              ? t('accountBottomSheet.actions.createAccount')
+              : isImport
+                ? t('accountBottomSheet.actions.importWallet')
+                : t('accountBottomSheet.actions.unlock')
+        }
+        onPress={handleSubmit}
+        disabled={!passwordValue.trim() || isUnlocking}
+        className="w-full"
+      />
+    </View>
+  );
+
   return (
-    <BottomSheetView className="flex-1">
+    <BaseScreen
+      title={t('accountBottomSheet.unlockTitle')}
+      showBackButton={true}
+      onBack={() => navigation.goBack()}
+      footer={renderFooter()}
+      isScrollable={true}
+    >
       <KeyboardAvoidingView
         className="flex-1"
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        {/* Header */}
-        <SheetHeader
-          title={t('accountBottomSheet.unlockTitle')}
-          onBack={() => navigation.goBack()}
-        />
-        <View className="mb-4" />
-
         <View className="flex-1 px-5 justify-between">
           <View className="flex-1">
             <Text className="mb-2 text-lg text-text-primary">
@@ -143,63 +153,22 @@ const UnlockScreen: React.FC<Props> = ({
 
             <FormProvider {...form}>
               <View className="mb-5">
-                <Text className="mb-2 text-sm text-text-primary">
-                  {t('accountBottomSheet.passwordLabel')}
-                </Text>
-                <View className="flex-row items-center rounded-xl border border-border-primary px-4 py-4">
-                  <TextInput
-                    className="flex-1 text-lg text-text-primary"
-                    value={passwordValue}
-                    onChangeText={(text) => form.setValue('password', text)}
-                    placeholder={t('accountBottomSheet.passwordPlaceholder')}
-                    placeholderTextColor="rgb(var(--color-text-secondary))"
-                    secureTextEntry={!showPassword}
-                    autoCapitalize="none"
-                    autoComplete="password"
-                    textContentType="password"
-                    returnKeyType="done"
-                    onSubmitEditing={handleSubmit}
-                  />
-                  <TouchableOpacity className="ml-2" onPress={() => setShowPassword(!showPassword)}>
-                    {showPassword ? (
-                      <EyeOff size={20} color="rgb(var(--color-text-secondary))" />
-                    ) : (
-                      <Eye size={20} color="rgb(var(--color-text-secondary))" />
-                    )}
-                  </TouchableOpacity>
-                </View>
-                {form.formState.errors.password && (
-                  <Text className="mt-2 text-sm text-system-error">
-                    {form.formState.errors.password.message}
-                  </Text>
-                )}
+                <PasswordInputForm
+                  name="password"
+                  label={t('accountBottomSheet.passwordLabel')}
+                  placeholder={t('accountBottomSheet.passwordPlaceholder')}
+                  autoCapitalize="none"
+                  autoComplete="password"
+                  textContentType="password"
+                  returnKeyType="done"
+                  onSubmitEditing={handleSubmit}
+                />
               </View>
             </FormProvider>
           </View>
         </View>
-        <View className="absolute bottom-10 w-full px-6">
-          <TouchableOpacity
-            className={`w-full min-h-12 items-center justify-center rounded-xl px-6 py-4 ${
-              !passwordValue.trim() || isUnlocking ? 'bg-background-secondary' : 'bg-brand-primary'
-            }`}
-            onPress={handleSubmit}
-            disabled={!passwordValue.trim() || isUnlocking}
-          >
-            {isUnlocking ? (
-              <ActivityIndicator size="small" color="rgb(var(--color-text-primary))" />
-            ) : (
-              <Text className="text-base font-medium text-button-primary-text">
-                {isNewAccount
-                  ? t('accountBottomSheet.actions.createAccount')
-                  : isImport
-                    ? t('accountBottomSheet.actions.importWallet')
-                    : t('accountBottomSheet.actions.unlock')}
-              </Text>
-            )}
-          </TouchableOpacity>
-        </View>
       </KeyboardAvoidingView>
-    </BottomSheetView>
+    </BaseScreen>
   );
 };
 

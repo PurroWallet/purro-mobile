@@ -1,14 +1,15 @@
-import { BottomSheetView } from '@gorhom/bottom-sheet';
+import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useState } from 'react';
 import { FormProvider } from 'react-hook-form';
-import { Alert, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Text, View } from 'react-native';
 import { z } from 'zod';
+import { Button, FormInput } from '@/components';
 import { apisLock } from '@/core/apis';
 import { walletController } from '@/core/controllers/WalletController';
 import { useZodForm, ZodFormValues } from '@/core/hooks/form/useZodForm';
 import type { AccountStackParamList } from '../AccountStackNavigator';
-import SheetHeader from '../components/SheetHeader';
+import BaseScreen from '../components/BaseScreen';
 
 const importSeedPhraseSchema = z
   .object({
@@ -48,6 +49,7 @@ const ImportSeedPhraseScreen: React.FC<Props> = ({ navigation, onClose, parentNa
 
   const isValid = form.formState.isValid;
   const mnemonic = form.watch('mnemonic');
+  const errors = form.formState.errors;
 
   const handleImport = async (values: ImportSeedPhraseFormValues) => {
     if (isImporting) return;
@@ -80,13 +82,27 @@ const ImportSeedPhraseScreen: React.FC<Props> = ({ navigation, onClose, parentNa
     form.handleSubmit(handleImport)();
   };
 
-  return (
-    <BottomSheetView className="flex-1">
-      {/* Header */}
-      <SheetHeader title="Import Seed Phrase" onBack={() => navigation.goBack()} />
-      <View className="mb-4" />
+  const renderFooter = () => (
+    <View className="absolute bottom-10 w-full px-6">
+      <Button
+        type="primary"
+        title={isImporting ? 'Validating...' : 'Continue'}
+        onPress={handleSubmit}
+        disabled={!isValid || isImporting}
+        className="w-full"
+      />
+    </View>
+  );
 
-      <ScrollView className="flex-1 px-5">
+  return (
+    <BaseScreen
+      title="Import Seed Phrase"
+      showBackButton={true}
+      onBack={() => navigation.goBack()}
+      footer={renderFooter()}
+      isScrollable={true}
+    >
+      <BottomSheetScrollView className="w-full px-5" contentContainerClassName="pb-10">
         <View className="py-2">
           <Text className="text-lg text-[#F9F9F9] mb-2">Import Seed Phrase</Text>
           <Text className="text-sm text-[#8D94A3] mb-6">
@@ -95,22 +111,19 @@ const ImportSeedPhraseScreen: React.FC<Props> = ({ navigation, onClose, parentNa
 
           <FormProvider {...form}>
             <View className="gap-2.5">
-              <View className="rounded-xl border border-[#494F5B] px-4 py-4">
-                <TextInput
-                  value={form.watch('mnemonic')}
-                  onChangeText={(text) => form.setValue('mnemonic', text)}
-                  placeholder="Enter your seed phrase (12 words)"
-                  placeholderTextColor="#8D94A3"
-                  className="text-lg text-[#F9F9F9]"
-                  multiline
-                  numberOfLines={4}
-                  textAlignVertical="top"
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  returnKeyType="done"
-                  onSubmitEditing={handleSubmit}
-                />
-              </View>
+              <FormInput
+                name="mnemonic"
+                label="Seed Phrase"
+                placeholder="Enter your seed phrase (12 words)"
+                multiline
+                numberOfLines={4}
+                textAlignVertical="top"
+                autoCapitalize="none"
+                autoCorrect={false}
+                returnKeyType="done"
+                onSubmitEditing={handleSubmit}
+                helperText={errors.mnemonic?.message}
+              />
             </View>
           </FormProvider>
 
@@ -125,30 +138,8 @@ const ImportSeedPhraseScreen: React.FC<Props> = ({ navigation, onClose, parentNa
             </Text>
           </View>
         </View>
-      </ScrollView>
-
-      <View className="absolute bottom-10 w-full px-6">
-        <TouchableOpacity
-          className={`w-full min-h-12 items-center justify-center rounded-xl px-6 py-4 ${
-            !mnemonic || mnemonic.trim().split(/\s+/).length !== 12 || isImporting
-              ? 'bg-[#373B43]'
-              : 'bg-[#059288]'
-          }`}
-          onPress={handleSubmit}
-          disabled={!mnemonic || mnemonic.trim().split(/\s+/).length !== 12 || isImporting}
-        >
-          <Text
-            className={`text-base font-medium ${
-              !mnemonic || mnemonic.trim().split(/\s+/).length !== 12 || isImporting
-                ? 'text-[#8D94A3]'
-                : 'text-[#F9F9F9]'
-            }`}
-          >
-            {isImporting ? 'Validating...' : 'Continue'}
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </BottomSheetView>
+      </BottomSheetScrollView>
+    </BaseScreen>
   );
 };
 

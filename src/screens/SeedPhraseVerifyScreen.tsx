@@ -3,9 +3,9 @@ import shuffle from 'lodash/shuffle';
 import sortBy from 'lodash/sortBy';
 import React, { useCallback, useMemo, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { FormInput } from '@/components';
+import { Button, FormInput } from '@/components';
 import { useProtectedScreen } from '@/core/hooks/security';
 import { SeedPhraseVerifyScreenProps } from '@/types/navigation';
 import { useTranslation } from '@/utils/i18n';
@@ -164,17 +164,12 @@ const SeedPhraseVerifyScreen: React.FC<SeedPhraseVerifyScreenProps> = ({ route, 
       </View>
 
       <View className="px-5 pb-5">
-        <TouchableOpacity
-          className={`w-full min-h-12 items-center justify-center rounded-xl px-6 py-4 ${canContinue ? 'bg-brand-primary' : 'bg-button-primary-disabled'}`}
+        <Button
+          type="primary"
+          title={t('seedPhrase.verify.actions.continue')}
           onPress={handleContinue}
           disabled={!canContinue}
-        >
-          <Text
-            className={`text-button ${canContinue ? 'text-button-primary-text' : 'text-button-primary-disabled-text'}`}
-          >
-            {t('seedPhrase.verify.actions.continue')}
-          </Text>
-        </TouchableOpacity>
+        />
       </View>
     </SafeAreaView>
   );

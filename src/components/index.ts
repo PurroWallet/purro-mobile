@@ -1,5 +1,3 @@
-// BaseBottomSheet
-export * from './BaseBottomSheet';
 export * from './Button';
 export * from './customized';
 export * from './Form';

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Pressable, StatusBar, Text, TouchableOpacity, View } from 'react-native';
+import { Pressable, StatusBar, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Button } from '@/components';
 import { usePreventScreenshot } from '@/core/hooks/native/security';
 import { SeedPhraseDisplayScreenProps } from '@/types/navigation';
 import { useTranslation } from '@/utils/i18n';
@@ -86,17 +87,12 @@ const SeedPhraseDisplayScreen: React.FC<SeedPhraseDisplayScreenProps> = ({ route
           </Text>
         </View>
 
-        <TouchableOpacity
-          className={`h-14 items-center justify-center rounded-xl px-6 py-4 ${isConfirmed ? 'bg-brand-primary' : 'bg-button-primary-disabled'}`}
+        <Button
+          type="primary"
+          title={t('seedPhrase.display.actions.continue')}
           onPress={handleContinue}
           disabled={!isConfirmed}
-        >
-          <Text
-            className={`text-button ${isConfirmed ? 'text-button-primary-text' : 'text-button-primary-disabled-text'}`}
-          >
-            {t('seedPhrase.display.actions.continue')}
-          </Text>
-        </TouchableOpacity>
+        />
       </View>
     </SafeAreaView>
   );

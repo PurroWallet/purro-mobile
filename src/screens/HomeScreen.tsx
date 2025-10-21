@@ -205,11 +205,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           </View>
         </SafeAreaView>
       </View>
-      <ScrollView
-        className="flex-1"
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 100 }}
-      >
+      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* Balance Section */}
         <View className="items-center pt-10 pb-0">
           <Text className="text-text-primary text-5xl font-semibold">
@@ -240,11 +236,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         </View>
         {/* Accounts Horizontal Scroll */}
         <View className="pb-0">
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: 20, gap: 10 }}
-          >
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <View className="rounded-xl bg-background-secondary/60 px-4 py-4 flex-row items-center gap-3.5 min-w-[320px]">
               <RNImage
                 source={DefaultIcon}

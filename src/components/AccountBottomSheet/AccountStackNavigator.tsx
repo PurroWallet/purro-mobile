@@ -47,6 +47,8 @@ interface AccountStackNavigatorProps {
   onAccountSelect: (account: any) => void;
   navigation: NavigationProp<any>;
   onResetWallet?: () => void;
+  onAddAccount?: () => void;
+  onSettings?: () => void;
 }
 
 const AccountStackNavigator: React.FC<AccountStackNavigatorProps> = ({
@@ -55,6 +57,8 @@ const AccountStackNavigator: React.FC<AccountStackNavigatorProps> = ({
   onAccountSelect,
   navigation: parentNavigation,
   onResetWallet: _onResetWallet,
+  onAddAccount,
+  onSettings,
 }) => {
   const { colorScheme } = useColorScheme();
   const isDarkMode = colorScheme === 'dark';
@@ -76,7 +80,7 @@ const AccountStackNavigator: React.FC<AccountStackNavigatorProps> = ({
   return (
     <NavigationIndependentTree>
       <NavigationContainer>
-        <Stack.Navigator screenOptions={screenOptions}>
+        <Stack.Navigator screenOptions={screenOptions} initialRouteName="AccountList">
           <Stack.Screen name="AccountList">
             {(props) => (
               <AccountListScreen
@@ -85,6 +89,9 @@ const AccountStackNavigator: React.FC<AccountStackNavigatorProps> = ({
                 currentAccount={currentAccount}
                 onAccountSelect={onAccountSelect}
                 parentNavigation={parentNavigation}
+                isDarkMode={isDarkMode}
+                onAddAccount={onAddAccount}
+                onSettings={onSettings}
               />
             )}
           </Stack.Screen>

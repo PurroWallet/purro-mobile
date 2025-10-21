@@ -1,8 +1,10 @@
+import { BottomSheetBackdrop, BottomSheetModal } from '@gorhom/bottom-sheet';
+import type { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import type { NavigationProp } from '@react-navigation/native';
-import React, { forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
-import { Platform } from 'react-native';
-import BaseBottomSheet, { type BaseBottomSheetRef } from '@/components/BaseBottomSheet';
+import { useColorScheme } from 'nativewind';
+import React, { forwardRef, useCallback, useImperativeHandle, useMemo, useRef } from 'react';
 import AccountStackNavigator from './AccountStackNavigator';
+import CustomBackground from './CustomBackground';
 
 interface Account {
   address: string;
@@ -26,10 +28,62 @@ export interface AccountBottomSheetRef {
 
 const AccountBottomSheet = forwardRef<AccountBottomSheetRef, AccountBottomSheetProps>(
   ({ onClose, currentAccount, onAccountSelect, navigation, onResetWallet }, ref) => {
-    const bottomSheetRef = useRef<BaseBottomSheetRef>(null);
+    const bottomSheetRef = useRef<BottomSheetModalMethods>(null);
+    const { colorScheme } = useColorScheme();
+    const isDarkMode = colorScheme === 'dark';
 
-    // Snap points cho bottom sheet - sử dụng giá trị phù hợp
-    const snapPoints = useMemo(() => ['85%'], []);
+    // Snap points for the bottom sheet - using fixed height for navigator
+    const snapPoints = useMemo(() => ['90%'], []);
+
+    // Custom animation configs
+    const animationConfigs = useMemo(
+      () => ({
+        damping: 30,
+        overshootClamping: true,
+        restDisplacementThreshold: 0.5,
+        restSpeedThreshold: 0.5,
+        stiffness: 300,
+      }),
+      [],
+    );
+
+    // Custom backdrop
+    const renderBackdrop = useCallback(
+      (props: any) => (
+        <BottomSheetBackdrop
+          {...props}
+          disappearsOnIndex={-1}
+          appearsOnIndex={0}
+          pressBehavior="close"
+        />
+      ),
+      [],
+    );
+
+    // Custom background
+    const renderBackground = useCallback((props: any) => <CustomBackground {...props} />, []);
+
+    const handleAddAccount = useCallback(() => {
+      // Use a timeout to ensure the sheet is fully presented before navigating
+      setTimeout(() => {
+        try {
+          navigation.navigate('AddAccount');
+        } catch (error) {
+          console.log('Navigation error:', error);
+        }
+      }, 100);
+    }, [navigation]);
+
+    const handleSettings = useCallback(() => {
+      // Use a timeout to ensure the sheet is fully presented before navigating
+      setTimeout(() => {
+        try {
+          navigation.navigate('Settings');
+        } catch (error) {
+          console.log('Navigation error:', error);
+        }
+      }, 100);
+    }, [navigation]);
 
     // Expose present/dismiss methods
     useImperativeHandle(ref, () => ({
@@ -41,15 +95,32 @@ const AccountBottomSheet = forwardRef<AccountBottomSheetRef, AccountBottomSheetP
       },
     }));
 
+    const currentAccountName = currentAccount?.alianName || 'Account 1';
+    const currentAccountAddress = currentAccount?.address || '';
+
     return (
-      <BaseBottomSheet
+      <BottomSheetModal
         ref={bottomSheetRef}
-        onClose={onClose}
+        index={0}
         snapPoints={snapPoints}
-        enableHandle={true}
+        animationConfigs={animationConfigs}
         stackBehavior="push"
-        keyboardBehavior={Platform.OS === 'ios' ? 'interactive' : undefined}
-        keyboardBlurBehavior="restore"
+        enableDynamicSizing={false}
+        onChange={(index: number) => {
+          if (index === -1) {
+            onClose();
+          }
+        }}
+        style={{
+          backgroundColor: isDarkMode ? '#373B43' : '#ffffff',
+          borderTopLeftRadius: 20,
+          borderTopRightRadius: 20,
+          overflow: 'hidden',
+        }}
+        backgroundComponent={renderBackground}
+        handleComponent={null}
+        backdropComponent={renderBackdrop}
+        enablePanDownToClose={true}
       >
         <AccountStackNavigator
           onClose={onClose}
@@ -57,8 +128,10 @@ const AccountBottomSheet = forwardRef<AccountBottomSheetRef, AccountBottomSheetP
           onAccountSelect={onAccountSelect}
           navigation={navigation}
           onResetWallet={onResetWallet}
+          onAddAccount={handleAddAccount}
+          onSettings={handleSettings}
         />
-      </BaseBottomSheet>
+      </BottomSheetModal>
     );
   },
 );

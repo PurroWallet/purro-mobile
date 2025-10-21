@@ -1,43 +1,46 @@
-import React, { useState } from 'react';
-import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import React from 'react';
+import { FormProvider } from 'react-hook-form';
+import { Alert, KeyboardAvoidingView, Platform, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { z } from 'zod';
+import { Button, PasswordInputForm } from '@/components';
 import { Icon } from '@/components/Icon';
 import { walletController } from '@/core/controllers/WalletController';
+import { useZodForm, ZodFormValues } from '@/core/hooks/form/useZodForm';
 import type { CreatePasswordScreenProps } from '@/types/navigation';
 import { useTranslation } from '@/utils/i18n';
+
+const createPasswordSchema = z
+  .object({
+    password: z.string().min(8, 'Password must be at least 8 characters'),
+    confirmPassword: z.string().min(1, 'Please confirm your password'),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ['confirmPassword'],
+  });
+
+type CreatePasswordFormValues = ZodFormValues<typeof createPasswordSchema>;
 
 const CreatePasswordScreen: React.FC<CreatePasswordScreenProps> = ({ navigation, route }) => {
   const { t } = useTranslation();
   const { mnemonic, isImport } = route.params || {};
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
 
-  const validatePassword = (pwd: string): boolean => {
-    // Basic password validation
-    return pwd.length >= 8;
-  };
+  const form = useZodForm(createPasswordSchema, {
+    defaultValues: {
+      password: '',
+      confirmPassword: '',
+    },
+    mode: 'onChange',
+  });
 
-  const handleCreateWallet = async () => {
-    if (!validatePassword(password)) {
-      Alert.alert(t('errors.generic.title'), t('password.create.validation.tooShort'));
-      return;
-    }
+  const passwordValue = form.watch('password') ?? '';
+  const confirmPasswordValue = form.watch('confirmPassword') ?? '';
+  const isValid = form.formState.isValid;
 
-    if (password !== confirmPassword) {
-      Alert.alert(t('errors.generic.title'), t('password.create.validation.mismatch'));
-      return;
-    }
+  const handleCreateWallet = async (values: CreatePasswordFormValues) => {
+    if (isLoading) return;
 
     try {
       setIsLoading(true);
@@ -46,10 +49,10 @@ const CreatePasswordScreen: React.FC<CreatePasswordScreenProps> = ({ navigation,
 
       if (isImport && mnemonic) {
         // Import existing wallet
-        addresses = await walletController.importWalletWithMnemonic(mnemonic, password);
+        addresses = await walletController.importWalletWithMnemonic(mnemonic, values.password);
       } else {
         // Create new wallet
-        const result = await walletController.createWallet(password);
+        const result = await walletController.createWallet(values.password);
         addresses = result.addresses;
       }
 
@@ -66,6 +69,10 @@ const CreatePasswordScreen: React.FC<CreatePasswordScreenProps> = ({ navigation,
     }
   };
 
+  const handleSubmit = () => {
+    form.handleSubmit(handleCreateWallet)();
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-background-primary">
       <KeyboardAvoidingView
@@ -74,9 +81,9 @@ const CreatePasswordScreen: React.FC<CreatePasswordScreenProps> = ({ navigation,
       >
         <View className="flex-1 px-5 justify-between">
           <View className="flex-row items-center justify-between mb-6">
-            <TouchableOpacity className="p-2" onPress={() => navigation.goBack()}>
+            <View className="p-2" onTouchEnd={() => navigation.goBack()}>
               <Icon name="ChevronLeft" size={24} />
-            </TouchableOpacity>
+            </View>
             <Text className="text-h4 text-text-primary">
               {isImport ? t('welcome.importWallet') : t('welcome.createWallet')}
             </Text>
@@ -88,60 +95,27 @@ const CreatePasswordScreen: React.FC<CreatePasswordScreenProps> = ({ navigation,
               {t('password.create.subtitle')}
             </Text>
 
-            <View className="mb-5">
-              <Text className="text-button text-text-primary mb-2">
-                {t('password.create.passwordLabel')}
-              </Text>
-              <View className="flex-row items-center bg-[rgba(255,255,255,0.05)] rounded-xl border border-[rgba(255,255,255,0.1)]">
-                <TextInput
-                  className="flex-1 h-12 px-4 text-base text-text-primary"
-                  value={password}
-                  onChangeText={setPassword}
+            <FormProvider {...form}>
+              <View className="mb-5">
+                <PasswordInputForm
+                  name="password"
+                  label={t('password.create.passwordLabel')}
                   placeholder={t('password.create.passwordPlaceholder')}
-                  placeholderTextColor="#8E8E93"
-                  secureTextEntry={!showPassword}
-                  autoCapitalize="none"
                   autoComplete="password"
                   textContentType="password"
                 />
-                <TouchableOpacity className="p-3" onPress={() => setShowPassword(!showPassword)}>
-                  <Icon
-                    name={showPassword ? 'EyeOff' : 'Eye'}
-                    size={20}
-                    color="rgb(var(--color-text-secondary))"
-                  />
-                </TouchableOpacity>
               </View>
-            </View>
 
-            <View className="mb-5">
-              <Text className="text-button text-text-primary mb-2">
-                {t('password.create.confirmLabel')}
-              </Text>
-              <View className="flex-row items-center bg-[rgba(255,255,255,0.05)] rounded-xl border border-[rgba(255,255,255,0.1)]">
-                <TextInput
-                  className="flex-1 h-12 px-4 text-base text-text-primary"
-                  value={confirmPassword}
-                  onChangeText={setConfirmPassword}
+              <View className="mb-5">
+                <PasswordInputForm
+                  name="confirmPassword"
+                  label={t('password.create.confirmLabel')}
                   placeholder={t('password.create.confirmPlaceholder')}
-                  placeholderTextColor="#8E8E93"
-                  secureTextEntry={!showConfirmPassword}
-                  autoCapitalize="none"
                   autoComplete="password"
                   textContentType="password"
                 />
-                <TouchableOpacity
-                  className="p-3"
-                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                >
-                  <Icon
-                    name={showConfirmPassword ? 'EyeOff' : 'Eye'}
-                    size={20}
-                    color="rgb(var(--color-text-secondary))"
-                  />
-                </TouchableOpacity>
               </View>
-            </View>
+            </FormProvider>
 
             <Text className="text-[14px] leading-[20px] text-text-secondary mt-2">
               {t('password.create.requirement')}
@@ -149,25 +123,13 @@ const CreatePasswordScreen: React.FC<CreatePasswordScreenProps> = ({ navigation,
           </View>
 
           <View className="px-5 pb-5">
-            <TouchableOpacity
-              className={`w-full min-h-12 items-center justify-center rounded-xl px-6 py-4 ${
-                !password || !confirmPassword || isLoading
-                  ? 'bg-button-primary-disabled'
-                  : 'bg-brand-primary'
-              }`}
-              onPress={handleCreateWallet}
-              disabled={!password || !confirmPassword || isLoading}
-            >
-              <Text
-                className={`text-button ${
-                  !password || !confirmPassword || isLoading
-                    ? 'text-button-primary-disabled-text'
-                    : 'text-button-primary-text'
-                }`}
-              >
-                {isLoading ? t('common.loading') : t('password.create.continue')}
-              </Text>
-            </TouchableOpacity>
+            <Button
+              type="primary"
+              title={isLoading ? t('common.loading') : t('password.create.continue')}
+              onPress={handleSubmit}
+              disabled={!isValid || isLoading}
+              className="w-full"
+            />
           </View>
         </View>
       </KeyboardAvoidingView>

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { FormProvider } from 'react-hook-form';
-import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
-import { FormInput } from '@/components';
+import { Button, FormInput } from '@/components';
 import { apisWallet } from '@/core/apis';
 import { useZodForm, ZodFormValues } from '@/core/hooks/form/useZodForm';
 import type { ImportWalletScreenProps } from '@/types/navigation';
@@ -124,23 +124,12 @@ const ImportWalletScreen: React.FC<ImportWalletScreenProps> = ({ navigation }) =
       </ScrollView>
 
       <View className="px-5 pb-5">
-        <TouchableOpacity
-          className={`w-full min-h-12 items-center justify-center rounded-xl px-6 py-4 ${
-            !isValid || isImporting ? 'bg-button-primary-disabled' : 'bg-brand-primary'
-          }`}
+        <Button
+          type="primary"
+          title={isImporting ? t('importWallet.actions.loading') : t('importWallet.actions.submit')}
           onPress={handleSubmit}
           disabled={!isValid || isImporting}
-        >
-          <Text
-            className={`text-button ${
-              !isValid || isImporting
-                ? 'text-button-primary-disabled-text'
-                : 'text-button-primary-text'
-            }`}
-          >
-            {isImporting ? t('importWallet.actions.loading') : t('importWallet.actions.submit')}
-          </Text>
-        </TouchableOpacity>
+        />
       </View>
     </SafeAreaView>
   );

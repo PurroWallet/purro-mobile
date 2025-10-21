@@ -7,7 +7,7 @@ import { Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from '@/components/Icon';
 import { useTranslation } from '@/utils/i18n';
 import type { AccountStackParamList } from '../AccountStackNavigator';
-import SheetHeader from '../components/SheetHeader';
+import BaseScreen from '../components/BaseScreen';
 
 type Props = NativeStackScreenProps<AccountStackParamList, 'AddAccount'> & {
   onClose: () => void;
@@ -81,18 +81,22 @@ const AddAccountScreen: React.FC<Props> = ({
   ];
 
   return (
-    <BottomSheetScrollView
-      className="flex-1"
-      style={{
-        backgroundColor: isDarkMode ? 'rgb(22 22 22)' : 'rgb(249 250 251)',
+    <BaseScreen
+      title={t('accountBottomSheet.addAccount')}
+      showBackButton={true}
+      onBack={handleBack}
+      isScrollable={true}
+      contentContainerStyle={{
+        paddingHorizontal: 20,
       }}
     >
-      {/* Header */}
-      <SheetHeader title={t('accountBottomSheet.addAccount')} onBack={handleBack} />
-      <View className="mb-6" />
-
-      {/* Options List */}
-      <View className="px-5 pt-5">
+      <BottomSheetScrollView
+        style={{ width: '100%' }}
+        contentContainerStyle={{
+          paddingBottom: 20,
+        }}
+      >
+        {/* Options List */}
         <View className="gap-2">
           {options.map((option) => (
             <TouchableOpacity
@@ -110,8 +114,8 @@ const AddAccountScreen: React.FC<Props> = ({
             </TouchableOpacity>
           ))}
         </View>
-      </View>
-    </BottomSheetScrollView>
+      </BottomSheetScrollView>
+    </BaseScreen>
   );
 };
 

@@ -1,8 +1,8 @@
 import type { FC } from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { FormProvider } from 'react-hook-form';
-import { ActivityIndicator, StatusBar, Text, TouchableOpacity, View } from 'react-native';
-import { PasswordInputForm } from '../components';
+import { ActivityIndicator, StatusBar, Text, View } from 'react-native';
+import { Button, PasswordInputForm } from '../components';
 import KeyboardAvoidingView from '../components/KeyboardAvoidingView';
 import { Colors } from '../constants/colors';
 import { apisKeychain, apisLock } from '../core/apis';
@@ -116,21 +116,12 @@ const UnlockScreen: FC<UnlockScreenProps> = ({ navigation }) => {
               onSubmitEditing={onSubmit}
             />
 
-            <TouchableOpacity
-              className={`min-h-14 items-center justify-center rounded-xl px-6 py-4 ${
-                isDisabled ? 'bg-button-primary-disabled' : 'bg-brand-primary'
-              }`}
+            <Button
+              type="primary"
+              title={t('unlock.actions.submit')}
               onPress={onSubmit}
               disabled={isDisabled}
-            >
-              {isUnlocking ? (
-                <ActivityIndicator size="small" color={Colors.text.primary} />
-              ) : (
-                <Text className="text-button text-button-primary-text">
-                  {t('unlock.actions.submit')}
-                </Text>
-              )}
-            </TouchableOpacity>
+            />
           </View>
         </FormProvider>
       </View>

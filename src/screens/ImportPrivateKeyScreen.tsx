@@ -1,10 +1,10 @@
 import { Wallet } from 'ethers';
 import React, { useState } from 'react';
 import { FormProvider } from 'react-hook-form';
-import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
-import { FormInput } from '@/components';
+import { Button, FormInput } from '@/components';
 import { useZodForm, ZodFormValues } from '@/core/hooks/form/useZodForm';
 import type { ImportPrivateKeyScreenProps } from '@/types/navigation';
 import { useTranslation } from '@/utils/i18n';
@@ -115,25 +115,16 @@ const ImportPrivateKeyScreen: React.FC<ImportPrivateKeyScreenProps> = ({ navigat
       </ScrollView>
 
       <View className="px-5 pb-5">
-        <TouchableOpacity
-          className={`w-full min-h-12 items-center justify-center rounded-xl px-6 py-4 ${
-            !isValid || isImporting ? 'bg-button-primary-disabled' : 'bg-brand-primary'
-          }`}
+        <Button
+          type="primary"
+          title={
+            isImporting
+              ? t('importPrivateKey.actions.loading')
+              : t('importPrivateKey.actions.submit')
+          }
           onPress={handleSubmit}
           disabled={!isValid || isImporting}
-        >
-          <Text
-            className={`text-button ${
-              !isValid || isImporting
-                ? 'text-button-primary-disabled-text'
-                : 'text-button-primary-text'
-            }`}
-          >
-            {isImporting
-              ? t('importPrivateKey.actions.loading')
-              : t('importPrivateKey.actions.submit')}
-          </Text>
-        </TouchableOpacity>
+        />
       </View>
     </SafeAreaView>
   );

@@ -1,5 +1,4 @@
 import { ChevronLeft } from 'lucide-react-native';
-import { useColorScheme } from 'nativewind';
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from '@/components/Icon';
@@ -10,6 +9,7 @@ interface SheetHeaderProps {
   showBackButton?: boolean;
   textColor?: string;
   iconColor?: string;
+  isDarkMode?: boolean;
 }
 
 const SheetHeader: React.FC<SheetHeaderProps> = ({
@@ -18,10 +18,8 @@ const SheetHeader: React.FC<SheetHeaderProps> = ({
   showBackButton = true,
   textColor,
   iconColor,
+  isDarkMode = false,
 }) => {
-  const { colorScheme } = useColorScheme();
-  const isDarkMode = colorScheme === 'dark';
-
   // Sử dụng màu từ theme nếu không có màu được truyền
   const defaultTextColor = textColor || (isDarkMode ? '#F9F9F9' : '#161616');
   const defaultIconColor = iconColor || (isDarkMode ? '#F9F9F9' : '#161616');
