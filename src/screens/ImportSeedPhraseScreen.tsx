@@ -54,7 +54,10 @@ const ImportSeedPhraseScreen: React.FC<ImportSeedPhraseScreenProps> = ({ navigat
       }
 
       // Navigate to password creation screen with the validated mnemonic
-      navigation.navigate('CreatePassword', { mnemonic: values.mnemonic.trim() });
+      navigation.navigate('CreatePassword', {
+        mnemonic: values.mnemonic.trim(),
+        isImport: true,
+      });
     } catch (error) {
       console.error('Error validating seed phrase:', error);
       Alert.alert(

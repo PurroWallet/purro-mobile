@@ -26,7 +26,7 @@ const EditAccountScreen: React.FC<Props> = ({ navigation, route }) => {
       const foundAccount = accounts.find((acc: any) => acc.address === accountAddress);
       setAccount(foundAccount);
     } catch (error) {
-      console.error('Failed to load account:', error);
+      // Handle error silently
     }
   }, [accountAddress]);
 
@@ -83,7 +83,6 @@ const EditAccountScreen: React.FC<Props> = ({ navigation, route }) => {
               await walletController.removeAccount(accountAddress);
               navigation.goBack();
             } catch (error) {
-              console.error('Failed to delete account:', error);
               Alert.alert(
                 t('errors.generic.title'),
                 t('accountBottomSheet.errors.deleteAccountFailed'),

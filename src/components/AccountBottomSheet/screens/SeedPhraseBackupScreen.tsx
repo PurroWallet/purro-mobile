@@ -33,7 +33,6 @@ const SeedPhraseBackupScreen: React.FC<Props> = ({ navigation, onClose }) => {
         const mnemonic = await walletController.exportMnemonic();
         setSeedPhrase(mnemonic || '');
       } catch (error) {
-        console.error('Error loading seed phrase:', error);
         Alert.alert(t('errors.generic.title'), t('accountBottomSheet.errors.loadSeedPhraseFailed'));
         onClose();
       } finally {

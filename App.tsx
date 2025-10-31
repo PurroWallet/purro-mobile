@@ -11,7 +11,6 @@ import './global.css';
 if (__DEV__) {
   // @ts-ignore
   globalThis.__REACT_DEVTOOLS_GLOBAL_HOOK__?.shutdown?.();
-  console.log('[App] DevTools hook disabled for crypto compatibility');
 
   // Import reset vault utility for debugging
   import('@/utils/resetVault').catch(() => {});
@@ -24,9 +23,12 @@ import { GlobalSecurityTipStubModal } from '@/components/SecurityTipStubModal';
 import { apisWallet } from '@/core/apis/wallet';
 import { useAppPreventScreenshotOnScreen } from '@/core/hooks/native/security';
 import { screenProtection } from '@/core/services/screenProtection';
+import { web3AuthService } from '@/core/services/Web3AuthService';
 import { excludeFilesFromBackup } from '@/core/utils/appFS';
 import { ThemeProvider } from '@/providers/ThemeProvider';
 import { useAppStore } from '@/stores/appStore';
+
+// CRITICAL: Polyfills are now loaded in index.js at the very top with proper order
 import CreatePasswordScreen from './src/screens/CreatePasswordScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import ImportMethodsScreen from './src/screens/ImportMethodsScreen';
@@ -55,9 +57,6 @@ const App: React.FC = () => {
 
   // Initialize app on mount - OPTIMIZED
   useEffect(() => {
-    console.log('[App] Initializing app...');
-    const startTime = Date.now();
-
     // Set status bar style (non-blocking)
     if (Platform.OS === 'ios') {
       StatusBar.setBarStyle('light-content', true);
@@ -66,9 +65,14 @@ const App: React.FC = () => {
     // Initialize screen protection service
     screenProtection.init();
 
+    // Initialize Web3Auth v8.1.0 service synchronously (only once)
+    web3AuthService.initialize().catch(() => {
+      // Handle initialization error silently
+    });
+
     // Exclude sensitive files from backup (iOS)
-    excludeFilesFromBackup().catch((error) => {
-      console.warn('[App] Failed to exclude files from backup:', error);
+    excludeFilesFromBackup().catch(() => {
+      // Handle backup exclusion error silently
     });
 
     // Determine initial route BEFORE rendering navigator to avoid race with
@@ -92,12 +96,9 @@ const App: React.FC = () => {
       setRoute(decidedRoute);
       setInitialRoute(decidedRoute);
     } catch (error) {
-      console.error('[App] Initialization error:', error);
       setRoute('Welcome');
       setInitialRoute('Welcome');
     }
-
-    console.log(`[App] Initialization took ${Date.now() - startTime}ms`);
 
     // Cleanup on unmount
     return () => {

@@ -32,23 +32,12 @@ const UnlockScreen: FC<UnlockScreenProps> = ({ navigation }) => {
         await fetchBiometrics();
         await new Promise((resolve) => setTimeout(resolve, 500));
 
-        console.log('🔥 Pre-warming vault...');
-        console.time('🔥 Vault Pre-warm');
-        try {
-          await apisLock.unlockWallet('');
-        } catch {
-          console.log('✅ Vault pre-warmed (expected failure)');
-        }
-        console.timeEnd('🔥 Vault Pre-warm');
-
         if (computed.isBiometricsEnabled && !isUnlocking && !biometricAttempted) {
-          console.log('🔐 Attempting biometric unlock...');
           setIsUnlocking(true);
           clearErrors('password');
 
           try {
             const passwordFromKeychain = await apisKeychain.requestGenericPassword();
-            console.log('🔐 Got password from keychain:', !!passwordFromKeychain);
 
             if (passwordFromKeychain) {
               apisLock.markAsUnlocked();
@@ -61,7 +50,6 @@ const UnlockScreen: FC<UnlockScreenProps> = ({ navigation }) => {
               message: t('unlock.biometrics.cancelled'),
             });
           } catch (error) {
-            console.error('❌ Biometric unlock error:', error);
             setError('password', {
               message: t('unlock.biometrics.failed'),
             });
@@ -71,7 +59,7 @@ const UnlockScreen: FC<UnlockScreenProps> = ({ navigation }) => {
           }
         }
       } catch (error) {
-        console.error('❌ Fetch biometrics error:', error);
+        // Handle fetch biometrics error silently
       }
     };
 

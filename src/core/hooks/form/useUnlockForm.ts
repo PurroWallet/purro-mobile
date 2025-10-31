@@ -39,23 +39,17 @@ export const useUnlockForm = ({ onSuccess }: UseUnlockFormParams) => {
         setIsUnlocking(true);
 
         try {
-          console.time('🔓 Unlock API Call');
           const result = await apisLock.unlockWallet(password);
-          console.timeEnd('🔓 Unlock API Call');
 
           if (result.success) {
-            console.log('🔓 Unlock successful, resetting form and calling onSuccess...');
             form.reset({ password: '' });
-            console.time('🔓 Navigation Time');
             onSuccess();
-            console.timeEnd('🔓 Navigation Time');
           } else {
             form.setError('password', {
               message: result.formFieldError || result.error || 'Invalid password',
             });
           }
         } catch (error) {
-          console.error('❌ Password unlock error:', error);
           Alert.alert('Error', 'Something went wrong while unlocking');
         } finally {
           setIsUnlocking(false);

@@ -30,7 +30,7 @@ export type AccountStackParamList = {
   SeedPhraseBackup: undefined;
   CreatePassword: { mnemonic: string; isPrivateKeyImport?: boolean; isNewAccount?: boolean };
   Success: { title: string; message: string; buttonText?: string };
-  PasswordVerification: { accountAddress: string; onSuccess: () => void };
+  PasswordVerification: { accountAddress: string; onSuccess: (password: string) => void };
   Unlock: {
     mnemonic?: string;
     isImport?: boolean;

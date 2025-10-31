@@ -29,30 +29,22 @@ export class LockService {
     }
 
     try {
-      console.time('🔓 Total Unlock');
-      console.log('🚀 Starting unlock process...');
-
       // Check if already booted and unlocked with same password
       if (keyringService.isBooted() && keyringService.isUnlocked()) {
-        console.log('⚡ Already unlocked, skipping boot');
+        // Already unlocked, no need to boot again
       } else {
-        // Boot with auto-unlock
-        console.time('🔧 Boot Process');
+        // Boot with auto-unlock (only verifies password, doesn't load wallet data)
         await keyringService.boot(password);
-        console.timeEnd('🔧 Boot Process');
 
         if (!keyringService.isUnlocked()) {
-          console.log('❌ Boot failed to unlock');
           throw new Error('Failed to unlock');
         }
-        console.log('✅ Unlocked via boot');
       }
 
       this.locked = false;
       this.lastUnlockTime = Date.now();
       this.resetFailedAttempts();
 
-      console.timeEnd('🔓 Total Unlock');
       return { success: true };
     } catch (error) {
       this.recordFailedAttempt();

@@ -1,22 +1,20 @@
 import React, { useCallback, useState } from 'react';
-import { Alert, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-// import { useSocialLogin } from '@/hooks/auth/useSocialLogin';
 import { Button } from '@/components';
 import { Icon } from '@/components/Icon';
 import { useThemeMode } from '@/core/hooks/useTheme';
-import { useCreateWallet } from '@/core/hooks/wallet/useCreateWallet';
+import { walletService } from '@/core/services';
+import { keyringService } from '@/core/services/KeyringService';
+import { SocialLoginResult, web3AuthService } from '@/core/services/Web3AuthService';
 import type { WelcomeScreenProps } from '@/types/navigation';
 import { useTranslation } from '@/utils/i18n';
 
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
   const { t } = useTranslation();
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
   const { themeMode } = useThemeMode();
-
-  const { getSeedPhrase } = useCreateWallet();
-  // const { loginWithGoogle, loginWithFacebook, isLoading, loadingProvider } =
-  //   useSocialLogin();
 
   const ensureTermsAccepted = useCallback(() => {
     if (!acceptedTerms) {
@@ -35,11 +33,22 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
     }
 
     try {
-      const { mnemonic } = await getSeedPhrase();
+      // Generate mnemonic directly - no store needed
+      const mnemonic = keyringService.generateMnemonic();
 
+      // Validate mnemonic before navigation
+      if (!mnemonic || typeof mnemonic !== 'string' || mnemonic.trim() === '') {
+        Alert.alert(
+          t('errors.generic.title'),
+          'Failed to generate seed phrase. Please try again.',
+          [{ text: t('common.ok'), style: 'default' }],
+        );
+        return;
+      }
+
+      // Navigate immediately to seed phrase screen
       navigation.navigate('SeedPhraseDisplay', { mnemonic });
     } catch (error) {
-      console.error('Error creating wallet:', error);
       Alert.alert(t('errors.generic.title'), t('errors.wallet.createFailed'), [
         { text: t('common.ok'), style: 'default' },
       ]);
@@ -54,32 +63,62 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
     navigation.navigate('ImportMethods');
   };
 
-  // const handleSocialLogin = useCallback(
-  //   async (provider: any) => {
-  //     if (!ensureTermsAccepted()) {
-  //       return;
-  //     }
+  const handleSocialLogin = async () => {
+    if (!ensureTermsAccepted()) {
+      return;
+    }
 
-  //     try {
-  //       const result =
-  //         provider === LOGIN_PROVIDER.GOOGLE
-  //           ? await loginWithGoogle()
-  //           : await loginWithFacebook();
+    try {
+      setLoadingProvider('google');
 
-  //       const displayName = result.userInfo.name || result.userInfo.email;
-  //       Alert.alert(
-  //         'Login successful',
-  //         displayName
-  //           ? `Welcome back, ${displayName}!`
-  //           : 'You have successfully signed in.',
-  //       );
-  //     } catch (error) {
-  //       console.error('Social login failed:', error);
-  //       Alert.alert('Login failed', 'Unable to continue with social login.');
-  //     }
-  //   },
-  //   [ensureTermsAccepted, loginWithFacebook, loginWithGoogle],
-  // );
+      const result = await web3AuthService.loginWithGoogle();
+
+      // SUCCESS: Navigate to wallet creation flow
+      console.log(`✅ Google login successful:`, result.userInfo);
+
+      // Get the private key from Web3Auth provider
+      const privateKey = await result.provider?.request({
+        method: 'eth_private_key',
+      });
+
+      if (privateKey && privateKey.length > 0) {
+        // For Web3Auth users, skip seed phrase display and go directly to password creation
+        // Web3Auth users don't have a traditional seed phrase
+        navigation.navigate('CreatePassword', {
+          mnemonic: undefined, // No mnemonic for Web3Auth users
+          privateKey: privateKey,
+          isWeb3Auth: true,
+          userInfo: result.userInfo,
+        });
+      } else {
+        // Fallback: Show success message if we can't get the private key
+        Alert.alert(
+          'Login Successful!',
+          `Welcome ${result.userInfo.name}! Your Web3 wallet is ready.`,
+          [{ text: 'Continue', style: 'default' }],
+        );
+      }
+    } catch (error) {
+      console.error('❌ Google login failed:', error);
+
+      let errorMessage = t('errors.wallet.createFailed');
+      if (error instanceof Error) {
+        if (error.message.includes('popup')) {
+          errorMessage = 'Login popup was closed. Please try again.';
+        } else if (error.message.includes('cancelled')) {
+          errorMessage = 'Login was cancelled. Please try again.';
+        } else if (error.message.includes('network')) {
+          errorMessage = 'Network error. Please check your connection and try again.';
+        }
+      }
+
+      Alert.alert(t('errors.generic.title'), errorMessage, [
+        { text: t('common.ok'), style: 'default' },
+      ]);
+    } finally {
+      setLoadingProvider(null);
+    }
+  };
 
   const toggleTermsAcceptance = () => {
     setAcceptedTerms(!acceptedTerms);
@@ -126,49 +165,51 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
           </Pressable>
         </View>
 
-        <View className="gap-2">
-          <Button
-            type="primary"
-            title={t('welcome.createWallet')}
-            onPress={handleCreateWallet}
-            disabled={!acceptedTerms}
-          />
+        {/* Social Login Section */}
+        <View className="mt-4">
+          {/* Loading indicator */}
+          {loadingProvider && (
+            <View className="mb-3 items-center">
+              <View className="flex-row items-center gap-2">
+                <ActivityIndicator size="small" className="text-brand-primary" />
+                <Text className="text-sm text-text-secondary">
+                  Connecting to {loadingProvider}...
+                </Text>
+              </View>
+            </View>
+          )}
 
-          <Button
-            type="secondary"
-            title={t('welcome.importWallet')}
-            onPress={handleImportWallet}
-            disabled={!acceptedTerms}
-          />
+          {/* Single Google login button */}
+          <View className="w-full">
+            <Button
+              type="secondary"
+              title="Continue with Google"
+              onPress={handleSocialLogin}
+              disabled={!acceptedTerms || loadingProvider !== null}
+              className="w-full"
+            />
+          </View>
         </View>
 
-        {/* <View className="gap-2">
-          <TouchableOpacity
-            className={`w-full min-h-12 items-center justify-center rounded-xl border border-background-tertiary px-6 py-4 ${acceptedTerms ? 'bg-background-secondary' : 'bg-background-secondary opacity-60'}`}
-            onPress={() => handleSocialLogin(LOGIN_PROVIDER.GOOGLE)}
-            disabled={!acceptedTerms || isLoading}
-            activeOpacity={0.8}
-          >
-            <Text className="text-button text-text-primary">
-              {loadingProvider === LOGIN_PROVIDER.GOOGLE
-                ? 'Signing in with Google…'
-                : 'Continue with Google'}
-            </Text>
-          </TouchableOpacity>
+        <View className="flex-row items-center w-full gap-x-2">
+          <View className="flex-1 h-[1px] bg-gray-500" />
+          <Text className="mx-2 text-base text-gray-500 uppercase">or</Text>
+          <View className="flex-1 h-[1px] bg-gray-500" />
+        </View>
 
-          <TouchableOpacity
-            className={`w-full min-h-12 items-center justify-center rounded-xl border border-background-tertiary px-6 py-4 ${acceptedTerms ? 'bg-background-secondary' : 'bg-background-secondary opacity-60'}`}
-            onPress={() => handleSocialLogin(LOGIN_PROVIDER.FACEBOOK)}
-            disabled={!acceptedTerms || isLoading}
-            activeOpacity={0.8}
-          >
-            <Text className="text-button text-text-primary">
-              {loadingProvider === LOGIN_PROVIDER.FACEBOOK
-                ? 'Signing in with Facebook…'
-                : 'Continue with Facebook'}
-            </Text>
-          </TouchableOpacity>
-        </View> */}
+        <Button
+          type="primary"
+          title={t('welcome.createWallet')}
+          onPress={handleCreateWallet}
+          disabled={!acceptedTerms}
+        />
+
+        <Button
+          type="secondary"
+          title={t('welcome.importWallet')}
+          onPress={handleImportWallet}
+          disabled={!acceptedTerms}
+        />
       </View>
     </SafeAreaView>
   );

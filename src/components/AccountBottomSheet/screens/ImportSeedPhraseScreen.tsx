@@ -62,10 +62,32 @@ const ImportSeedPhraseScreen: React.FC<Props> = ({ navigation, onClose, parentNa
         throw new Error('Invalid seed phrase. Must be exactly 12 words.');
       }
 
-      // Navigate to unlock screen with the validated mnemonic
-      navigation.navigate('Unlock', {
-        mnemonic: values.mnemonic.trim(),
-        isImport: true,
+      // Navigate to password verification screen first
+      navigation.navigate('PasswordVerification', {
+        accountAddress: '',
+        onSuccess: async (verifiedPassword) => {
+          // After password verification, directly import with verified password
+          try {
+            console.log('📥 ImportSeedPhrase - Direct import with verified password');
+            const addresses = await walletController.importWalletWithMnemonicNew(
+              values.mnemonic.trim(),
+              verifiedPassword,
+            );
+            console.log('📥 ImportSeedPhrase - Success, addresses:', addresses);
+
+            // Navigate to success screen
+            navigation.navigate('Success', {
+              title: 'Import Successful!',
+              message: 'Seed phrase has been imported successfully.',
+              buttonText: 'Done',
+            });
+          } catch (error) {
+            console.error('📥 ImportSeedPhrase - Import failed:', error);
+            Alert.alert('Import Failed', 'Failed to import seed phrase. Please try again.', [
+              { text: 'OK' },
+            ]);
+          }
+        },
       });
     } catch (error) {
       console.error('Error importing seed phrase:', error);

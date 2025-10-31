@@ -63,13 +63,11 @@ export function useBiometrics(_options?: { autoFetch?: boolean }) {
       let supportedType = null as null | BIOMETRY_TYPE;
       try {
         supportedType = await apisKeychain.getSupportedBiometryType();
-        console.log('🔐 Supported biometry type:', supportedType);
       } catch (error) {
-        console.error('❌ Error getting supported biometry type:', error);
+        // Handle error silently
       }
 
       const authEnabled = supportedType ? isAuthenticatedByBiometrics() : false;
-      console.log('🔐 Auth enabled:', authEnabled, 'Supported type:', supportedType);
 
       setBiometricsInfo((prev) => ({
         ...prev,

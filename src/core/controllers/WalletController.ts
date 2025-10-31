@@ -34,6 +34,13 @@ export class WalletController {
   }
 
   /**
+   * Boot keyring for new wallet creation (no vault verification)
+   */
+  async bootForNewWallet(password: string): Promise<void> {
+    return walletService.bootForNewWallet(password);
+  }
+
+  /**
    * Create new wallet
    */
   async createWallet(password: string): Promise<{ mnemonic: string; addresses: string[] }> {
@@ -52,6 +59,17 @@ export class WalletController {
    */
   async importWalletWithPrivateKey(privateKey: string): Promise<string[]> {
     return walletService.importWalletWithPrivateKey(privateKey);
+  }
+
+  /**
+   * Import wallet with mnemonic (for new wallet creation - no vault verification)
+   */
+  async importWalletWithMnemonicNew(
+    mnemonic: string,
+    password: string,
+    passphrase?: string,
+  ): Promise<string[]> {
+    return walletService.importWalletWithMnemonicNew(mnemonic, password, passphrase);
   }
 
   /**

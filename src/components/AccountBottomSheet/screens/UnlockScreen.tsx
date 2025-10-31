@@ -85,7 +85,6 @@ const UnlockScreen: React.FC<Props> = ({
             : t('accountBottomSheet.success.walletImported.message'),
         });
       } catch (error) {
-        console.error('Error unlocking wallet:', error);
         form.setError('password', {
           message: t('accountBottomSheet.errors.incorrectPassword'),
         });

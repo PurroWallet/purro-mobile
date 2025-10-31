@@ -3,8 +3,9 @@ import type { NavigationProp } from '@react-navigation/native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useColorScheme } from 'nativewind';
 import React from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from '@/components/Icon';
+import { walletController } from '@/core/controllers/WalletController';
 import { useTranslation } from '@/utils/i18n';
 import type { AccountStackParamList } from '../AccountStackNavigator';
 import BaseScreen from '../components/BaseScreen';
@@ -32,27 +33,34 @@ const AddAccountScreen: React.FC<Props> = ({
   const isDarkMode = colorScheme === 'dark';
 
   const handleBack = () => {
-    console.log('AddAccountScreen - Back button pressed via handleBack');
-    console.log('AddAccountScreen - Navigation state:', navigation.getState());
     navigation.goBack();
   };
 
   const handleCreateNew = () => {
-    console.log('AddAccountScreen - Creating new account, navigating to unlock screen');
-
-    // Navigate to unlock screen for creating new account
-    navigation.navigate('Unlock', {
-      isNewAccount: true,
+    // Navigate to password verification screen first
+    navigation.navigate('PasswordVerification', {
+      accountAddress: '',
+      onSuccess: async (verifiedPassword) => {
+        try {
+          await walletController.addNewAccount();
+          // Navigate to success screen
+          navigation.navigate('Success', {
+            title: 'Account Created!',
+            message: 'New account has been created successfully.',
+            buttonText: 'Done',
+          });
+        } catch (error) {
+          Alert.alert('Error', 'Failed to create new account');
+        }
+      },
     });
   };
 
   const handleImportSeedPhrase = () => {
-    console.log('AddAccountScreen - Import seed phrase, navigating to sheet screen');
     navigation.navigate('ImportSeedPhrase');
   };
 
   const handleImportPrivateKey = () => {
-    console.log('AddAccountScreen - Import private key, navigating to sheet screen');
     navigation.navigate('ImportPrivateKey');
   };
 

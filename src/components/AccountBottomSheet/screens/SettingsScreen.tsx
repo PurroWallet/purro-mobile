@@ -96,7 +96,7 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
           try {
             walletPassword = await apisKeychain.requestGenericPassword();
           } catch {
-            console.log('No existing keychain password');
+            // Handle error silently
           }
 
           if (!walletPassword) {
@@ -125,7 +125,7 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
           try {
             await apisKeychain.resetGenericPassword();
           } catch {
-            console.log('No existing keychain data to clear');
+            // Handle error silently
           }
 
           await apisKeychain.setGenericPassword(walletPassword, KEYCHAIN_AUTH_TYPES.BIOMETRICS);
@@ -139,7 +139,6 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
             }),
           );
         } catch (error) {
-          console.error('Error enabling biometrics:', error);
           Alert.alert(
             t('errors.generic.title'),
             t('accountBottomSheet.settingsScreen.alerts.biometrics.enableError'),
@@ -180,7 +179,6 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
                     }),
                   );
                 } catch (err) {
-                  console.error('Error disabling biometrics:', err);
                   Alert.alert(
                     t('errors.generic.title'),
                     t('accountBottomSheet.settingsScreen.alerts.biometrics.disableError'),
@@ -193,7 +191,6 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
         );
       }
     } catch (error) {
-      console.error('Error toggling biometrics:', error);
       Alert.alert(
         t('errors.generic.title'),
         t('accountBottomSheet.settingsScreen.alerts.biometrics.updateError'),
@@ -249,8 +246,6 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
           style: 'destructive',
           onPress: async () => {
             try {
-              console.log('🔄 Resetting wallet...');
-
               // Reset wallet data
               apisWallet.resetWallet();
 
@@ -260,15 +255,12 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
               // Clear keychain data
               try {
                 await apisKeychain.resetGenericPassword();
-                console.log('🔑 Keychain data cleared');
               } catch (error) {
-                console.log('🔑 No keychain data to clear:', error);
+                // Handle error silently
               }
 
               // Update wallet exists state
               setWalletExists(false);
-
-              console.log('✅ Wallet reset complete, navigating to Welcome screen');
 
               // Use parent navigation to reset to Welcome screen
               if (parentNavigation) {
@@ -278,7 +270,6 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
                 });
               }
             } catch (error) {
-              console.error('Error resetting wallet:', error);
               Alert.alert(
                 t('errors.generic.title'),
                 t('accountBottomSheet.settingsScreen.alerts.resetWallet.error'),

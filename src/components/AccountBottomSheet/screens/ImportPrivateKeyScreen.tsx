@@ -6,6 +6,7 @@ import { FormProvider } from 'react-hook-form';
 import { Alert, Text, View } from 'react-native';
 import { z } from 'zod';
 import { Button, FormInput } from '@/components';
+import { walletController } from '@/core/controllers/WalletController';
 import { useZodForm, ZodFormValues } from '@/core/hooks/form/useZodForm';
 import type { AccountStackParamList } from '../AccountStackNavigator';
 import BaseScreen from '../components/BaseScreen';
@@ -60,11 +61,31 @@ const ImportPrivateKeyScreen: React.FC<Props> = ({ navigation, onClose, parentNa
           throw new Error('Invalid private key.');
         }
 
-        // Navigate to unlock screen with the private key
-        navigation.navigate('Unlock', {
-          mnemonic: '0x' + privateKey,
-          isImport: true,
-          isPrivateKeyImport: true,
+        // Navigate to password verification screen first
+        navigation.navigate('PasswordVerification', {
+          accountAddress: '',
+          onSuccess: async (verifiedPassword) => {
+            // After password verification, directly import with verified password
+            try {
+              console.log('🔑 ImportPrivateKey - Direct import with verified password');
+              const addresses = await walletController.importWalletWithPrivateKey(
+                '0x' + privateKey,
+              );
+              console.log('🔑 ImportPrivateKey - Success, addresses:', addresses);
+
+              // Navigate to success screen
+              navigation.navigate('Success', {
+                title: 'Import Successful!',
+                message: 'Private key has been imported successfully.',
+                buttonText: 'Done',
+              });
+            } catch (error) {
+              console.error('🔑 ImportPrivateKey - Import failed:', error);
+              Alert.alert('Import Failed', 'Failed to import private key. Please try again.', [
+                { text: 'OK' },
+              ]);
+            }
+          },
         });
       } catch {
         throw new Error('Invalid private key. Please check your input.');

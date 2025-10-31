@@ -23,7 +23,7 @@ type Props = NativeStackScreenProps<AccountStackParamList, 'PasswordVerification
 
 interface RouteParams {
   accountAddress: string;
-  onSuccess: () => void;
+  onSuccess: (password: string) => void;
 }
 
 const PasswordVerificationScreen: React.FC<Props> = ({ navigation, onClose, route }) => {
@@ -47,19 +47,26 @@ const PasswordVerificationScreen: React.FC<Props> = ({ navigation, onClose, rout
     try {
       setIsLoading(true);
 
+      console.log('🔐 PasswordVerification - Starting verification...');
+      console.log('🔐 PasswordVerification - Password provided:', !!values.password);
+
       // Verify password
       const result = await apisLock.verifyPassword(values.password);
 
+      console.log('🔐 PasswordVerification - Result:', result);
+
       if (result.success) {
-        // Password is correct, call onSuccess callback
-        onSuccess();
+        console.log('✅ PasswordVerification - Password correct, calling onSuccess...');
+        // Password is correct, call onSuccess callback with password
+        onSuccess(values.password);
       } else {
+        console.log('❌ PasswordVerification - Password incorrect');
         form.setError('password', {
           message: t('accountBottomSheet.errors.incorrectPassword'),
         });
       }
     } catch (error) {
-      console.error('Error verifying password:', error);
+      console.log('💥 PasswordVerification - Error:', error);
       form.setError('password', {
         message: t('accountBottomSheet.errors.verifyPasswordFailed'),
       });

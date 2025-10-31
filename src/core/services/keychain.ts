@@ -1,6 +1,6 @@
-import RNKeychain from 'react-native-keychain';
+import * as RNKeychain from 'react-native-keychain';
+import { encryptionService } from '../services/EncryptionService';
 import { keychainStorage } from '../storage/secureStorage';
-import { appEncryptor } from './encryptor';
 
 export enum KEYCHAIN_AUTH_TYPES {
   APPLICATION_PASSWORD = 0,
@@ -26,11 +26,11 @@ class SecureKeychain {
   }
 
   async encryptPassword(password: string): Promise<string> {
-    return appEncryptor.encrypt(this.salt, { password });
+    return encryptionService.encrypt(this.salt, { password });
   }
 
   async decryptPassword(encryptedPassword: string): Promise<string> {
-    const result = await appEncryptor.decrypt(this.salt, encryptedPassword);
+    const result = await encryptionService.decrypt(this.salt, encryptedPassword);
     return result.password;
   }
 

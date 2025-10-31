@@ -16,11 +16,11 @@ export class PasswordService {
 
   // Create password vault with initial password
   async createPasswordVault(password: string): Promise<void> {
-    // Derive a key from the password
-    const derivedKey = await this.deriveKey(password);
+    // Derive a key from the password with salt
+    const { key: derivedKey, salt } = await this.deriveKey(password);
 
-    // Store the derived key in secure storage
-    secureWalletStorage.setItem('passwordVault', derivedKey);
+    // Store the derived key and salt in secure storage
+    secureWalletStorage.setItem('passwordVault', { key: derivedKey, salt });
 
     this.passwordVault = derivedKey;
     this.unlocked = true;
@@ -29,18 +29,21 @@ export class PasswordService {
   // Unlock password vault with password
   async unlockPasswordVault(password: string): Promise<boolean> {
     try {
-      // Derive a key from the password
-      const derivedKey = await this.deriveKey(password);
-
       // Get stored password vault
-      const storedVault = secureWalletStorage.getItem<string>('passwordVault');
+      const storedVault = secureWalletStorage.getItem<{
+        key: string;
+        salt: string;
+      }>('passwordVault');
 
       if (!storedVault) {
         return false;
       }
 
-      // Verify the derived key matches stored vault
-      if (derivedKey === storedVault) {
+      // Derive key using stored salt
+      const { key: derivedKey } = await this.deriveKey(password, storedVault.salt);
+
+      // Use constant-time comparison to prevent timing attacks
+      if (this.constantTimeEquals(derivedKey, storedVault.key)) {
         this.passwordVault = derivedKey;
         this.unlocked = true;
         return true;
@@ -84,24 +87,37 @@ export class PasswordService {
     await this.createPasswordVault(newPassword);
   }
 
-  // Derive key from password using PBKDF2
-  private async deriveKey(password: string): Promise<string> {
-    // Generate a random salt
-    const salt = encryptionService.generateRandomBytes(16);
+  // Derive key from password using PBKDF2 with stored salt
+  private async deriveKey(
+    password: string,
+    storedSalt?: string,
+  ): Promise<{ key: string; salt: string }> {
+    let salt: Buffer;
+
+    if (storedSalt) {
+      // Use stored salt for verification
+      salt = Buffer.from(storedSalt, 'base64');
+    } else {
+      // Generate new cryptographically secure salt
+      salt = encryptionService.generateRandomBytes(16);
+    }
 
     // Derive key using PBKDF2
     const key = await encryptionService.deriveKey(password, salt);
 
-    // Return base64 encoded key
-    return key.toString('base64');
+    // Return key and salt
+    return {
+      key: key.toString('base64'),
+      salt: salt.toString('base64'),
+    };
   }
 
   // Load password vault from secure storage
   private loadPasswordVault(): void {
     try {
-      const vault = secureWalletStorage.getItem<string>('passwordVault');
+      const vault = secureWalletStorage.getItem<{ key: string; salt: string }>('passwordVault');
       if (vault) {
-        this.passwordVault = vault;
+        this.passwordVault = vault.key;
       }
     } catch {
       // Ignore errors during initialization
@@ -113,6 +129,20 @@ export class PasswordService {
     secureWalletStorage.removeItem('passwordVault');
     this.passwordVault = null;
     this.unlocked = false;
+  }
+
+  // Constant-time string comparison to prevent timing attacks
+  private constantTimeEquals(a: string, b: string): boolean {
+    if (a.length !== b.length) {
+      return false;
+    }
+
+    let result = 0;
+    for (let i = 0; i < a.length; i++) {
+      result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+    }
+
+    return result === 0;
   }
 }
 

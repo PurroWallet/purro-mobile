@@ -3,7 +3,7 @@ import { Text, TouchableOpacity } from 'react-native';
 
 interface ButtonProps {
   type?: 'primary' | 'secondary';
-  title: string;
+  title?: string;
   onPress: () => void;
   disabled?: boolean;
   className?: string;

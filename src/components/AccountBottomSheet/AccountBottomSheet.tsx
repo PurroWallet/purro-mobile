@@ -75,14 +75,7 @@ const AccountBottomSheet = forwardRef<AccountBottomSheetRef, AccountBottomSheetP
     }, [navigation]);
 
     const handleSettings = useCallback(() => {
-      // Use a timeout to ensure the sheet is fully presented before navigating
-      setTimeout(() => {
-        try {
-          navigation.navigate('Settings');
-        } catch (error) {
-          console.log('Navigation error:', error);
-        }
-      }, 100);
+      navigation.navigate('Settings');
     }, [navigation]);
 
     // Expose present/dismiss methods

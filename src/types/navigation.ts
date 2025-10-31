@@ -2,17 +2,47 @@ import type { NavigationProp as BaseNavigationProp } from '@react-navigation/nat
 
 export type RootStackParamList = {
   Welcome: undefined;
-  SeedPhraseDisplay: { mnemonic: string };
+  SeedPhraseDisplay: {
+    mnemonic: string | null;
+    privateKey?: string;
+    isWeb3Auth?: boolean;
+    userInfo?: {
+      email?: string;
+      name?: string;
+      profileImage?: string;
+      typeOfLogin?: string;
+      verifier?: string;
+      verifierId?: string;
+    };
+  };
   SeedPhraseVerify: { mnemonic: string };
   SeedPhraseBackup: undefined;
   CreatePassword: {
     mnemonic?: string;
+    privateKey?: string;
     isImport?: boolean;
     isPrivateKeyImport?: boolean;
+    isWeb3Auth?: boolean;
+    userInfo?: {
+      email?: string;
+      name?: string;
+      profileImage?: string;
+      typeOfLogin?: string;
+      verifier?: string;
+      verifierId?: string;
+    };
   };
   WalletSuccess: {
     addresses: string[];
     isImport?: boolean;
+    socialInfo?: {
+      email?: string;
+      name?: string;
+      profileImage?: string;
+      typeOfLogin?: string;
+      verifier?: string;
+      verifierId?: string;
+    };
   };
   ImportWallet: undefined;
   ImportMethods: undefined;
@@ -20,7 +50,6 @@ export type RootStackParamList = {
   ImportPrivateKey: undefined;
   Unlock: undefined;
   Home: undefined;
-  Settings: undefined;
 };
 
 export type NavigationProp<T extends keyof RootStackParamList> = BaseNavigationProp<
@@ -90,8 +119,4 @@ export type UnlockScreenProps = {
 
 export type HomeScreenProps = {
   navigation: NavigationProp<'Home'>;
-};
-
-export type SettingsScreenProps = {
-  navigation: NavigationProp<'Settings'>;
 };

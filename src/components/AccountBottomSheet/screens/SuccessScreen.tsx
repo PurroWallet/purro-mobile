@@ -21,8 +21,11 @@ const SuccessScreen: React.FC<Props> = ({ navigation, onClose, route }) => {
   const { title, message, buttonText = 'Done' } = (route.params || {}) as RouteParams;
 
   const handleDone = () => {
-    // Navigate back to AccountList
-    navigation.navigate('AccountList');
+    // Clear navigation stack and go back to AccountList
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'AccountList' }],
+    });
   };
 
   return (

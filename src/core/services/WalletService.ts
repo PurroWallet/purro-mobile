@@ -30,24 +30,34 @@ export class WalletService {
   }
 
   /**
-   * Create new wallet with password
+   * Create new wallet with password - Optimized with parallel operations
    */
   async createWallet(password: string): Promise<{
     mnemonic: string;
     addresses: string[];
   }> {
     try {
-      // Boot keyring service with password
-      await this.keyringService.boot(password);
+      console.log('🏗️ WalletService.createWallet - Starting wallet creation...');
+      console.log('🏗️ Password provided:', !!password);
 
-      // Generate mnemonic
-      const mnemonic = this.keyringService.generateMnemonic();
+      // Boot keyring service for new wallet creation (no vault verification)
+      console.log('🏗️ Booting keyring service for new wallet...');
+      await this.keyringService.bootForNewWallet(password);
+      console.log('🏗️ Keyring service booted successfully');
+
+      // Generate mnemonic and prepare alias in parallel
+      console.log('🏗️ Generating mnemonic and alias...');
+      const [mnemonic, alias] = await Promise.all([
+        Promise.resolve(this.keyringService.generateMnemonic()),
+        Promise.resolve(this.generateAliasName(KEYRING_CLASS.MNEMONIC, 0, 0)),
+      ]);
+      console.log('🏗️ Generated mnemonic length:', mnemonic.length);
+      console.log('🏗️ Generated alias:', alias);
 
       // Create HD keyring with mnemonic
+      console.log('🏗️ Creating HD keyring with mnemonic...');
       const addresses = await this.keyringService.createHDKeyring(mnemonic);
-
-      // Generate alias for first account
-      const alias = this.generateAliasName(KEYRING_CLASS.MNEMONIC, 0, 0);
+      console.log('🏗️ Created HD keyring with addresses:', addresses.length);
 
       // Store contact with alias
       await this.contactBookService.addContact({
@@ -59,13 +69,12 @@ export class WalletService {
 
       return { mnemonic, addresses };
     } catch (error) {
-      console.error('Failed to create wallet:', error);
       throw error;
     }
   }
 
   /**
-   * Import wallet with mnemonic
+   * Import wallet with mnemonic - Optimized with parallel operations
    */
   async importWalletWithMnemonic(
     mnemonic: string,
@@ -76,23 +85,26 @@ export class WalletService {
       // Boot keyring service with password
       await this.keyringService.boot(password);
 
-      // Create HD keyring with mnemonic
-      const addresses = await this.keyringService.createHDKeyring(mnemonic, passphrase);
-
-      // Generate alias for first account
-      const alias = this.generateAliasName(KEYRING_CLASS.MNEMONIC, 0, 0);
+      // Create HD keyring and prepare alias in parallel
+      const [addresses, alias] = await Promise.all([
+        this.keyringService.createHDKeyring(mnemonic, passphrase),
+        Promise.resolve(this.generateAliasName(KEYRING_CLASS.MNEMONIC, 0, 0)),
+      ]);
 
       // Store contact with alias
-      await this.contactBookService.addContact({
-        address: addresses[0],
-        name: alias,
-        isAlias: true,
-        brandName: KEYRING_CLASS.MNEMONIC,
-      });
+      try {
+        this.contactBookService.addContact({
+          address: addresses[0],
+          name: alias,
+          isAlias: true,
+          brandName: KEYRING_CLASS.MNEMONIC,
+        });
+      } catch (error) {
+        // Handle error silently
+      }
 
       return addresses;
     } catch (error) {
-      console.error('Failed to import wallet with mnemonic:', error);
       throw error;
     }
   }
@@ -102,8 +114,13 @@ export class WalletService {
    */
   async importWalletWithPrivateKey(privateKey: string): Promise<string[]> {
     try {
+      console.log('🔑 WalletService.importWalletWithPrivateKey - Starting private key import...');
+      console.log('🔑 Private key provided:', !!privateKey, 'length:', privateKey.length);
+
       // Create simple keyring with private key
+      console.log('🔑 Creating simple keyring with private key...');
       const addresses = await this.keyringService.createSimpleKeyring(privateKey);
+      console.log('🔑 Created simple keyring with addresses:', addresses.length);
 
       // Generate alias for first account
       const alias = this.generateAliasName(KEYRING_CLASS.PRIVATE_KEY, 0, 0);
@@ -124,27 +141,52 @@ export class WalletService {
   }
 
   /**
-   * Unlock wallet with password
+   * Import wallet with mnemonic (for new wallet creation - no vault verification)
+   */
+  async importWalletWithMnemonicNew(
+    mnemonic: string,
+    password: string,
+    passphrase?: string,
+  ): Promise<string[]> {
+    try {
+      console.log('📥 WalletService.importWalletWithMnemonicNew - Starting mnemonic import...');
+      console.log('📥 Mnemonic provided:', !!mnemonic, 'length:', mnemonic.length);
+      console.log('📥 Password provided:', !!password);
+
+      // Create HD keyring with mnemonic
+      console.log('📥 Creating HD keyring with imported mnemonic...');
+      const addresses = await this.keyringService.createHDKeyring(mnemonic, passphrase);
+      console.log('📥 Created HD keyring with addresses:', addresses.length);
+
+      // Generate alias for first account
+      const alias = this.generateAliasName(KEYRING_CLASS.MNEMONIC, 0, 0);
+
+      // Store contact with alias
+      await this.contactBookService.addContact({
+        address: addresses[0],
+        name: alias,
+        isAlias: true,
+        brandName: KEYRING_CLASS.MNEMONIC,
+      });
+
+      return addresses;
+    } catch (error) {
+      console.error('Failed to import wallet with mnemonic:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Unlock wallet with password - Rabby-style
    */
   async unlockWallet(password: string): Promise<boolean> {
     try {
-      console.log('🔓 WalletService.unlockWallet - Starting unlock...');
       await this.keyringService.boot(password);
-      console.log('🔓 WalletService.unlockWallet - Keyring booted');
-
+      await this.keyringService.submitPassword(password);
       this.lockService.markAsUnlocked();
-      console.log('🔓 WalletService.unlockWallet - Marked as unlocked');
-
-      // Check if we have accounts
-      const accounts = await this.getAllAccounts();
-      console.log(
-        '🔓 WalletService.unlockWallet - Accounts after unlock:',
-        JSON.stringify(accounts, null, 2),
-      );
 
       return true;
     } catch (error) {
-      console.error('🔓 WalletService.unlockWallet - Failed to unlock wallet:', error);
       return false;
     }
   }
@@ -155,6 +197,13 @@ export class WalletService {
   async lockWallet(): Promise<void> {
     await this.keyringService.lock();
     this.lockService.lockWallet();
+  }
+
+  /**
+   * Boot keyring for new wallet creation (no vault verification)
+   */
+  async bootForNewWallet(password: string): Promise<void> {
+    return this.keyringService.bootForNewWallet(password);
   }
 
   /**
@@ -169,12 +218,7 @@ export class WalletService {
    */
   async getAllAccounts(): Promise<any[]> {
     try {
-      console.log('💼 WalletService.getAllAccounts - Getting accounts from keyring...');
       const keyringAccounts = await this.keyringService.getAllAccounts();
-      console.log(
-        '💼 WalletService.getAllAccounts - Keyring accounts:',
-        JSON.stringify(keyringAccounts, null, 2),
-      );
 
       const accounts = [];
 
@@ -184,17 +228,13 @@ export class WalletService {
           address: account.address,
           type: account.type,
           brandName: account.brandName,
-          alianName: contact?.name,
+          alianName: contact?.name || account.alianName, // Use stored alias first
         });
       }
 
-      console.log(
-        '💼 WalletService.getAllAccounts - Final accounts:',
-        JSON.stringify(accounts, null, 2),
-      );
       return accounts;
     } catch (error) {
-      console.error('💼 WalletService.getAllAccounts - Error:', error);
+      console.error('Failed to get accounts:', error);
       return [];
     }
   }
@@ -332,6 +372,141 @@ export class WalletService {
       throw error;
     }
   }
+
+  // ===== SOCIAL LOGIN FUNCTIONALITY DISABLED =====
+  // Social login backend methods have been commented out
+  // but kept for reference if functionality needs to be restored later
+  //
+  // /**
+  //  * Create wallet from social login - Integrates Web3Auth with existing wallet system
+  //  */
+  // async createSocialWallet(socialData: SocialLoginResult): Promise<{
+  //   address: string;
+  //   userInfo: SocialUserInfo;
+  // }> {
+  //   return trackOperation('wallet.createSocial', async () => {
+  //     console.log('🚀 WalletService.createSocialWallet - Creating wallet from social login...');
+  //
+  //     try {
+  //       let address: string;
+  //
+  //       // Check if we have a managed key scenario (Web3Auth security feature)
+  //       if (socialData.privateKey === "WEB3AUTH_MANAGED") {
+  //         console.log('🔐 Using Web3Auth provider-managed keys (secure approach)');
+  //
+  //         // Use the address from the social login result directly
+  //         address = socialData.address;
+  //
+  //         if (!address) {
+  //           throw new Error('No address available from Web3Auth provider');
+  //         }
+  //
+  //         // Store Web3Auth provider reference for signing operations
+  //         // The private key remains managed by Web3Auth for security
+  //         await this.keyringService.storeWeb3AuthProvider(socialData.provider);
+  //
+  //       } else {
+  //         // Traditional private key import
+  //         console.log('🔐 Importing private key into keyring system');
+  //         const addresses = await this.keyringService.createSimpleKeyring(socialData.privateKey);
+  //
+  //         if (!addresses || addresses.length === 0) {
+  //           throw new Error('Failed to create wallet from social login');
+  //         }
+  //
+  //         address = addresses[0];
+  //       }
+  //
+  //       // Generate alias for social account
+  //       const alias = this.generateSocialAliasName(socialData.userInfo);
+  //
+  //       // Store contact with social user info
+  //       await this.contactBookService.addContact({
+  //         address: address,
+  //         name: alias,
+  //         isAlias: true,
+  //         brandName: `Social (${socialData.userInfo.typeOfLogin})`,
+  //         socialUserInfo: socialData.userInfo, // Store social user info for future reference
+  //       });
+  //
+  //       // Mark wallet as unlocked
+  //       this.lockService.markAsUnlocked();
+  //       this.lockService.setCurrentAddress(address);
+  //
+  //       console.log('✅ Social wallet created successfully');
+  //
+  //       return {
+  //         address: address,
+  //         userInfo: socialData.userInfo,
+  //       };
+  //     } catch (error) {
+  //       console.error('❌ Failed to create social wallet:', error);
+  //       throw error;
+  //     }
+  //   });
+  // }
+
+  // /**
+  //  * Get all social accounts
+  //  */
+  // async getSocialAccounts(): Promise<any[]> {
+  //   try {
+  //     const allAccounts = await this.getAllAccounts();
+  //     return allAccounts.filter(account =>
+  //       account.brandName && account.brandName.includes('Social')
+  //     );
+  //   } catch (error) {
+  //     console.error('Failed to get social accounts:', error);
+  //     return [];
+  //   }
+  // }
+  //
+  // /**
+  //  * Check if social account exists
+  //  */
+  // async hasSocialAccount(verifierId: string): Promise<boolean> {
+  //   try {
+  //     const socialAccounts = await this.getSocialAccounts();
+  //     return socialAccounts.some(account =>
+  //       account.socialUserInfo?.verifierId === verifierId
+  //     );
+  //   } catch (error) {
+  //     console.error('Failed to check social account existence:', error);
+  //     return false;
+  //   }
+  // }
+  //
+  // /**
+  //  * Get social account by verifier ID
+  //  */
+  // async getSocialAccount(verifierId: string): Promise<any | null> {
+  //   try {
+  //     const socialAccounts = await this.getSocialAccounts();
+  //     return socialAccounts.find(account =>
+  //       account.socialUserInfo?.verifierId === verifierId
+  //     ) || null;
+  //   } catch (error) {
+  //     console.error('Failed to get social account:', error);
+  //     return null;
+  //   }
+  // }
+  //
+  // /**
+  //  * Generate alias name for social accounts
+  //  */
+  // private generateSocialAliasName(userInfo: SocialUserInfo): string {
+  //   const providerName = userInfo.typeOfLogin.charAt(0).toUpperCase() + userInfo.typeOfLogin.slice(1);
+  //
+  //   if (userInfo.name) {
+  //     return `${userInfo.name} (${providerName})`;
+  //   } else if (userInfo.email) {
+  //     const emailParts = userInfo.email.split('@');
+  //     return `${emailParts[0]} (${providerName})`;
+  //   } else {
+  //     return `${providerName} Account`;
+  //   }
+  // }
+  // ===== END SOCIAL LOGIN FUNCTIONALITY =====
 
   /**
    * Reset wallet

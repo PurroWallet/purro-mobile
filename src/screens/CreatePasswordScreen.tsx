@@ -24,7 +24,7 @@ type CreatePasswordFormValues = ZodFormValues<typeof createPasswordSchema>;
 
 const CreatePasswordScreen: React.FC<CreatePasswordScreenProps> = ({ navigation, route }) => {
   const { t } = useTranslation();
-  const { mnemonic, isImport } = route.params || {};
+  const { mnemonic, privateKey, isImport, isWeb3Auth, userInfo } = route.params || {};
   const [isLoading, setIsLoading] = React.useState(false);
 
   const form = useZodForm(createPasswordSchema, {
@@ -47,9 +47,18 @@ const CreatePasswordScreen: React.FC<CreatePasswordScreenProps> = ({ navigation,
 
       let addresses: string[] = [];
 
-      if (isImport && mnemonic) {
-        // Import existing wallet
-        addresses = await walletController.importWalletWithMnemonic(mnemonic, values.password);
+      if (isWeb3Auth && privateKey) {
+        // For Web3Auth users: Boot for new wallet, then import private key
+        await walletController.bootForNewWallet(values.password);
+        addresses = await walletController.importWalletWithPrivateKey(privateKey);
+      } else if (isImport && mnemonic) {
+        // Import existing wallet: Boot for new wallet, then import mnemonic
+        await walletController.bootForNewWallet(values.password);
+        addresses = await walletController.importWalletWithMnemonicNew(mnemonic, values.password);
+      } else if (isImport && privateKey) {
+        // Import private key: Boot for new wallet, then import private key
+        await walletController.bootForNewWallet(values.password);
+        addresses = await walletController.importWalletWithPrivateKey(privateKey);
       } else {
         // Create new wallet
         const result = await walletController.createWallet(values.password);
@@ -59,10 +68,10 @@ const CreatePasswordScreen: React.FC<CreatePasswordScreenProps> = ({ navigation,
       // Navigate to success screen
       navigation.replace('WalletSuccess', {
         addresses,
-        isImport,
+        isImport: isImport || isWeb3Auth, // Treat Web3Auth as import
+        socialInfo: isWeb3Auth ? userInfo : undefined,
       });
     } catch (error) {
-      console.error('Failed to create wallet:', error);
       Alert.alert(t('errors.generic.title'), t('errors.wallet.createFailed'));
     } finally {
       setIsLoading(false);
@@ -85,7 +94,11 @@ const CreatePasswordScreen: React.FC<CreatePasswordScreenProps> = ({ navigation,
               <Icon name="ChevronLeft" size={24} />
             </View>
             <Text className="text-h4 text-text-primary">
-              {isImport ? t('welcome.importWallet') : t('welcome.createWallet')}
+              {isWeb3Auth
+                ? `Welcome ${userInfo?.name || ''}!`
+                : isImport
+                  ? t('welcome.importWallet')
+                  : t('welcome.createWallet')}
             </Text>
             <View className="w-10" />
           </View>

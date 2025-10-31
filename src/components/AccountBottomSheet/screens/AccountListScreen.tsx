@@ -91,12 +91,10 @@ const AccountListScreen: React.FC<Props> = ({
 
   const loadAccounts = async () => {
     try {
-      console.log('📋 AccountListScreen - Loading accounts...');
       const accountsList = await walletController.getAllAccounts();
-      console.log('📋 AccountListScreen - Loaded accounts:', JSON.stringify(accountsList, null, 2));
       setAccounts(accountsList);
     } catch (error) {
-      console.error('📋 AccountListScreen - Failed to load accounts:', error);
+      console.error('Failed to load accounts:', error);
     }
   };
 

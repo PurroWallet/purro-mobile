@@ -103,27 +103,19 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
   const loadCurrentAccount = async () => {
     try {
-      console.log('🔍 HomeScreen - Loading current account...');
       const account = await walletController.getCurrentAccount();
-      console.log('👤 HomeScreen - Account:', JSON.stringify(account, null, 2));
 
       if (account?.address) {
-        console.log('✅ HomeScreen - Setting account:', account.address);
         setCurrentAccount(account);
       } else {
-        console.log('⚠️ HomeScreen - No account from controller, trying getAllAccounts...');
         const allAccounts = await walletController.getAllAccounts();
-        console.log('👥 HomeScreen - All accounts:', JSON.stringify(allAccounts, null, 2));
 
         if (allAccounts && allAccounts.length > 0) {
-          console.log('✅ HomeScreen - Using first account:', allAccounts[0].address);
           setCurrentAccount(allAccounts[0]);
-        } else {
-          console.log('❌ HomeScreen - No accounts found');
         }
       }
     } catch (error) {
-      console.error('❌ HomeScreen - Error:', error);
+      // Handle error silently
     }
   };
 

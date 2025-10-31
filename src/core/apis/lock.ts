@@ -16,25 +16,14 @@ export async function unlockWallet(password: string): Promise<UnlockResult> {
   };
 
   try {
-    console.log('🔓 apisLock.unlockWallet - Starting unlock...');
-
-    // Boot keyring service (this will load keyrings and unlock in one go)
+    // Boot keyring service (loads keyrings to get account addresses)
     await keyringService.boot(password);
-
-    console.log('🔓 apisLock.unlockWallet - Keyring booted');
-
-    // Submit password (will skip if already unlocked)
-    await keyringService.submitPassword(password);
-
-    console.log('🔓 apisLock.unlockWallet - Password submitted');
 
     // Mark as unlocked in lock service
     lockService.markAsUnlocked();
 
     unlockResult.success = true;
-    console.log('🔓 apisLock.unlockWallet - Unlock successful!');
   } catch (error) {
-    console.error('🔓 apisLock.unlockWallet - Error:', error);
     unlockResult.error = 'Incorrect password';
     unlockResult.formFieldError = 'Incorrect password';
   }
@@ -46,9 +35,12 @@ export async function verifyPassword(
   password: string,
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    console.log('🔐 apisLock.verifyPassword - Starting verification...');
     await keyringService.verifyPassword(password);
+    console.log('✅ apisLock.verifyPassword - Password verified successfully');
     return { success: true };
-  } catch {
+  } catch (error) {
+    console.log('❌ apisLock.verifyPassword - Verification failed:', error.message);
     return { success: false, error: 'Invalid password' };
   }
 }
