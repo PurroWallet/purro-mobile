@@ -1,14 +1,10 @@
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import {
   ArrowDownToLine,
-  ArrowLeftRight,
   ChevronDown,
   // Bell,
   ChevronRight,
-  Compass,
   GitBranch,
-  Home,
-  Image,
   Plus,
   Repeat,
   Search,
@@ -20,15 +16,17 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import DefaultIcon from '@/assets/common/icon.png';
 import AccountBottomSheet, { type AccountBottomSheetRef } from '@/components/AccountBottomSheet';
 import { apisKeychain, apisLock, apisWallet } from '@/core/apis';
-import { walletController } from '@/core/controllers/WalletController';
+import { useCurrentAccount } from '@/core/hooks/wallet/useCurrentAccount';
 import { useAppStore } from '@/stores/appStore';
-import type { HomeScreenProps } from '@/types/navigation';
+import type { HomeScreenProps, MainTabParamList } from '@/types/navigation';
 import { useTranslation } from '@/utils/i18n';
+import ReceiveTokenSheet, { ReceiveTokenSheetRef } from './components/ReceiveTokenSheet';
+import SentTokenSheet, { SentTokenSheetRef } from './components/SentTokenSheet';
 
 interface Account {
   address: string;
-  type: string;
-  brandName: string;
+  type?: string;
+  brandName?: string;
   alianName?: string;
 }
 
@@ -49,12 +47,22 @@ interface Token {
   value: string;
 }
 
-const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
+const HomeScreen: React.FC<HomeScreenProps> = () => {
   const { t } = useTranslation();
-  const [currentAccount, setCurrentAccount] = useState<Account | null>(null);
+  const navigation = useNavigation<MainTabParamList>();
+
   const accountBottomSheetRef = useRef<AccountBottomSheetRef>(null);
+  const sentTokenSheetRef = useRef<SentTokenSheetRef>(null);
+  const receiveTokenSheetRef = useRef<ReceiveTokenSheetRef>(null);
+
   const setWalletExists = useAppStore((state) => state.setWalletExists);
   const [selectedTab, setSelectedTab] = useState<'EVM' | 'Spot' | 'Perpetuals'>('EVM');
+  const {
+    currentAccount: currentAccountQuery,
+    refetchCurrentAccount,
+    setCurrentAccount: setCurrentAccountQuery,
+  } = useCurrentAccount();
+  const currentAccount = currentAccountQuery as Account | null;
 
   // Mock data
   const [perpPositions] = useState<PerpPosition[]>([
@@ -94,33 +102,14 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     },
   ]);
 
-  // Load account when screen comes into focus (after unlock)
   useFocusEffect(
     React.useCallback(() => {
-      loadCurrentAccount();
-    }, []),
+      refetchCurrentAccount();
+    }, [refetchCurrentAccount]),
   );
 
-  const loadCurrentAccount = async () => {
-    try {
-      const account = await walletController.getCurrentAccount();
-
-      if (account?.address) {
-        setCurrentAccount(account);
-      } else {
-        const allAccounts = await walletController.getAllAccounts();
-
-        if (allAccounts && allAccounts.length > 0) {
-          setCurrentAccount(allAccounts[0]);
-        }
-      }
-    } catch (error) {
-      // Handle error silently
-    }
-  };
-
   const handleAccountSelect = (account: Account) => {
-    setCurrentAccount(account);
+    setCurrentAccountQuery(account);
   };
 
   const handleResetWallet = async () => {
@@ -147,10 +136,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       console.log('✅ Wallet reset complete, navigating to Welcome screen');
 
       // Navigate to Welcome screen
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Welcome' }],
-      });
+      // navigation.navigate('Welcome');
     } catch (error) {
       console.error('Error resetting wallet:', error);
       Alert.alert(t('errors.generic.title'), t('errors.wallet.resetFailed'));
@@ -178,10 +164,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                 <View>
                   <Text className="text-text-secondary text-sm">
                     {currentAccount?.address
-                      ? `${currentAccount.address.slice(
-                          0,
-                          6,
-                        )}...${currentAccount.address.slice(-4)}`
+                      ? `${currentAccount.address.slice(0, 6)}...${currentAccount.address.slice(-4)}`
                       : '@kycdict'}
                   </Text>
                   <Text className="text-text-primary text-2xl font-medium">
@@ -197,6 +180,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           </View>
         </SafeAreaView>
       </View>
+
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* Balance Section */}
         <View className="items-center pt-10 pb-0">
@@ -206,7 +190,10 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         </View>
         {/* Action Buttons */}
         <View className="flex-row gap-2 px-6 py-5">
-          <TouchableOpacity className="flex-1 rounded-xl bg-background-secondary py-4 items-center gap-3">
+          <TouchableOpacity
+            className="flex-1 items-center gap-3 rounded-xl bg-background-secondary py-4"
+            onPress={() => sentTokenSheetRef.current?.present()}
+          >
             <Send size={24} />
             <Text className="text-text-primary text-sm">{t('home.send')}</Text>
           </TouchableOpacity>
@@ -385,53 +372,18 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           </TouchableOpacity>
         </View>
       </ScrollView>
-      {/* Bottom Navigation (Glassmorphism) */}
-      <View className="absolute bottom-0 left-0 right-0 bg-background-secondary px-8">
-        <SafeAreaView edges={['bottom']}>
-          <View className="flex-row justify-between items-center">
-            <TouchableOpacity className="items-center py-2.5 border-t-2 border-brand-primary">
-              <Home size={24} strokeWidth={2} className="mb-1" />
-              <Text className="text-brand-primary text-xs font-medium">{t('home.nav.home')}</Text>
-            </TouchableOpacity>
 
-            <TouchableOpacity className="items-center py-2.5">
-              <ArrowLeftRight
-                size={24}
-                color="rgb(var(--color-text-secondary))"
-                strokeWidth={2}
-                className="mb-1"
-              />
-              <Text className="text-text-secondary text-xs">{t('home.nav.swap')}</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity className="items-center py-2.5">
-              <Image
-                size={24}
-                color="rgb(var(--color-text-secondary))"
-                strokeWidth={2}
-                className="mb-1"
-              />
-              <Text className="text-text-secondary text-xs">{t('home.nav.nft')}</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity className="items-center py-2.5">
-              <Compass
-                size={24}
-                color="rgb(var(--color-text-secondary))"
-                strokeWidth={2}
-                className="mb-1"
-              />
-              <Text className="text-text-secondary text-xs">{t('home.nav.dapps')}</Text>
-            </TouchableOpacity>
-          </View>
-        </SafeAreaView>
-      </View>
       <AccountBottomSheet
         ref={accountBottomSheetRef}
         onClose={() => {}}
-        currentAccount={currentAccount}
         onAccountSelect={handleAccountSelect}
-        navigation={navigation}
+        onResetWallet={handleResetWallet}
+      />
+      <SentTokenSheet ref={sentTokenSheetRef} onClose={() => {}} />
+      <ReceiveTokenSheet
+        ref={receiveTokenSheetRef}
+        onClose={() => {}}
+        onAccountSelect={handleAccountSelect}
         onResetWallet={handleResetWallet}
       />
     </View>

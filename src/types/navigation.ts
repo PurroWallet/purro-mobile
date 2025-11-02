@@ -1,4 +1,8 @@
-import type { NavigationProp as BaseNavigationProp } from '@react-navigation/native';
+import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import type {
+  NavigationProp as BaseNavigationProp,
+  CompositeNavigationProp,
+} from '@react-navigation/native';
 
 export type RootStackParamList = {
   Welcome: undefined;
@@ -50,6 +54,13 @@ export type RootStackParamList = {
   ImportPrivateKey: undefined;
   Unlock: undefined;
   Home: undefined;
+};
+
+export type MainTabParamList = {
+  HomeMain: undefined;
+  Swap: undefined;
+  Nft: undefined;
+  Dapps: undefined;
 };
 
 export type NavigationProp<T extends keyof RootStackParamList> = BaseNavigationProp<
@@ -117,6 +128,11 @@ export type UnlockScreenProps = {
   navigation: NavigationProp<'Unlock'>;
 };
 
+export type HomeScreenNavigationProp = CompositeNavigationProp<
+  BottomTabNavigationProp<MainTabParamList, 'HomeMain'>,
+  NavigationProp<'Home'>
+>;
+
 export type HomeScreenProps = {
-  navigation: NavigationProp<'Home'>;
+  navigation: HomeScreenNavigationProp;
 };

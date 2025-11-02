@@ -129,10 +129,6 @@ const CreatePasswordScreen: React.FC<CreatePasswordScreenProps> = ({ navigation,
                 />
               </View>
             </FormProvider>
-
-            <Text className="text-[14px] leading-[20px] text-text-secondary mt-2">
-              {t('password.create.requirement')}
-            </Text>
           </View>
 
           <View className="px-5 pb-5">

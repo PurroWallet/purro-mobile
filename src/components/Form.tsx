@@ -47,7 +47,7 @@ export function FormInput<TFieldValues extends FieldValues = FieldValues>({
             value={field.value ?? ''}
             onChangeText={field.onChange}
             onBlur={field.onBlur}
-            className={`rounded-xl border px-4 py-3 text-base ${
+            className={`rounded-xl border px-4 py-3 ${
               fieldState.error ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-white'
             }`}
           />
@@ -56,7 +56,7 @@ export function FormInput<TFieldValues extends FieldValues = FieldValues>({
               className={`mt-1.5 text-sm ${fieldState.error ? 'text-red-500' : 'text-gray-500'}`}
             >
               {fieldState.error?.message
-                ? t(fieldState.error.message, fieldState.error.ref?.value ?? {})
+                ? t(fieldState.error.message, fieldState.error.message ?? {})
                 : helperText}
             </Text>
           ) : null}
@@ -92,7 +92,7 @@ export function PasswordInputForm<TFieldValues extends FieldValues = FieldValues
               onChangeText={field.onChange}
               onBlur={field.onBlur}
               secureTextEntry={!showPassword}
-              className={`rounded-xl border px-4 py-3 pr-12 text-base ${
+              className={`rounded-xl border px-4 py-3 pr-12 ${
                 fieldState.error ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-white'
               }`}
             />
@@ -112,7 +112,7 @@ export function PasswordInputForm<TFieldValues extends FieldValues = FieldValues
               className={`mt-1.5 text-sm ${fieldState.error ? 'text-red-500' : 'text-gray-500'}`}
             >
               {fieldState.error?.message
-                ? t(fieldState.error.message, fieldState.error.ref?.value ?? {})
+                ? t(fieldState.error.message, fieldState.error.message ?? {})
                 : helperText}
             </Text>
           ) : null}
@@ -181,7 +181,7 @@ export function CheckboxForm<TFieldValues extends FieldValues = FieldValues>({
                 className={`mt-1.5 text-sm ${fieldState.error ? 'text-red-500' : 'text-gray-500'}`}
               >
                 {fieldState.error?.message
-                  ? t(fieldState.error.message, fieldState.error.ref?.value ?? {})
+                  ? t(fieldState.error.message, fieldState.error.message ?? {})
                   : helperText}
               </Text>
             ) : null}

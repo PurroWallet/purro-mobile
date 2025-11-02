@@ -45,7 +45,20 @@
       }
     }
   },
-  "password": {},
+  "password": {
+    "create": {
+      "passwordLabel": "Mật khẩu",
+      "title": "Tạo mật khẩu",
+      "subtitle": "Tạo mật khẩu mới cho Purro Wallet",
+      "form": {
+        "label": "Mật khẩu",
+        "placeholder": "Nhập mật khẩu mới"
+      },
+      "actions": {
+        "submit": "Tạo mật khẩu"
+      }
+    }
+  },
   "unlock": {
     "title": "Mở khóa Purro Wallet",
     "subtitle": "Nhập mật khẩu của bạn",
@@ -64,6 +77,36 @@
       "incorrect": "Mật khẩu không đúng",
       "failed": "Không thể mở khóa ví"
     }
+  },
+  "sendToken": {
+    "sheetTitle": "Gửi token",
+    "sheetSubtitle": "Chọn nơi bạn muốn gửi.",
+    "options": {
+      "hyperliquid": "Gửi trên Hyperliquid DEX",
+      "hypervm": "Gửi trên HyperVM"
+    },
+    "selectTokenTitle": "Chọn token",
+    "destinationLabel": "Gửi qua {{destination}}",
+    "emptyTokens": "Bạn không có token nào để gửi.",
+    "sendTitle": "Gửi {{symbol}}",
+    "enterAmountTitle": "Nhập số lượng",
+    "availableLabel": "Khả dụng {{amount}} {{symbol}}",
+    "recipientLabel": "Địa chỉ người nhận",
+    "recipientPlaceholder": "Nhập địa chỉ người nhận",
+    "amountPlaceholder": "Gửi {{symbol}}",
+    "usdValueLabel": "~ ${{value}}",
+    "maxButton": "Tối đa",
+    "insufficientBalance": "Số dư không đủ",
+    "confirmTitle": "Xác nhận giao dịch",
+    "summary": {
+      "recipient": "Người nhận",
+      "network": "Mạng lưới",
+      "amount": "Số lượng",
+      "usdValue": "Giá trị (USD)"
+    },
+    "sendButton": "Gửi",
+    "sentTitle": "Đã gửi giao dịch",
+    "sentDescription": "Giao dịch của bạn đang được xử lý."
   },
   "home": {
     "title": "Trang chủ",
@@ -184,14 +227,6 @@
           "confirm": "Đặt lại",
           "error": "Không thể đặt lại ví."
         }
-      },
-      "terms": {
-        "title": "Điều khoản dịch vụ",
-        "message": "Điều khoản dịch vụ"
-      },
-      "privacy": {
-        "title": "Chính sách bảo mật",
-        "message": "Chính sách bảo mật"
       }
     },
     "recoveryPhraseTitle": "Cụm từ khôi phục của bạn",

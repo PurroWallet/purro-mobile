@@ -45,7 +45,44 @@
       }
     }
   },
-  "password": {},
+  "receiveToken": {
+    "title": "Receive Address",
+    "chooseNetwork": "Choose a network to receive funds",
+    "saveQR": "Save QR",
+    "copy": "Copy",
+    "addressCopied": "Address copied to clipboard",
+    "qrSaved": "QR code saved"
+  },
+  "sendToken": {
+    "sheetTitle": "Send Token",
+    "sheetSubtitle": "Choose where you want to send.",
+    "options": {
+      "hyperliquid": "Send on Hyperliquid DEX",
+      "hypervm": "Send on HyperVM"
+    },
+    "selectTokenTitle": "Select Token",
+    "destinationLabel": "Sending via {{destination}}",
+    "emptyTokens": "You have no token to send.",
+    "sendTitle": "Send {{symbol}}",
+    "enterAmountTitle": "Enter Amount",
+    "availableLabel": "Available {{amount}} {{symbol}}",
+    "recipientLabel": "Recipient Address",
+    "recipientPlaceholder": "Enter recipient address",
+    "amountPlaceholder": "Send {{symbol}}",
+    "usdValueLabel": "~ ${{value}}",
+    "maxButton": "Max",
+    "insufficientBalance": "Insufficient balance",
+    "confirmTitle": "Confirm Transaction",
+    "summary": {
+      "recipient": "Recipient",
+      "network": "Network",
+      "amount": "Amount",
+      "usdValue": "Value (USD)"
+    },
+    "sendButton": "Send",
+    "sentTitle": "Transaction submitted",
+    "sentDescription": "Your transaction is being processed."
+  },
   "unlock": {
     "title": "Unlock Purro Wallet",
     "subtitle": "Enter your password",
@@ -184,14 +221,6 @@
           "confirm": "Reset",
           "error": "Failed to reset wallet."
         }
-      },
-      "terms": {
-        "title": "Terms of Service",
-        "message": "Terms of Service"
-      },
-      "privacy": {
-        "title": "Privacy Policy",
-        "message": "Privacy Policy"
       }
     },
     "recoveryPhraseTitle": "Your Recovery Phrase",
@@ -201,10 +230,6 @@
     "securityNotesTitle": "⚠️ Important Security Notes",
     "securityNotesDescription": "• Write down your recovery phrase on paper\n• Store it in a secure, private location\n• Never take a photo or store it digitally\n• Never share it with anyone\n• This phrase controls all accounts in your wallet",
     "securedRecoveryPhrase": "I've secured my recovery phrase",
-    "errors": {
-      "noAccountsFound": "No accounts found",
-      "loadSeedPhraseFailed": "Failed to load seed phrase"
-    },
     "verifyPasswordTitle": "Verify Password",
     "verifyPasswordSubtitle": "Enter Password",
     "verifyPasswordDescription": "Enter your password to view your private key",
@@ -402,6 +427,18 @@
     "alert": {
       "title": "Import Failed",
       "generic": "Failed to import wallet. Please check your seed phrase and try again."
+    }
+  },
+  "password": {
+    "create": {
+      "passwordLabel": "Password",
+      "confirmLabel": "Confirm Password",
+      "requirement": "Password is required",
+      "mismatch": "Passwords do not match",
+      "passwordPlaceholder": "Create a password",
+      "confirmPlaceholder": "Confirm your password",
+      "continue": "Continue",
+      "subtitle": "Import Wallet"
     }
   },
   "walletSuccess": {

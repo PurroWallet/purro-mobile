@@ -27,10 +27,9 @@ import { web3AuthService } from '@/core/services/Web3AuthService';
 import { excludeFilesFromBackup } from '@/core/utils/appFS';
 import { ThemeProvider } from '@/providers/ThemeProvider';
 import { useAppStore } from '@/stores/appStore';
-
+import MainTabNavigator from './src/navigation/MainTabNavigator';
 // CRITICAL: Polyfills are now loaded in index.js at the very top with proper order
 import CreatePasswordScreen from './src/screens/CreatePasswordScreen';
-import HomeScreen from './src/screens/HomeScreen';
 import ImportMethodsScreen from './src/screens/ImportMethodsScreen';
 import ImportPrivateKeyScreen from './src/screens/ImportPrivateKeyScreen';
 import ImportSeedPhraseScreen from './src/screens/ImportSeedPhraseScreen';
@@ -185,7 +184,7 @@ const App: React.FC = () => {
                     <Stack.Screen name="SeedPhraseBackup" component={SeedPhraseBackupScreen} />
 
                     {/* Main App Flow */}
-                    <Stack.Screen name="Home" component={HomeScreen} />
+                    <Stack.Screen name="Home" component={MainTabNavigator} />
                   </Stack.Navigator>
 
                   {/* Screenshot protection components (Rabby pattern) */}

@@ -1,1 +1,2 @@
+bun fmt
 yarn lint-staged

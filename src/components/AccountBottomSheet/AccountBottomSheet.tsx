@@ -15,9 +15,8 @@ interface Account {
 
 interface AccountBottomSheetProps {
   onClose: () => void;
-  currentAccount: Account | null;
+  currentAccount?: Account | null;
   onAccountSelect: (account: Account) => void;
-  navigation: NavigationProp<any>;
   onResetWallet?: () => void;
 }
 
@@ -27,7 +26,7 @@ export interface AccountBottomSheetRef {
 }
 
 const AccountBottomSheet = forwardRef<AccountBottomSheetRef, AccountBottomSheetProps>(
-  ({ onClose, currentAccount, onAccountSelect, navigation, onResetWallet }, ref) => {
+  ({ onClose, currentAccount, onAccountSelect, onResetWallet }, ref) => {
     const bottomSheetRef = useRef<BottomSheetModalMethods>(null);
     const { colorScheme } = useColorScheme();
     const isDarkMode = colorScheme === 'dark';
@@ -88,9 +87,6 @@ const AccountBottomSheet = forwardRef<AccountBottomSheetRef, AccountBottomSheetP
       },
     }));
 
-    const currentAccountName = currentAccount?.alianName || 'Account 1';
-    const currentAccountAddress = currentAccount?.address || '';
-
     return (
       <BottomSheetModal
         ref={bottomSheetRef}
@@ -119,7 +115,6 @@ const AccountBottomSheet = forwardRef<AccountBottomSheetRef, AccountBottomSheetP
           onClose={onClose}
           currentAccount={currentAccount}
           onAccountSelect={onAccountSelect}
-          navigation={navigation}
           onResetWallet={onResetWallet}
           onAddAccount={handleAddAccount}
           onSettings={handleSettings}

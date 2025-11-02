@@ -13,7 +13,7 @@ export class EncryptionService {
     iterations: number = 5000,
   ): Promise<Buffer> {
     const saltBase64 = salt.toString('base64');
-    const keyBase64 = await Aes.default.pbkdf2(password, saltBase64, iterations, 256, 'sha256');
+    const keyBase64 = await Aes.pbkdf2(password, saltBase64, iterations, 256, 'sha256');
     return Buffer.from(keyBase64, 'base64');
   }
 
@@ -43,7 +43,7 @@ export class EncryptionService {
 
       // Encrypt using react-native-aes-crypto
       console.log('🔐 Encrypting data...');
-      const cipher = await Aes.default.encrypt(jsonData, key, iv, 'aes-256-cbc');
+      const cipher = await Aes.encrypt(jsonData, key, iv, 'aes-256-cbc');
       console.log('🔐 Encrypted cipher length:', cipher.length);
 
       // Combine salt, iv, and encrypted data in the same format as Rabby
@@ -58,8 +58,6 @@ export class EncryptionService {
     } catch (error) {
       console.error('❌ Encryption failed:', error);
       console.error('❌ Error details:', {
-        message: error.message,
-        stack: error.stack,
         passwordProvided: !!password,
         dataProvided: !!data,
         dataType: typeof data,
@@ -85,12 +83,12 @@ export class EncryptionService {
 
       // Derive key from password
       console.log('🔐 Deriving key with PBKDF2 for decryption...');
-      const key = await Aes.default.pbkdf2(password, salt, 5000, 256, 'sha256');
+      const key = await Aes.pbkdf2(password, salt, 5000, 256, 'sha256');
       console.log('🔐 Derived key length:', key.length);
 
       // Decrypt using react-native-aes-crypto
       console.log('🔐 Decrypting cipher...');
-      const decrypted = await Aes.default.decrypt(encrypted.cipher, key, iv, 'aes-256-cbc');
+      const decrypted = await Aes.decrypt(encrypted.cipher, key, iv, 'aes-256-cbc');
       console.log('🔐 Decrypted data size:', decrypted.length);
 
       // Parse and return data
@@ -100,8 +98,6 @@ export class EncryptionService {
     } catch (error) {
       console.error('❌ Decryption failed:', error);
       console.error('❌ Error details:', {
-        message: error.message,
-        stack: error.stack,
         passwordProvided: !!password,
         encryptedDataProvided: !!encryptedData,
         encryptedDataLength: encryptedData?.length,
