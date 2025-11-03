@@ -87,8 +87,8 @@ const UnlockScreen: FC<UnlockScreenProps> = ({ navigation }) => {
       <StatusBar barStyle="light-content" backgroundColor="#161616" />
 
       <View className="flex-1 items-center justify-center px-5">
-        <View className="mb-8 h-[120px] w-[120px] rounded-[60px] bg-background-secondary" />
-        <Text className="text-center text-h4 text-text-primary">{t('unlock.title')}</Text>
+        <View className="mb-8 h-[120px] w-[120px] rounded-[60px] bg-primary" />
+        <Text className="text-center text-h4 text-primary">{t('unlock.title')}</Text>
       </View>
 
       <View className="px-5 pb-10">

@@ -1817,7 +1817,7 @@ PODS:
     - React-Core
   - react-native-get-random-values (1.11.0):
     - React-Core
-  - react-native-keyboard-controller (1.19.3):
+  - react-native-keyboard-controller (1.19.4):
     - boost
     - DoubleConversion
     - fast_float
@@ -1835,7 +1835,7 @@ PODS:
     - React-graphics
     - React-ImageManager
     - React-jsi
-    - react-native-keyboard-controller/common (= 1.19.3)
+    - react-native-keyboard-controller/common (= 1.19.4)
     - React-NativeModulesApple
     - React-RCTFabric
     - React-renderercss
@@ -1846,7 +1846,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - react-native-keyboard-controller/common (1.19.3):
+  - react-native-keyboard-controller/common (1.19.4):
     - boost
     - DoubleConversion
     - fast_float
@@ -1932,7 +1932,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - react-native-safe-area-context (5.4.0):
+  - react-native-safe-area-context (5.6.2):
     - boost
     - DoubleConversion
     - fast_float
@@ -1950,8 +1950,8 @@ PODS:
     - React-graphics
     - React-ImageManager
     - React-jsi
-    - react-native-safe-area-context/common (= 5.4.0)
-    - react-native-safe-area-context/fabric (= 5.4.0)
+    - react-native-safe-area-context/common (= 5.6.2)
+    - react-native-safe-area-context/fabric (= 5.6.2)
     - React-NativeModulesApple
     - React-RCTFabric
     - React-renderercss
@@ -1962,7 +1962,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - react-native-safe-area-context/common (5.4.0):
+  - react-native-safe-area-context/common (5.6.2):
     - boost
     - DoubleConversion
     - fast_float
@@ -1990,7 +1990,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - react-native-safe-area-context/fabric (5.4.0):
+  - react-native-safe-area-context/fabric (5.6.2):
     - boost
     - DoubleConversion
     - fast_float
@@ -2616,7 +2616,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - RNGestureHandler (2.29.0):
+  - RNGestureHandler (2.29.1):
     - boost
     - DoubleConversion
     - fast_float
@@ -3244,10 +3244,10 @@ SPEC CHECKSUMS:
   react-native-blur: 6af83e7e3c4c1446a188d9b2c493600fc4beb173
   react-native-encrypted-storage: 569d114e329b1c2c2d9f8c84bcdbe4478dda2258
   react-native-get-random-values: d16467cf726c618e9c7a8c3c39c31faa2244bbba
-  react-native-keyboard-controller: ed5d70d3552602959cc428e6fec54aa41553fa34
+  react-native-keyboard-controller: 0570deee622929b04a0ca037f6076d3289ad01c7
   react-native-mmkv: ac7507625cd74bac0eb5333604a7cd7b08fe9e3e
   react-native-quick-crypto: dac9db2adb0a61b4881909b6db7c51eaaada66a8
-  react-native-safe-area-context: 84f35326241e8a61b9e3b6f69e1bf098da4c5642
+  react-native-safe-area-context: c00143b4823773bba23f2f19f85663ae89ceb460
   react-native-web-browser: bc106e2b98f1fc95d12aa5c5c36180481efbbf23
   React-NativeModulesApple: 628df250681ccb569bd203494ed5187269580d6f
   React-oscompat: 80ca388c4831481cd03a6b45ecfc82739ca9a95e
@@ -3283,7 +3283,7 @@ SPEC CHECKSUMS:
   ReactCommon: 25c7f94aee74ddd93a8287756a8ac0830a309544
   RNCAsyncStorage: 29f0230e1a25f36c20b05f65e2eb8958d6526e82
   RNCClipboard: 4b58c780f63676367640f23c8e114e9bd0cf86ac
-  RNGestureHandler: 6859520a21304f0bedf0643d0cf0beade47c83f2
+  RNGestureHandler: e1cf8ef3f11045536eed6bd4f132b003ef5f9a5f
   RNKeychain: bbe2f6d5cc008920324acb49ef86ccc03d3b38e4
   RNReanimated: 8f04e7cbd056f17496eedebfc3b012a705a1fd47
   RNScreens: d821082c6dd1cb397cc0c98b026eeafaa68be479

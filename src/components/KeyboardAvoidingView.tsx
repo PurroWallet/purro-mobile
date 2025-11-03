@@ -15,7 +15,7 @@ const KeyboardAvoidingView: FC<KeyboardAvoidingViewProps> = ({
   style,
   className,
 }) => {
-  const baseClasses = 'flex-1 bg-background-primary';
+  const baseClasses = 'flex-1 bg-primary';
   const paddingClasses = paddingHorizontal ? ' px-5' : '';
   const combinedClasses = `${baseClasses}${paddingClasses}${className ? ` ${className}` : ''}`;
 

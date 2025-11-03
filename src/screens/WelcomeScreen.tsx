@@ -16,7 +16,6 @@ const WelcomeScreen: React.FC = () => {
   const { t } = useTranslation();
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
-  const { themeMode } = useThemeMode();
 
   const ensureTermsAccepted = useCallback(() => {
     if (!acceptedTerms) {
@@ -127,19 +126,11 @@ const WelcomeScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background-primary">
+    <SafeAreaView className="flex-1 bg-primary">
       <View className="flex-1 items-center justify-center px-5">
         <View className="mb-8">
           <View className="h-[120px] w-[120px] items-center justify-center rounded-full bg-background-secondary">
-            <Icon
-              name="RabbyLogo"
-              size={60}
-              color={
-                themeMode === 'light'
-                  ? 'rgb(var(--color-brand-primary))'
-                  : 'rgb(var(--color-text-primary))'
-              }
-            />
+            <Icon name="RabbyLogo" size={60} />
           </View>
         </View>
 

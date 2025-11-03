@@ -133,7 +133,7 @@ const SeedPhraseVerifyScreen: React.FC = () => {
   }, [form, onSubmit]);
 
   return (
-    <SafeAreaView className="flex-1 bg-background-primary">
+    <SafeAreaView className="flex-1 bg-primary">
       <View className="flex-1 items-center justify-between px-5 pb-10 pt-5">
         <ProgressIndicator />
 

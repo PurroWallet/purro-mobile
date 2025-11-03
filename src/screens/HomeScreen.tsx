@@ -12,15 +12,14 @@ import {
 } from 'lucide-react-native';
 import React, { useRef, useState } from 'react';
 import { Alert, Image as RNImage, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import DefaultIcon from '@/assets/common/icon.png';
 import AccountBottomSheet, { type AccountBottomSheetRef } from '@/components/AccountBottomSheet';
 import { apisKeychain, apisLock, apisWallet } from '@/core/apis';
 import { useCurrentAccount } from '@/core/hooks/wallet/useCurrentAccount';
 import { useAppStore } from '@/stores/appStore';
 import { useTranslation } from '@/utils/i18n';
-import ReceiveTokenSheet, { ReceiveTokenSheetRef } from './components/ReceiveTokenSheet';
-import SentTokenSheet, { SentTokenSheetRef } from './components/SendTokenSheet';
+import ReceiveTokenSheet, { ReceiveTokenSheetRef } from './Home/components/ReceiveTokenSheet';
+import SentTokenSheet, { SentTokenSheetRef } from './Home/components/SendTokenSheet';
 
 interface Account {
   address: string;
@@ -62,7 +61,6 @@ const HomeScreen: React.FC = () => {
   } = useCurrentAccount();
   const currentAccount = currentAccountQuery as Account | null;
 
-  // Mock data
   const [perpPositions] = useState<PerpPosition[]>([
     {
       id: '1',
@@ -142,41 +140,36 @@ const HomeScreen: React.FC = () => {
   };
 
   return (
-    <View className="flex-1 bg-background-primary">
+    <View className="flex-1 bg-primary">
       {/* Header with Glassmorphism */}
-      <View className="bg-background-primary/75 backdrop-blur-md">
-        <SafeAreaView edges={['top']}>
-          {/* Status Bar Area */}
-          <View className="px-6 pt-5 pb-4">
-            {/* Account Info */}
-            <View className="flex-row items-center justify-between">
-              <TouchableOpacity
-                className="flex-row items-center gap-4"
-                onPress={() => accountBottomSheetRef.current?.present()}
-              >
-                <RNImage
-                  source={DefaultIcon}
-                  className="w-10 h-10 rounded-full border border-border-primary"
-                  resizeMode="cover"
-                />
-                <View>
-                  <Text className="text-text-secondary text-sm">
-                    {currentAccount?.address
-                      ? `${currentAccount.address.slice(0, 6)}...${currentAccount.address.slice(-4)}`
-                      : '@kycdict'}
-                  </Text>
-                  <Text className="text-text-primary text-2xl font-medium">
-                    {currentAccount?.alianName || 'Account 1'}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-
-              <TouchableOpacity>
-                <Search size={24} color="rgb(var(--color-text-primary))" />
-              </TouchableOpacity>
+      <View className="px-6 pt-5 pb-4">
+        {/* Account Info */}
+        <View className="flex-row items-center justify-between">
+          <TouchableOpacity
+            className="flex-row items-center gap-4"
+            onPress={() => accountBottomSheetRef.current?.present()}
+          >
+            <RNImage
+              source={DefaultIcon}
+              className="w-10 h-10 rounded-full border border-border-primary"
+              resizeMode="cover"
+            />
+            <View>
+              <Text className="text-text-secondary text-sm">
+                {currentAccount?.address
+                  ? `${currentAccount.address.slice(0, 6)}...${currentAccount.address.slice(-4)}`
+                  : '@kycdict'}
+              </Text>
+              <Text className="text-text-primary text-2xl font-medium">
+                {currentAccount?.alianName || 'Account 1'}
+              </Text>
             </View>
-          </View>
-        </SafeAreaView>
+          </TouchableOpacity>
+
+          <TouchableOpacity>
+            <Search size={24} color="rgb(var(--color-text-primary))" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>

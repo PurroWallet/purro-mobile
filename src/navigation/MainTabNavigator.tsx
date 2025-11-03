@@ -3,14 +3,15 @@ import { ArrowLeftRight, Compass, Home as HomeIcon, Image as ImageIcon } from 'l
 import { useColorScheme } from 'nativewind';
 import React from 'react';
 import { Text, View } from 'react-native';
-import HomeScreen from '@/screens/Home/HomeScreen';
+import { HomeScreen } from '@/screens';
+import SwapScreen from '@/screens/Swap/SwapScreen';
 import type { MainTabParamList } from '@/types/navigation';
 import { useTranslation } from '@/utils/i18n';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
 const PlaceholderScreen: React.FC<{ label: string }> = ({ label }) => (
-  <View className="flex-1 items-center justify-center bg-background-primary">
+  <View className="flex-1 items-center justify-center bg-primary">
     <Text className="text-text-primary text-lg font-medium">{label}</Text>
   </View>
 );
@@ -23,7 +24,6 @@ const createPlaceholderScreen = (key: string) => {
   return Screen;
 };
 
-const SwapScreen = createPlaceholderScreen('home.nav.swap');
 const NftScreen = createPlaceholderScreen('home.nav.nft');
 const DappsScreen = createPlaceholderScreen('home.nav.dapps');
 

@@ -52,7 +52,7 @@ const ImportMethodsScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background-primary">
+    <SafeAreaView className="flex-1 bg-primary">
       {/* Header */}
       <View className="flex-row items-center justify-between border-b border-border-secondary px-5 py-4">
         <TouchableOpacity

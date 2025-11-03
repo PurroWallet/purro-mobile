@@ -60,7 +60,7 @@ const SeedPhraseBackupScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background-primary">
+    <SafeAreaView className="flex-1 bg-primary">
       <StatusBar barStyle="light-content" backgroundColor="#161616" />
 
       <View className="flex-1 items-center justify-between px-5 py-5">

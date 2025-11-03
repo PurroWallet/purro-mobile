@@ -1,28 +1,26 @@
 import { BottomSheetBackgroundProps } from '@gorhom/bottom-sheet';
-import React, { useEffect, useMemo } from 'react';
-import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
+import React, { useMemo } from 'react';
+import Animated from 'react-native-reanimated';
 import { useThemeMode } from '@/core/hooks/useTheme';
 
 const CustomBackground: React.FC<BottomSheetBackgroundProps> = ({ style }) => {
   const { themeMode } = useThemeMode();
-  const isDarkMode = themeMode === 'dark';
-  const backgroundColor = useSharedValue(isDarkMode ? '#161616' : '#F9FAFB');
 
-  useEffect(() => {
-    backgroundColor.value = isDarkMode ? '#161616' : '#F9FAFB';
-  }, [backgroundColor, isDarkMode]);
+  const containerStyle = useMemo(() => {
+    const background = {
+      backgroundColor: themeMode === 'dark' ? '#161616' : '#F9FAFB',
+    };
 
-  const containerAnimatedStyle = useAnimatedStyle(
-    () => ({
-      backgroundColor: backgroundColor.value,
-    }),
-    [backgroundColor],
-  );
+    if (Array.isArray(style)) {
+      return [...style, background];
+    }
 
-  const containerStyle = useMemo(
-    () => [style, containerAnimatedStyle],
-    [style, containerAnimatedStyle],
-  );
+    if (style) {
+      return [style, background];
+    }
+
+    return [background];
+  }, [style, themeMode]);
 
   return <Animated.View pointerEvents="none" style={containerStyle} />;
 };

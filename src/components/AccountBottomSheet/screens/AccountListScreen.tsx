@@ -108,9 +108,6 @@ const AccountListScreen: React.FC<Props> = ({
   };
 
   const handleSettings = () => {
-    // Call the callback if provided
-    onSettings?.();
-    // Navigate to Settings screen
     navigation.navigate('Settings');
   };
 

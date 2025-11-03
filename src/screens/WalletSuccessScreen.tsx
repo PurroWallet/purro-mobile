@@ -21,7 +21,7 @@ const WalletSuccessScreen: React.FC<WalletSuccessScreenProps> = ({ navigation })
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background-primary">
+    <SafeAreaView className="flex-1 bg-primary">
       {/* Content */}
       <View className="flex-1 items-center justify-center gap-8 px-5">
         {/* Success Icon */}

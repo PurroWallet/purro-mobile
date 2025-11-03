@@ -76,7 +76,7 @@ const ImportSeedPhraseScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background-primary">
+    <SafeAreaView className="flex-1 bg-primary">
       <ScrollView className="flex-1 px-5">
         <View className="py-5">
           <Text className="text-h4 text-text-primary mb-2">{t('importSeedPhrase.title')}</Text>

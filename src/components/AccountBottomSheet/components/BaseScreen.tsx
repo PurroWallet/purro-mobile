@@ -82,7 +82,7 @@ const BaseScreen: React.FC<BaseScreenProps> = ({
   };
 
   return (
-    <View className="flex-1 bg-background-primary">
+    <View className="flex-1 bg-primary">
       {renderHeader()}
       {renderContent()}
       {footer && <View className="absolute bottom-0 left-0 right-0">{footer}</View>}

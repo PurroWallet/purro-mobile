@@ -73,8 +73,8 @@ const AccountBottomSheet = forwardRef<AccountBottomSheetRef, AccountBottomSheetP
     }, [navigation]);
 
     const handleSettings = useCallback(() => {
-      navigation.navigate('Settings');
-    }, [navigation]);
+      // Nested account stack handles navigation to Settings
+    }, []);
 
     // Expose present/dismiss methods
     useImperativeHandle(ref, () => ({

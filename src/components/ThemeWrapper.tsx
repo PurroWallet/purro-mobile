@@ -1,5 +1,5 @@
 import { useColorScheme } from 'nativewind';
-import React, { PropsWithChildren } from 'react';
+import React, { PropsWithChildren, useEffect } from 'react';
 import { View } from 'react-native';
 
 /**
@@ -9,14 +9,13 @@ import { View } from 'react-native';
 export const ThemeWrapper: React.FC<PropsWithChildren> = ({ children }) => {
   const { colorScheme } = useColorScheme();
 
-  console.log('🎨 ThemeWrapper - Current colorScheme:', colorScheme);
+  useEffect(() => {
+    console.log('🎨 ThemeWrapper - Current colorScheme:', colorScheme);
+    console.log('🎨 ThemeWrapper - Dark mode active:', colorScheme === 'dark');
+  }, [colorScheme]);
 
-  return (
-    <View
-      className="flex-1"
-      style={{ backgroundColor: colorScheme === 'dark' ? '#161616' : '#F9FAFB' }}
-    >
-      {children}
-    </View>
-  );
+  const containerClassName =
+    colorScheme === 'dark' ? 'flex-1 dark bg-primary' : 'flex-1 bg-primary';
+
+  return <View className={containerClassName}>{children}</View>;
 };

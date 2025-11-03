@@ -5,6 +5,7 @@ import {
   type ControllerProps,
   type FieldValues,
   type Path,
+  RegisterOptions,
   useFormContext,
 } from 'react-hook-form';
 import { TextInput as RNTextInput, Switch, Text, TouchableOpacity, View } from 'react-native';
@@ -12,27 +13,51 @@ import { Icon } from '@/components/Icon';
 import { Colors } from '@/constants/colors';
 import { useTranslation } from '@/utils/i18n';
 
-type CommonInputProps<TFieldValues extends FieldValues> = {
-  name: Path<TFieldValues>;
-  label: string;
-  helperText?: string;
-  rules?: ControllerProps<TFieldValues, Path<TFieldValues>>['rules'];
-};
+export type InputSize = 'sm' | 'md' | 'lg';
 
-type TextInputExtraProps = Omit<
-  ComponentProps<typeof RNTextInput>,
+export type TextInputExtraProps = Omit<
+  React.ComponentProps<typeof RNTextInput>,
   'value' | 'onChangeText' | 'onBlur'
 >;
+
+export interface CommonInputProps<TFieldValues extends FieldValues = FieldValues> {
+  name: Path<TFieldValues>;
+  label?: string;
+  helperText?: string;
+  rules?: RegisterOptions<TFieldValues>;
+  size?: InputSize;
+}
+
+const sizeClasses: Record<InputSize, string> = {
+  sm: 'px-3 py-2',
+  md: 'px-4 py-3',
+  lg: 'px-5 py-4',
+};
+
+const labelSizeClasses: Record<InputSize, string> = {
+  sm: 'text-xs',
+  md: 'text-sm',
+  lg: 'text-base',
+};
+
+const helperTextSizeClasses: Record<InputSize, string> = {
+  sm: 'text-xs',
+  md: 'text-sm',
+  lg: 'text-sm',
+};
 
 export function FormInput<TFieldValues extends FieldValues = FieldValues>({
   name,
   label,
   helperText,
   rules,
+  size = 'lg',
   ...rest
 }: CommonInputProps<TFieldValues> & TextInputExtraProps) {
   const { control } = useFormContext<TFieldValues>();
   const { t } = useTranslation();
+
+  const currentSize: InputSize = size ?? 'lg';
 
   return (
     <Controller
@@ -41,19 +66,25 @@ export function FormInput<TFieldValues extends FieldValues = FieldValues>({
       rules={rules}
       render={({ field, fieldState }) => (
         <View>
-          <Text className="mb-2 text-sm font-medium text-gray-700">{label}</Text>
+          {label && (
+            <Text className={`mb-2 font-medium text-gray-700 ${labelSizeClasses[currentSize]}`}>
+              {label}
+            </Text>
+          )}
           <RNTextInput
             {...rest}
             value={field.value ?? ''}
             onChangeText={field.onChange}
             onBlur={field.onBlur}
-            className={`rounded-xl border px-4 py-3 ${
+            className={`rounded-xl border ${sizeClasses[currentSize]} ${
               fieldState.error ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-white'
             }`}
           />
           {fieldState.error?.message || helperText ? (
             <Text
-              className={`mt-1.5 text-sm ${fieldState.error ? 'text-red-500' : 'text-gray-500'}`}
+              className={`mt-1.5 ${helperTextSizeClasses[currentSize]} ${
+                fieldState.error ? 'text-red-500' : 'text-gray-500'
+              }`}
             >
               {fieldState.error?.message
                 ? t(fieldState.error.message, fieldState.error.message ?? {})
@@ -71,11 +102,16 @@ export function PasswordInputForm<TFieldValues extends FieldValues = FieldValues
   label,
   helperText,
   rules,
+  size = 'lg',
   ...rest
 }: CommonInputProps<TFieldValues> & TextInputExtraProps) {
   const { control } = useFormContext<TFieldValues>();
   const [showPassword, setShowPassword] = React.useState(false);
   const { t } = useTranslation();
+
+  const currentSize: InputSize = size ?? 'lg';
+  const iconSize = currentSize === 'sm' ? 18 : currentSize === 'lg' ? 22 : 20;
+  const iconPosition = currentSize === 'sm' ? 'top-2' : currentSize === 'lg' ? 'top-4' : 'top-3';
 
   return (
     <Controller
@@ -84,7 +120,11 @@ export function PasswordInputForm<TFieldValues extends FieldValues = FieldValues
       rules={rules}
       render={({ field, fieldState }) => (
         <View>
-          <Text className="mb-2 text-sm font-medium text-gray-700">{label}</Text>
+          {label && (
+            <Text className={`mb-2 font-medium text-gray-700 ${labelSizeClasses[currentSize]}`}>
+              {label}
+            </Text>
+          )}
           <View className="relative">
             <RNTextInput
               {...rest}
@@ -92,24 +132,26 @@ export function PasswordInputForm<TFieldValues extends FieldValues = FieldValues
               onChangeText={field.onChange}
               onBlur={field.onBlur}
               secureTextEntry={!showPassword}
-              className={`rounded-xl border px-4 py-3 pr-12 ${
+              className={`rounded-xl border pr-12 ${sizeClasses[currentSize]} ${
                 fieldState.error ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-white'
               }`}
             />
             <TouchableOpacity
               onPress={() => setShowPassword(!showPassword)}
-              className="absolute right-4 top-3"
+              className={`absolute right-4 ${iconPosition}`}
             >
               <Icon
                 name={showPassword ? 'EyeOff' : 'Eye'}
-                size={20}
+                size={iconSize}
                 color={Colors.text.secondary}
               />
             </TouchableOpacity>
           </View>
           {fieldState.error?.message || helperText ? (
             <Text
-              className={`mt-1.5 text-sm ${fieldState.error ? 'text-red-500' : 'text-gray-500'}`}
+              className={`mt-1.5 ${helperTextSizeClasses[currentSize]} ${
+                fieldState.error ? 'text-red-500' : 'text-gray-500'
+              }`}
             >
               {fieldState.error?.message
                 ? t(fieldState.error.message, fieldState.error.message ?? {})

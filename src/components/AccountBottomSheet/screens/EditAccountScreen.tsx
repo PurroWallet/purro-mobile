@@ -96,7 +96,7 @@ const EditAccountScreen: React.FC = () => {
 
   if (!account) {
     return (
-      <View className="flex-1 items-center justify-center bg-background-primary">
+      <View className="flex-1 items-center justify-center bg-primary">
         <Text className="text-text-primary">{t('common.loading')}</Text>
       </View>
     );

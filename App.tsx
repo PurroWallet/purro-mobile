@@ -27,7 +27,6 @@ import { useAppPreventScreenshotOnScreen } from '@/core/hooks/native/security';
 import { screenProtection } from '@/core/services/screenProtection';
 import { web3AuthService } from '@/core/services/Web3AuthService';
 import { excludeFilesFromBackup } from '@/core/utils/appFS';
-import { ThemeProvider } from '@/providers/ThemeProvider';
 import { useAppStore } from '@/stores/appStore';
 import MainTabNavigator from './src/navigation/MainTabNavigator';
 // CRITICAL: Polyfills are now loaded in index.js at the very top with proper order
@@ -118,89 +117,84 @@ const App: React.FC = () => {
   }
 
   return (
-    <KeyboardProvider>
-      <GestureHandlerRootView className="flex-1">
+    <GestureHandlerRootView className="flex-1">
+      <KeyboardProvider>
         <BottomSheetModalProvider>
           <PrivacyBlur>
             <QueryClientProvider client={queryClient}>
-              <ThemeProvider>
-                <ThemeWrapper>
-                  <NavigationContainer>
-                    <StatusBar barStyle="light-content" backgroundColor="#161616" />
-                    <Stack.Navigator
-                      initialRouteName={initialRoute as keyof RootStackParamList}
-                      screenOptions={{
-                        headerShown: false,
-                        animation: 'simple_push',
-                        contentStyle: {
-                          backgroundColor: '#161616',
-                        },
+              <ThemeWrapper>
+                <NavigationContainer>
+                  <StatusBar barStyle="light-content" backgroundColor="#161616" />
+                  <Stack.Navigator
+                    initialRouteName={initialRoute as keyof RootStackParamList}
+                    screenOptions={{
+                      headerShown: false,
+                      animation: 'simple_push',
+                    }}
+                  >
+                    {/* Onboarding Flow */}
+                    <Stack.Screen name="Welcome" component={WelcomeScreen} />
+                    <Stack.Screen
+                      name="SeedPhraseDisplay"
+                      component={SeedPhraseDisplayScreen}
+                      options={{
+                        gestureEnabled: false,
                       }}
-                    >
-                      {/* Onboarding Flow */}
-                      <Stack.Screen name="Welcome" component={WelcomeScreen} />
-                      <Stack.Screen
-                        name="SeedPhraseDisplay"
-                        component={SeedPhraseDisplayScreen}
-                        options={{
-                          gestureEnabled: false, // Prevent swipe back on seed phrase screen
-                        }}
-                      />
-                      <Stack.Screen
-                        name="SeedPhraseVerify"
-                        component={SeedPhraseVerifyScreen}
-                        options={{
-                          gestureEnabled: false,
-                        }}
-                      />
-                      <Stack.Screen
-                        name="CreatePassword"
-                        component={CreatePasswordScreen}
-                        options={{
-                          gestureEnabled: false,
-                        }}
-                      />
-                      <Stack.Screen
-                        name="WalletSuccess"
-                        component={WalletSuccessScreen}
-                        options={{
-                          gestureEnabled: false,
-                        }}
-                      />
+                    />
+                    <Stack.Screen
+                      name="SeedPhraseVerify"
+                      component={SeedPhraseVerifyScreen}
+                      options={{
+                        gestureEnabled: false,
+                      }}
+                    />
+                    <Stack.Screen
+                      name="CreatePassword"
+                      component={CreatePasswordScreen}
+                      options={{
+                        gestureEnabled: false,
+                      }}
+                    />
+                    <Stack.Screen
+                      name="WalletSuccess"
+                      component={WalletSuccessScreen}
+                      options={{
+                        gestureEnabled: false,
+                      }}
+                    />
 
-                      {/* Auth Flow */}
-                      <Stack.Screen
-                        name="Unlock"
-                        component={UnlockScreen}
-                        options={{
-                          gestureEnabled: false, // Prevent swipe back on unlock screen
-                        }}
-                      />
+                    {/* Auth Flow */}
+                    <Stack.Screen
+                      name="Unlock"
+                      component={UnlockScreen}
+                      options={{
+                        gestureEnabled: false, // Prevent swipe back on unlock screen
+                      }}
+                    />
 
-                      {/* Import Flow */}
-                      <Stack.Screen name="ImportMethods" component={ImportMethodsScreen} />
-                      <Stack.Screen name="ImportSeedPhrase" component={ImportSeedPhraseScreen} />
-                      <Stack.Screen name="ImportPrivateKey" component={ImportPrivateKeyScreen} />
-                      <Stack.Screen name="ImportWallet" component={ImportWalletScreen} />
+                    {/* Import Flow */}
+                    <Stack.Screen name="ImportMethods" component={ImportMethodsScreen} />
+                    <Stack.Screen name="ImportSeedPhrase" component={ImportSeedPhraseScreen} />
+                    <Stack.Screen name="ImportPrivateKey" component={ImportPrivateKeyScreen} />
+                    <Stack.Screen name="ImportWallet" component={ImportWalletScreen} />
 
-                      {/* Backup Flow */}
-                      <Stack.Screen name="SeedPhraseBackup" component={SeedPhraseBackupScreen} />
+                    {/* Backup Flow */}
+                    <Stack.Screen name="SeedPhraseBackup" component={SeedPhraseBackupScreen} />
 
-                      {/* Main App Flow */}
-                      <Stack.Screen name="Home" component={MainTabNavigator} />
-                    </Stack.Navigator>
+                    {/* Main App Flow */}
+                    <Stack.Screen name="Home" component={MainTabNavigator} />
+                  </Stack.Navigator>
 
-                    {/* Screenshot protection components (Rabby pattern) */}
-                    <BackgroundSecureBlurView />
-                    <GlobalSecurityTipStubModal />
-                  </NavigationContainer>
-                </ThemeWrapper>
-              </ThemeProvider>
+                  {/* Screenshot protection components (Rabby pattern) */}
+                  <BackgroundSecureBlurView />
+                  <GlobalSecurityTipStubModal />
+                </NavigationContainer>
+              </ThemeWrapper>
             </QueryClientProvider>
           </PrivacyBlur>
         </BottomSheetModalProvider>
-      </GestureHandlerRootView>
-    </KeyboardProvider>
+      </KeyboardProvider>
+    </GestureHandlerRootView>
   );
 };
 

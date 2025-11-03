@@ -23,11 +23,9 @@ async function fetchCurrentAccount(): Promise<WalletAccount | null> {
     if (allAccounts.length > 0) {
       const fallback = allAccounts[0];
       walletController.setCurrentAccount(fallback.address);
-      console.log('✅ useCurrentAccount - Fallback to first account', fallback.address);
       return fallback;
     }
 
-    console.log('⚠️ useCurrentAccount - No accounts available');
     return null;
   } catch (error) {
     console.error('❌ useCurrentAccount - Failed to fetch account', error);
