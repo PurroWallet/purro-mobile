@@ -1,7 +1,7 @@
-import { useColorScheme } from 'nativewind';
 import React from 'react';
 import type { ViewProps } from 'react-native';
 import { View } from 'react-native';
+import { useThemeMode } from '@/core/hooks/useTheme';
 import { useIcon } from './useIcon';
 
 export interface IconProps extends Pick<ViewProps, 'className' | 'style'> {
@@ -20,10 +20,11 @@ export const Icon: React.FC<IconProps> = ({
   style,
 }) => {
   const resolution = useIcon(name);
-  const { colorScheme } = useColorScheme();
+  const { themeMode } = useThemeMode();
+  const isDark = themeMode === 'dark';
 
-  // Nếu không truyền color, dùng màu mặc định theo theme
-  const defaultColor = colorScheme === 'dark' ? '#ffffff' : '#000000';
+  // Default color - you can adjust this based on your theme
+  const defaultColor = isDark ? '#FFFFFF' : '#000000';
   const iconColor = color ?? defaultColor;
 
   if (resolution.type === 'lucide') {

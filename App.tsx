@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Platform, StatusBar, View } from 'react-native';
+import BootSplash from 'react-native-bootsplash';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import './global.css';
@@ -105,6 +106,12 @@ const App: React.FC = () => {
       screenProtection.cleanup();
     };
   }, [setRoute, setWalletExists, setWalletUnlocked]);
+
+  useEffect(() => {
+    if (initialRoute !== null) {
+      BootSplash.hide({ fade: true }).catch(() => {});
+    }
+  }, [initialRoute]);
 
   if (initialRoute === null) {
     return (

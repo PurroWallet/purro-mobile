@@ -1,9 +1,8 @@
-import { BottomSheetView } from '@gorhom/bottom-sheet';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Check } from 'lucide-react-native';
 import React from 'react';
 import { Text, View } from 'react-native';
 import { Button } from '@/components';
+import { Icon } from '@/components/Icon';
 import type { AccountStackParamList } from '../AccountStackNavigator';
 import BaseScreen from '../components/BaseScreen';
 
@@ -33,7 +32,7 @@ const SuccessScreen: React.FC<Props> = ({ navigation, onClose, route }) => {
       <View className="flex-1 items-center justify-center px-5 py-10">
         {/* Success Icon */}
         <View className="mb-6 h-20 w-20 items-center justify-center rounded-full bg-brand-primary/20">
-          <Check size={40} />
+          <Icon name="check" size={40} />
         </View>
 
         {/* Title */}

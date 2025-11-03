@@ -38,8 +38,11 @@ const getInitialTheme = (): ThemeMode => {
   return 'light';
 };
 
+const initialThemeMode = getInitialTheme();
+applyTheme(initialThemeMode, false);
+
 export const useThemeStore = create<ThemeState>()((set, get) => ({
-  themeMode: getInitialTheme(),
+  themeMode: initialThemeMode,
   setThemeMode: (mode, options) => {
     const persist = options?.persist ?? true;
     applyTheme(mode, persist);

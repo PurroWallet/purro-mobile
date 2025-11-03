@@ -1,19 +1,10 @@
 import { useFocusEffect } from '@react-navigation/native';
-import {
-  ArrowDownToLine,
-  ChevronDown,
-  // Bell,
-  ChevronRight,
-  GitBranch,
-  Plus,
-  Repeat,
-  Search,
-  Send,
-} from 'lucide-react-native';
 import React, { useRef, useState } from 'react';
 import { Alert, Image as RNImage, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import DefaultIcon from '@/assets/common/icon.png';
 import AccountBottomSheet, { type AccountBottomSheetRef } from '@/components/AccountBottomSheet';
+import { Icon } from '@/components/Icon';
 import { apisKeychain, apisLock, apisWallet } from '@/core/apis';
 import { useCurrentAccount } from '@/core/hooks/wallet/useCurrentAccount';
 import { useAppStore } from '@/stores/appStore';
@@ -140,9 +131,9 @@ const HomeScreen: React.FC = () => {
   };
 
   return (
-    <View className="flex-1 bg-primary">
+    <SafeAreaView className="flex-1 bg-primary">
       {/* Header with Glassmorphism */}
-      <View className="px-6 pt-5 pb-4">
+      <View className="px-6 pt-5 pb-2">
         {/* Account Info */}
         <View className="flex-row items-center justify-between">
           <TouchableOpacity
@@ -167,7 +158,7 @@ const HomeScreen: React.FC = () => {
           </TouchableOpacity>
 
           <TouchableOpacity>
-            <Search size={24} color="rgb(var(--color-text-primary))" />
+            <Icon name="search" size={24} />
           </TouchableOpacity>
         </View>
       </View>
@@ -185,7 +176,7 @@ const HomeScreen: React.FC = () => {
             className="flex-1 items-center gap-3 rounded-xl bg-background-secondary py-4"
             onPress={() => sentTokenSheetRef.current?.present()}
           >
-            <Send size={24} />
+            <Icon name="send" size={24} />
             <Text className="text-text-primary text-sm">{t('home.send')}</Text>
           </TouchableOpacity>
 
@@ -193,23 +184,27 @@ const HomeScreen: React.FC = () => {
             className="flex-1 rounded-xl bg-background-secondary py-4 items-center gap-3"
             onPress={() => receiveTokenSheetRef.current?.present()}
           >
-            <ArrowDownToLine size={24} />
+            <Icon name="arrow-down-to-line" size={24} />
             <Text className="text-text-primary text-sm">{t('home.receive')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity className="flex-1 rounded-xl bg-background-secondary py-4 items-center gap-3">
-            <Repeat size={24} />
+            <Icon name="repeat" size={24} />
             <Text className="text-text-primary text-sm">{t('home.swap')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity className="flex-1 rounded-xl bg-background-secondary py-4 items-center gap-3">
-            <GitBranch size={24} />
+            <Icon name="git-branch" size={24} />
             <Text className="text-text-primary text-sm">{t('home.bridge')}</Text>
           </TouchableOpacity>
         </View>
         {/* Accounts Horizontal Scroll */}
-        <View className="pb-0">
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <View className="pb-0 px-6">
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ gap: 8 }}
+          >
             <View className="rounded-xl bg-background-secondary/60 px-4 py-4 flex-row items-center gap-3.5 min-w-[320px]">
               <RNImage
                 source={DefaultIcon}
@@ -222,7 +217,7 @@ const HomeScreen: React.FC = () => {
                   {t('home.createAccountDescription')}
                 </Text>
               </View>
-              <ChevronRight size={24} color="rgb(var(--color-text-primary))" />
+              <Icon name="chevron-right" size={24} />
             </View>
 
             <View className="rounded-xl bg-background-secondary/60 px-4 py-4 flex-row items-center gap-3.5 min-w-[320px]">
@@ -237,7 +232,7 @@ const HomeScreen: React.FC = () => {
                   {t('home.createAccountDescription')}
                 </Text>
               </View>
-              <ChevronRight size={24} color="rgb(var(--color-text-primary))" />
+              <Icon name="chevron-right" size={24} />
             </View>
           </ScrollView>
         </View>
@@ -322,7 +317,7 @@ const HomeScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
 
-            <ChevronDown size={20} color="rgb(var(--color-text-primary))" />
+            <Icon name="chevron-down" size={20} />
           </View>
 
           {/* Balance Cards */}
@@ -359,7 +354,7 @@ const HomeScreen: React.FC = () => {
 
           {/* Add Token Button */}
           <TouchableOpacity className="rounded-xl bg-background-secondary px-4 py-6 flex-row items-center justify-center gap-2">
-            <Plus size={16} color="rgb(var(--color-text-primary))" />
+            <Icon name="plus" size={16} />
             <Text className="text-text-primary text-base text-right">
               {t('home.addTestnetToken')}
             </Text>
@@ -380,7 +375,7 @@ const HomeScreen: React.FC = () => {
         onAccountSelect={handleAccountSelect}
         onResetWallet={handleResetWallet}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 

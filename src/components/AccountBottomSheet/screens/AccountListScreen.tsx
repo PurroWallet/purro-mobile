@@ -1,7 +1,6 @@
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { ChevronRight, Edit2 } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
 import DefaultIcon from '@/assets/common/icon.png';

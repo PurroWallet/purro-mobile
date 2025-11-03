@@ -1,28 +1,20 @@
 import { BottomSheetBackgroundProps } from '@gorhom/bottom-sheet';
-import React, { useMemo } from 'react';
+import React from 'react';
 import Animated from 'react-native-reanimated';
 import { useThemeMode } from '@/core/hooks/useTheme';
 
 const CustomBackground: React.FC<BottomSheetBackgroundProps> = ({ style }) => {
   const { themeMode } = useThemeMode();
 
-  const containerStyle = useMemo(() => {
-    const background = {
-      backgroundColor: themeMode === 'dark' ? '#161616' : '#F9FAFB',
-    };
+  console.log(themeMode);
 
-    if (Array.isArray(style)) {
-      return [...style, background];
-    }
-
-    if (style) {
-      return [style, background];
-    }
-
-    return [background];
-  }, [style, themeMode]);
-
-  return <Animated.View pointerEvents="none" style={containerStyle} />;
+  return (
+    <Animated.View
+      pointerEvents="none"
+      className={themeMode === 'dark' ? 'bg-[#161616]' : 'bg-[#F9FAFB]'}
+      style={style}
+    />
+  );
 };
 
 export default CustomBackground;
