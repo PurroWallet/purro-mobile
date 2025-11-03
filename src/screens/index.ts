@@ -1,6 +1,6 @@
 // Export all screens
 export { default as CreatePasswordScreen } from './CreatePasswordScreen';
-export { default as HomeScreen } from './HomeScreen';
+export { default as HomeScreen } from './Home/HomeScreen';
 export { default as ImportMethodsScreen } from './ImportMethodsScreen';
 export { default as ImportPrivateKeyScreen } from './ImportPrivateKeyScreen';
 export { default as ImportSeedPhraseScreen } from './ImportSeedPhraseScreen';

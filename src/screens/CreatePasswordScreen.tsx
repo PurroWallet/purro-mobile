@@ -39,8 +39,6 @@ const CreatePasswordScreen: React.FC = () => {
     mode: 'onChange',
   });
 
-  const passwordValue = form.watch('password') ?? '';
-  const confirmPasswordValue = form.watch('confirmPassword') ?? '';
   const isValid = form.formState.isValid;
 
   const handleCreateWallet = async (values: CreatePasswordFormValues) => {
