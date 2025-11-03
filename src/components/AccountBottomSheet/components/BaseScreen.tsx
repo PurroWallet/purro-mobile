@@ -1,4 +1,3 @@
-import { useColorScheme } from 'nativewind';
 import React from 'react';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -34,8 +33,6 @@ const BaseScreen: React.FC<BaseScreenProps> = ({
   contentContainerStyle,
 }) => {
   const { top: topSafeArea } = useSafeAreaInsets();
-  const { colorScheme } = useColorScheme();
-  const isDarkMode = colorScheme === 'dark';
 
   const formatAddress = (address: string) => {
     if (!address) return '';
@@ -55,14 +52,10 @@ const BaseScreen: React.FC<BaseScreenProps> = ({
           <View className="flex-row items-center justify-center px-6 my-4 py-2">
             <Image source={DefaultIcon} className="w-9 h-9 rounded-full mr-3" resizeMode="cover" />
             <View className="flex-1">
-              <Text
-                className={`text-base font-semibold mb-1 ${
-                  isDarkMode ? 'text-gray-100' : 'text-gray-900'
-                }`}
-              >
+              <Text className="text-base font-semibold mb-1 text-text-primary">
                 {currentAccountName}
               </Text>
-              <Text className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              <Text className="text-xs text-text-secondary">
                 {formatAddress(currentAccountAddress || '')}
               </Text>
             </View>
@@ -71,7 +64,7 @@ const BaseScreen: React.FC<BaseScreenProps> = ({
                 onPress={onSettings}
                 className="w-6 h-6 items-center justify-center"
               >
-                <Icon name="Settings" size={24} color={isDarkMode ? '#F9F9F9' : '#161616'} />
+                <Icon name="Settings" size={24} />
               </TouchableOpacity>
             )}
           </View>
@@ -89,7 +82,7 @@ const BaseScreen: React.FC<BaseScreenProps> = ({
   };
 
   return (
-    <View className={`flex-1 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+    <View className="flex-1 bg-background-primary">
       {renderHeader()}
       {renderContent()}
       {footer && <View className="absolute bottom-0 left-0 right-0">{footer}</View>}

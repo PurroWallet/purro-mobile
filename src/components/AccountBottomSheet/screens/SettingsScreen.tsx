@@ -1,22 +1,24 @@
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import type { NavigationProp } from '@react-navigation/native';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useColorScheme } from 'nativewind';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Alert, ScrollView, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from '@/components/Icon';
 import ThemeToggle from '@/components/ThemeToggle';
 import { apisKeychain, apisLock, apisWallet } from '@/core/apis';
 import { useBiometrics } from '@/core/hooks/biometrics';
+import { useThemeMode } from '@/core/hooks/useTheme';
 import { KEYCHAIN_AUTH_TYPES } from '@/core/services/keychain';
 import { useAppStore } from '@/stores/appStore';
 import type { ThemeMode } from '@/theme';
+import type { RootStackParamList } from '@/types/navigation';
 import { useTranslation } from '@/utils/i18n';
 import type { AccountStackParamList } from '../AccountStackNavigator';
 import BaseScreen from '../components/BaseScreen';
 
-type Props = NativeStackScreenProps<AccountStackParamList, 'Settings'> & {
-  parentNavigation: NavigationProp<any>;
+type Props = {
+  parentNavigation?: NavigationProp<RootStackParamList>;
 };
 
 interface SettingsOption {
@@ -66,11 +68,12 @@ const SectionHeader: React.FC<{ title: string }> = ({ title }) => (
   </View>
 );
 
-const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
+const SettingsScreen: React.FC<Props> = ({ parentNavigation }) => {
+  const navigation = useNavigation<NativeStackNavigationProp<AccountStackParamList, 'Settings'>>();
   const setWalletExists = useAppStore((state) => state.setWalletExists);
   const { t } = useTranslation();
-  const { colorScheme, setColorScheme } = useColorScheme();
-  const isDarkMode = colorScheme === 'dark';
+  const { themeMode, setThemeMode } = useThemeMode();
+  const isDarkMode = themeMode === 'dark';
   const {
     computed: { isBiometricsEnabled, defaultTypeLabel, couldSetupBiometrics },
     toggleBiometrics,
@@ -208,7 +211,8 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
   };
 
   const handleChangeTheme = (nextMode: ThemeMode) => {
-    setColorScheme(nextMode);
+    console.log('🎨 SettingsScreen - Changing theme to:', nextMode);
+    setThemeMode(nextMode);
   };
 
   const themeToggleOptions = useMemo(() => {

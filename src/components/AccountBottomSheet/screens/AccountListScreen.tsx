@@ -1,9 +1,7 @@
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import type { NavigationProp } from '@react-navigation/native';
-import { useFocusEffect } from '@react-navigation/native';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ChevronRight, Edit2 } from 'lucide-react-native';
-import { useColorScheme } from 'nativewind';
 import React, { useEffect, useState } from 'react';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
 import DefaultIcon from '@/assets/common/icon.png';
@@ -13,12 +11,10 @@ import { walletController } from '@/core/controllers/WalletController';
 import type { AccountStackParamList } from '../AccountStackNavigator';
 import BaseScreen from '../components/BaseScreen';
 
-type Props = NativeStackScreenProps<AccountStackParamList, 'AccountList'> & {
+type Props = {
   onClose: () => void;
   currentAccount: any;
   onAccountSelect: (account: any) => void;
-  parentNavigation: NavigationProp<any>;
-  isDarkMode: boolean;
   onAddAccount?: () => void;
   onSettings?: () => void;
 };
@@ -38,18 +34,15 @@ interface Network {
 }
 
 const AccountListScreen: React.FC<Props> = ({
-  navigation,
   onClose,
   currentAccount,
   onAccountSelect,
-  parentNavigation: _parentNavigation,
-  isDarkMode,
   onAddAccount,
   onSettings,
 }) => {
+  const navigation =
+    useNavigation<NativeStackNavigationProp<AccountStackParamList, 'AccountList'>>();
   const [accounts, setAccounts] = useState<Account[]>([]);
-  const { colorScheme } = useColorScheme();
-  const darkMode = colorScheme === 'dark';
 
   // Mock networks data based on Figma design
   const networks: Network[] = [

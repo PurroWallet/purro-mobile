@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/native';
 import React, { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -7,10 +8,11 @@ import { useThemeMode } from '@/core/hooks/useTheme';
 import { walletService } from '@/core/services';
 import { keyringService } from '@/core/services/KeyringService';
 import { SocialLoginResult, web3AuthService } from '@/core/services/Web3AuthService';
-import type { WelcomeScreenProps } from '@/types/navigation';
+import type { NavigationProp, RootStackParamList } from '@/types/navigation';
 import { useTranslation } from '@/utils/i18n';
 
-const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
+const WelcomeScreen: React.FC = () => {
+  const navigation = useNavigation<NavigationProp<'Welcome'>>();
   const { t } = useTranslation();
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [loadingProvider, setLoadingProvider] = useState<string | null>(null);

@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { FormProvider } from 'react-hook-form';
 import { Alert, StatusBar, Text, View } from 'react-native';
@@ -6,7 +7,7 @@ import { z } from 'zod';
 import { Button, PasswordInputForm } from '@/components';
 import { apisWallet } from '@/core/apis';
 import { useZodForm, ZodFormValues } from '@/core/hooks/form/useZodForm';
-import { SeedPhraseBackupScreenProps } from '@/types/navigation';
+import type { NavigationProp } from '@/types/navigation';
 import { useTranslation } from '@/utils/i18n';
 
 const unlockSchema = z.object({
@@ -15,7 +16,8 @@ const unlockSchema = z.object({
 
 type UnlockFormValues = ZodFormValues<typeof unlockSchema>;
 
-const SeedPhraseBackupScreen: React.FC<SeedPhraseBackupScreenProps> = ({ navigation }) => {
+const SeedPhraseBackupScreen: React.FC = () => {
+  const navigation = useNavigation<NavigationProp<'SeedPhraseBackup'>>();
   const { t } = useTranslation();
   const [isUnlocking, setIsUnlocking] = useState(false);
 

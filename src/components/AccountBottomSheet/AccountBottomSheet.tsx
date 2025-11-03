@@ -1,8 +1,8 @@
 import { BottomSheetBackdrop, BottomSheetModal } from '@gorhom/bottom-sheet';
 import type { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
-import type { NavigationProp } from '@react-navigation/native';
-import { useColorScheme } from 'nativewind';
+import { type NavigationProp, useNavigation } from '@react-navigation/native';
 import React, { forwardRef, useCallback, useImperativeHandle, useMemo, useRef } from 'react';
+import type { RootStackParamList } from '@/types/navigation';
 import AccountStackNavigator from './AccountStackNavigator';
 import CustomBackground from './CustomBackground';
 
@@ -27,9 +27,8 @@ export interface AccountBottomSheetRef {
 
 const AccountBottomSheet = forwardRef<AccountBottomSheetRef, AccountBottomSheetProps>(
   ({ onClose, currentAccount, onAccountSelect, onResetWallet }, ref) => {
+    const navigation = useNavigation<NavigationProp<any>>();
     const bottomSheetRef = useRef<BottomSheetModalMethods>(null);
-    const { colorScheme } = useColorScheme();
-    const isDarkMode = colorScheme === 'dark';
 
     // Snap points for the bottom sheet - using fixed height for navigator
     const snapPoints = useMemo(() => ['90%'], []);
@@ -101,7 +100,6 @@ const AccountBottomSheet = forwardRef<AccountBottomSheetRef, AccountBottomSheetP
           }
         }}
         style={{
-          backgroundColor: isDarkMode ? '#373B43' : '#ffffff',
           borderTopLeftRadius: 20,
           borderTopRightRadius: 20,
           overflow: 'hidden',
@@ -115,7 +113,7 @@ const AccountBottomSheet = forwardRef<AccountBottomSheetRef, AccountBottomSheetP
           onClose={onClose}
           currentAccount={currentAccount}
           onAccountSelect={onAccountSelect}
-          onResetWallet={onResetWallet}
+          parentNavigation={navigation as NavigationProp<RootStackParamList>}
           onAddAccount={handleAddAccount}
           onSettings={handleSettings}
         />

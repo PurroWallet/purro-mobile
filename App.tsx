@@ -7,6 +7,7 @@ import { ActivityIndicator, Platform, StatusBar, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import './global.css';
+
 // Disable DevTools to prevent crypto polyfill issues
 if (__DEV__) {
   // @ts-ignore
@@ -20,6 +21,7 @@ if (__DEV__) {
 import { BackgroundSecureBlurView } from '@/components/customized/BlurViews';
 import { PrivacyBlur } from '@/components/PrivacyBlur';
 import { GlobalSecurityTipStubModal } from '@/components/SecurityTipStubModal';
+import { ThemeWrapper } from '@/components/ThemeWrapper';
 import { apisWallet } from '@/core/apis/wallet';
 import { useAppPreventScreenshotOnScreen } from '@/core/hooks/native/security';
 import { screenProtection } from '@/core/services/screenProtection';
@@ -122,75 +124,77 @@ const App: React.FC = () => {
           <PrivacyBlur>
             <QueryClientProvider client={queryClient}>
               <ThemeProvider>
-                <NavigationContainer>
-                  <StatusBar barStyle="light-content" backgroundColor="#161616" />
-                  <Stack.Navigator
-                    initialRouteName={initialRoute as keyof RootStackParamList}
-                    screenOptions={{
-                      headerShown: false,
-                      animation: 'simple_push',
-                      contentStyle: {
-                        backgroundColor: '#161616',
-                      },
-                    }}
-                  >
-                    {/* Onboarding Flow */}
-                    <Stack.Screen name="Welcome" component={WelcomeScreen} />
-                    <Stack.Screen
-                      name="SeedPhraseDisplay"
-                      component={SeedPhraseDisplayScreen}
-                      options={{
-                        gestureEnabled: false, // Prevent swipe back on seed phrase screen
+                <ThemeWrapper>
+                  <NavigationContainer>
+                    <StatusBar barStyle="light-content" backgroundColor="#161616" />
+                    <Stack.Navigator
+                      initialRouteName={initialRoute as keyof RootStackParamList}
+                      screenOptions={{
+                        headerShown: false,
+                        animation: 'simple_push',
+                        contentStyle: {
+                          backgroundColor: '#161616',
+                        },
                       }}
-                    />
-                    <Stack.Screen
-                      name="SeedPhraseVerify"
-                      component={SeedPhraseVerifyScreen}
-                      options={{
-                        gestureEnabled: false,
-                      }}
-                    />
-                    <Stack.Screen
-                      name="CreatePassword"
-                      component={CreatePasswordScreen}
-                      options={{
-                        gestureEnabled: false,
-                      }}
-                    />
-                    <Stack.Screen
-                      name="WalletSuccess"
-                      component={WalletSuccessScreen}
-                      options={{
-                        gestureEnabled: false,
-                      }}
-                    />
+                    >
+                      {/* Onboarding Flow */}
+                      <Stack.Screen name="Welcome" component={WelcomeScreen} />
+                      <Stack.Screen
+                        name="SeedPhraseDisplay"
+                        component={SeedPhraseDisplayScreen}
+                        options={{
+                          gestureEnabled: false, // Prevent swipe back on seed phrase screen
+                        }}
+                      />
+                      <Stack.Screen
+                        name="SeedPhraseVerify"
+                        component={SeedPhraseVerifyScreen}
+                        options={{
+                          gestureEnabled: false,
+                        }}
+                      />
+                      <Stack.Screen
+                        name="CreatePassword"
+                        component={CreatePasswordScreen}
+                        options={{
+                          gestureEnabled: false,
+                        }}
+                      />
+                      <Stack.Screen
+                        name="WalletSuccess"
+                        component={WalletSuccessScreen}
+                        options={{
+                          gestureEnabled: false,
+                        }}
+                      />
 
-                    {/* Auth Flow */}
-                    <Stack.Screen
-                      name="Unlock"
-                      component={UnlockScreen}
-                      options={{
-                        gestureEnabled: false, // Prevent swipe back on unlock screen
-                      }}
-                    />
+                      {/* Auth Flow */}
+                      <Stack.Screen
+                        name="Unlock"
+                        component={UnlockScreen}
+                        options={{
+                          gestureEnabled: false, // Prevent swipe back on unlock screen
+                        }}
+                      />
 
-                    {/* Import Flow */}
-                    <Stack.Screen name="ImportMethods" component={ImportMethodsScreen} />
-                    <Stack.Screen name="ImportSeedPhrase" component={ImportSeedPhraseScreen} />
-                    <Stack.Screen name="ImportPrivateKey" component={ImportPrivateKeyScreen} />
-                    <Stack.Screen name="ImportWallet" component={ImportWalletScreen} />
+                      {/* Import Flow */}
+                      <Stack.Screen name="ImportMethods" component={ImportMethodsScreen} />
+                      <Stack.Screen name="ImportSeedPhrase" component={ImportSeedPhraseScreen} />
+                      <Stack.Screen name="ImportPrivateKey" component={ImportPrivateKeyScreen} />
+                      <Stack.Screen name="ImportWallet" component={ImportWalletScreen} />
 
-                    {/* Backup Flow */}
-                    <Stack.Screen name="SeedPhraseBackup" component={SeedPhraseBackupScreen} />
+                      {/* Backup Flow */}
+                      <Stack.Screen name="SeedPhraseBackup" component={SeedPhraseBackupScreen} />
 
-                    {/* Main App Flow */}
-                    <Stack.Screen name="Home" component={MainTabNavigator} />
-                  </Stack.Navigator>
+                      {/* Main App Flow */}
+                      <Stack.Screen name="Home" component={MainTabNavigator} />
+                    </Stack.Navigator>
 
-                  {/* Screenshot protection components (Rabby pattern) */}
-                  <BackgroundSecureBlurView />
-                  <GlobalSecurityTipStubModal />
-                </NavigationContainer>
+                    {/* Screenshot protection components (Rabby pattern) */}
+                    <BackgroundSecureBlurView />
+                    <GlobalSecurityTipStubModal />
+                  </NavigationContainer>
+                </ThemeWrapper>
               </ThemeProvider>
             </QueryClientProvider>
           </PrivacyBlur>

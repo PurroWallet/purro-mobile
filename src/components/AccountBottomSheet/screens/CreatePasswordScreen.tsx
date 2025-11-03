@@ -13,7 +13,6 @@ import BaseScreen from '../components/BaseScreen';
 
 type Props = NativeStackScreenProps<AccountStackParamList, 'CreatePassword'> & {
   onClose: () => void;
-  parentNavigation: any;
 };
 
 interface RouteParams {
@@ -37,12 +36,7 @@ const passwordSchema = z
 
 type PasswordFormData = z.infer<typeof passwordSchema>;
 
-const CreatePasswordScreen: React.FC<Props> = ({
-  navigation,
-  onClose,
-  parentNavigation,
-  route,
-}) => {
+const CreatePasswordScreen: React.FC<Props> = ({ navigation, onClose, route }) => {
   const { mnemonic, isPrivateKeyImport, isNewAccount } = (route.params || {}) as RouteParams;
   const [isLoading, setIsLoading] = useState(false);
   const { t } = useTranslation();

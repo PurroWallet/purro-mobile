@@ -1,7 +1,6 @@
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import type { NavigationProp } from '@react-navigation/native';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useColorScheme } from 'nativewind';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React from 'react';
 import { Alert, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from '@/components/Icon';
@@ -10,9 +9,8 @@ import { useTranslation } from '@/utils/i18n';
 import type { AccountStackParamList } from '../AccountStackNavigator';
 import BaseScreen from '../components/BaseScreen';
 
-type Props = NativeStackScreenProps<AccountStackParamList, 'AddAccount'> & {
+type Props = {
   onClose: () => void;
-  parentNavigation: NavigationProp<any>;
 };
 
 interface AccountOption {
@@ -23,14 +21,10 @@ interface AccountOption {
   action: () => void;
 }
 
-const AddAccountScreen: React.FC<Props> = ({
-  navigation,
-  onClose: _onClose,
-  parentNavigation: _parentNavigation,
-}) => {
+const AddAccountScreen: React.FC<Props> = ({ onClose: _onClose }) => {
+  const navigation =
+    useNavigation<NativeStackNavigationProp<AccountStackParamList, 'AddAccount'>>();
   const { t } = useTranslation();
-  const { colorScheme } = useColorScheme();
-  const isDarkMode = colorScheme === 'dark';
 
   const handleBack = () => {
     navigation.goBack();

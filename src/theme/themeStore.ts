@@ -15,6 +15,7 @@ interface ThemeState {
 }
 
 const applyTheme = (mode: ThemeMode, persist: boolean) => {
+  console.log('🎨 Applying theme:', mode, 'persist:', persist);
   globalColorScheme.set(mode);
 
   if (persist) {
@@ -22,8 +23,23 @@ const applyTheme = (mode: ThemeMode, persist: boolean) => {
   }
 };
 
+// Get initial theme from storage or default to light
+const getInitialTheme = (): ThemeMode => {
+  try {
+    const savedMode = preferenceService.getPreference('themeMode');
+    if (savedMode === 'light' || savedMode === 'dark') {
+      console.log('🎨 Initial theme from storage:', savedMode);
+      return savedMode;
+    }
+  } catch (error) {
+    console.error('🎨 Failed to load theme:', error);
+  }
+  console.log('🎨 Using default theme: light');
+  return 'light';
+};
+
 export const useThemeStore = create<ThemeState>()((set, get) => ({
-  themeMode: 'light',
+  themeMode: getInitialTheme(),
   setThemeMode: (mode, options) => {
     const persist = options?.persist ?? true;
     applyTheme(mode, persist);

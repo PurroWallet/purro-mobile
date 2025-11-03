@@ -1,9 +1,11 @@
+import type { RouteProp } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { Pressable, StatusBar, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '@/components';
 import { usePreventScreenshot } from '@/core/hooks/native/security';
-import { SeedPhraseDisplayScreenProps } from '@/types/navigation';
+import type { NavigationProp, RootStackParamList } from '@/types/navigation';
 import { useTranslation } from '@/utils/i18n';
 
 const ProgressIndicator = () => (
@@ -24,7 +26,9 @@ const SeedWordCard = ({ word, index }: { word: string; index: number }) => (
   </View>
 );
 
-const SeedPhraseDisplayScreen: React.FC<SeedPhraseDisplayScreenProps> = ({ route, navigation }) => {
+const SeedPhraseDisplayScreen: React.FC = () => {
+  const navigation = useNavigation<NavigationProp<'SeedPhraseDisplay'>>();
+  const route = useRoute<RouteProp<RootStackParamList, 'SeedPhraseDisplay'>>();
   const { mnemonic } = route.params;
   const { t } = useTranslation();
 

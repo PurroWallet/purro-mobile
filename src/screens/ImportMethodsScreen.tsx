@@ -1,9 +1,10 @@
+import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Icon } from '@/components/Icon';
 import { Colors } from '@/constants/colors';
-import type { ImportMethodsScreenProps } from '@/types/navigation';
+import type { NavigationProp } from '@/types/navigation';
 import { useTranslation } from '@/utils/i18n';
 
 // ImportOption component moved outside the component to avoid recreation on each render
@@ -34,8 +35,10 @@ const ImportOption = ({
   </TouchableOpacity>
 );
 
-const ImportMethodsScreen: React.FC<ImportMethodsScreenProps> = ({ navigation }) => {
+const ImportMethodsScreen: React.FC = () => {
+  const navigation = useNavigation<NavigationProp<'ImportMethods'>>();
   const { t } = useTranslation();
+
   const handleImportSeedPhrase = () => {
     navigation.navigate('ImportSeedPhrase');
   };

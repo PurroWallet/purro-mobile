@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/native';
 import { Wallet } from 'ethers';
 import React, { useState } from 'react';
 import { FormProvider } from 'react-hook-form';
@@ -6,7 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
 import { Button, FormInput } from '@/components';
 import { useZodForm, ZodFormValues } from '@/core/hooks/form/useZodForm';
-import type { ImportPrivateKeyScreenProps } from '@/types/navigation';
+import type { NavigationProp } from '@/types/navigation';
 import { useTranslation } from '@/utils/i18n';
 
 const importPrivateKeySchema = z.object({
@@ -15,7 +16,8 @@ const importPrivateKeySchema = z.object({
 
 type ImportPrivateKeyFormValues = ZodFormValues<typeof importPrivateKeySchema>;
 
-const ImportPrivateKeyScreen: React.FC<ImportPrivateKeyScreenProps> = ({ navigation }) => {
+const ImportPrivateKeyScreen: React.FC = () => {
+  const navigation = useNavigation<NavigationProp<'ImportPrivateKey'>>();
   const [isImporting, setIsImporting] = useState(false);
   const { t } = useTranslation();
 

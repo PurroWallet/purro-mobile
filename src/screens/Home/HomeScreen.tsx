@@ -1,4 +1,4 @@
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   ArrowDownToLine,
   ChevronDown,
@@ -18,10 +18,9 @@ import AccountBottomSheet, { type AccountBottomSheetRef } from '@/components/Acc
 import { apisKeychain, apisLock, apisWallet } from '@/core/apis';
 import { useCurrentAccount } from '@/core/hooks/wallet/useCurrentAccount';
 import { useAppStore } from '@/stores/appStore';
-import type { HomeScreenProps, MainTabParamList } from '@/types/navigation';
 import { useTranslation } from '@/utils/i18n';
 import ReceiveTokenSheet, { ReceiveTokenSheetRef } from './components/ReceiveTokenSheet';
-import SentTokenSheet, { SentTokenSheetRef } from './components/SentTokenSheet';
+import SentTokenSheet, { SentTokenSheetRef } from './components/SendTokenSheet';
 
 interface Account {
   address: string;
@@ -47,9 +46,8 @@ interface Token {
   value: string;
 }
 
-const HomeScreen: React.FC<HomeScreenProps> = () => {
+const HomeScreen: React.FC = () => {
   const { t } = useTranslation();
-  const navigation = useNavigation<MainTabParamList>();
 
   const accountBottomSheetRef = useRef<AccountBottomSheetRef>(null);
   const sentTokenSheetRef = useRef<SentTokenSheetRef>(null);
@@ -198,7 +196,10 @@ const HomeScreen: React.FC<HomeScreenProps> = () => {
             <Text className="text-text-primary text-sm">{t('home.send')}</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity className="flex-1 rounded-xl bg-background-secondary py-4 items-center gap-3">
+          <TouchableOpacity
+            className="flex-1 rounded-xl bg-background-secondary py-4 items-center gap-3"
+            onPress={() => receiveTokenSheetRef.current?.present()}
+          >
             <ArrowDownToLine size={24} />
             <Text className="text-text-primary text-sm">{t('home.receive')}</Text>
           </TouchableOpacity>

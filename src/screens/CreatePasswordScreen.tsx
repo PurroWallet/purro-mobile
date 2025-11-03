@@ -1,3 +1,5 @@
+import type { RouteProp } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import React from 'react';
 import { FormProvider } from 'react-hook-form';
 import { Alert, KeyboardAvoidingView, Platform, Text, View } from 'react-native';
@@ -7,7 +9,7 @@ import { Button, PasswordInputForm } from '@/components';
 import { Icon } from '@/components/Icon';
 import { walletController } from '@/core/controllers/WalletController';
 import { useZodForm, ZodFormValues } from '@/core/hooks/form/useZodForm';
-import type { CreatePasswordScreenProps } from '@/types/navigation';
+import type { NavigationProp, RootStackParamList } from '@/types/navigation';
 import { useTranslation } from '@/utils/i18n';
 
 const createPasswordSchema = z
@@ -22,7 +24,9 @@ const createPasswordSchema = z
 
 type CreatePasswordFormValues = ZodFormValues<typeof createPasswordSchema>;
 
-const CreatePasswordScreen: React.FC<CreatePasswordScreenProps> = ({ navigation, route }) => {
+const CreatePasswordScreen: React.FC = () => {
+  const navigation = useNavigation<NavigationProp<'CreatePassword'>>();
+  const route = useRoute<RouteProp<RootStackParamList, 'CreatePassword'>>();
   const { t } = useTranslation();
   const { mnemonic, privateKey, isImport, isWeb3Auth, userInfo } = route.params || {};
   const [isLoading, setIsLoading] = React.useState(false);

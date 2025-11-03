@@ -1,6 +1,6 @@
-import { useColorScheme } from 'nativewind';
 import React from 'react';
 import { Switch, View } from 'react-native';
+import { useThemeMode } from '@/core/hooks/useTheme';
 
 interface ThemeToggleProps {
   value?: boolean;
@@ -9,8 +9,8 @@ interface ThemeToggleProps {
 }
 
 const ThemeToggle: React.FC<ThemeToggleProps> = ({ value, onValueChange, disabled = false }) => {
-  const { colorScheme, setColorScheme } = useColorScheme();
-  const isDarkMode = colorScheme === 'dark';
+  const { themeMode, toggleThemeMode } = useThemeMode();
+  const isDarkMode = themeMode === 'dark';
 
   // Nếu không có value được truyền, sử dụng từ theme system
   const toggleValue = value !== undefined ? value : isDarkMode;
@@ -20,8 +20,8 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({ value, onValueChange, disable
       onValueChange(!toggleValue);
     } else {
       // Toggle theme system
-      const nextMode = isDarkMode ? 'light' : 'dark';
-      setColorScheme(nextMode);
+      console.log('🎨 ThemeToggle - Toggling theme from:', themeMode);
+      toggleThemeMode();
     }
   };
 

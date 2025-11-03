@@ -3,11 +3,12 @@ import type {
   NavigationProp as BaseNavigationProp,
   CompositeNavigationProp,
 } from '@react-navigation/native';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 export type RootStackParamList = {
   Welcome: undefined;
   SeedPhraseDisplay: {
-    mnemonic: string | null;
+    mnemonic: string;
     privateKey?: string;
     isWeb3Auth?: boolean;
     userInfo?: {
@@ -71,68 +72,35 @@ export type NavigationProp<T extends keyof RootStackParamList> = BaseNavigationP
   replace<K extends keyof RootStackParamList>(screen: K, params?: RootStackParamList[K]): void;
 };
 
-// Screen props types
-export type WelcomeScreenProps = {
-  navigation: NavigationProp<'Welcome'>;
-};
-
+// Screen route props types (no navigation prop - use useNavigation hook instead)
 export type SeedPhraseDisplayScreenProps = {
-  navigation: NavigationProp<'SeedPhraseDisplay'>;
   route: {
     params: RootStackParamList['SeedPhraseDisplay'];
   };
 };
 
 export type SeedPhraseVerifyScreenProps = {
-  navigation: NavigationProp<'SeedPhraseVerify'>;
   route: {
     params: RootStackParamList['SeedPhraseVerify'];
   };
 };
 
-export type SeedPhraseBackupScreenProps = {
-  navigation: NavigationProp<'SeedPhraseBackup'>;
-};
-
 export type CreatePasswordScreenProps = {
-  navigation: NavigationProp<'CreatePassword'>;
   route: {
     params: RootStackParamList['CreatePassword'];
   };
 };
 
-export type WalletSuccessScreenProps = {
-  navigation: NavigationProp<'WalletSuccess'>;
-  route: {
-    params: RootStackParamList['WalletSuccess'];
-  };
-};
+type StackScreenProps<T extends keyof RootStackParamList> = NativeStackScreenProps<
+  RootStackParamList,
+  T
+>;
 
-export type ImportWalletScreenProps = {
-  navigation: NavigationProp<'ImportWallet'>;
-};
-
-export type ImportMethodsScreenProps = {
-  navigation: NavigationProp<'ImportMethods'>;
-};
-
-export type ImportSeedPhraseScreenProps = {
-  navigation: NavigationProp<'ImportSeedPhrase'>;
-};
-
-export type ImportPrivateKeyScreenProps = {
-  navigation: NavigationProp<'ImportPrivateKey'>;
-};
-
-export type UnlockScreenProps = {
-  navigation: NavigationProp<'Unlock'>;
-};
+export type WalletSuccessScreenProps = StackScreenProps<'WalletSuccess'>;
+export type ImportWalletScreenProps = StackScreenProps<'ImportWallet'>;
+export type UnlockScreenProps = StackScreenProps<'Unlock'>;
 
 export type HomeScreenNavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<MainTabParamList, 'HomeMain'>,
   NavigationProp<'Home'>
 >;
-
-export type HomeScreenProps = {
-  navigation: HomeScreenNavigationProp;
-};

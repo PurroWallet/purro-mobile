@@ -1,5 +1,5 @@
 import { Buffer } from 'buffer';
-import * as Aes from 'react-native-aes-crypto';
+import Aes from 'react-native-aes-crypto';
 
 /**
  * Encryption Service - Password-based encryption for sensitive data

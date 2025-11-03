@@ -1,3 +1,5 @@
+import type { RouteProp } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import range from 'lodash/range';
 import shuffle from 'lodash/shuffle';
 import sortBy from 'lodash/sortBy';
@@ -7,7 +9,7 @@ import { Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, FormInput } from '@/components';
 import { useProtectedScreen } from '@/core/hooks/security';
-import { SeedPhraseVerifyScreenProps } from '@/types/navigation';
+import type { NavigationProp, RootStackParamList } from '@/types/navigation';
 import { useTranslation } from '@/utils/i18n';
 
 const ProgressIndicator = () => (
@@ -55,7 +57,9 @@ const WordInput = ({
   />
 );
 
-const SeedPhraseVerifyScreen: React.FC<SeedPhraseVerifyScreenProps> = ({ route, navigation }) => {
+const SeedPhraseVerifyScreen: React.FC = () => {
+  const navigation = useNavigation<NavigationProp<'SeedPhraseVerify'>>();
+  const route = useRoute<RouteProp<RootStackParamList, 'SeedPhraseVerify'>>();
   const { mnemonic } = route.params;
   const { t } = useTranslation();
 

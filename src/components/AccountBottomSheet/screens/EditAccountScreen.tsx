@@ -1,7 +1,8 @@
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import Clipboard from '@react-native-clipboard/clipboard';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useColorScheme } from 'nativewind';
+import type { RouteProp } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, Image, Text, TouchableOpacity, View } from 'react-native';
 import DefaultIcon from '@/assets/common/icon.png';
@@ -11,12 +12,11 @@ import { useTranslation } from '@/utils/i18n';
 import type { AccountStackParamList } from '../AccountStackNavigator';
 import BaseScreen from '../components/BaseScreen';
 
-type Props = NativeStackScreenProps<AccountStackParamList, 'EditAccount'>;
-
-const EditAccountScreen: React.FC<Props> = ({ navigation, route }) => {
+const EditAccountScreen: React.FC = () => {
+  const navigation =
+    useNavigation<NativeStackNavigationProp<AccountStackParamList, 'EditAccount'>>();
+  const route = useRoute<RouteProp<AccountStackParamList, 'EditAccount'>>();
   const { accountAddress } = route.params;
-  const { colorScheme } = useColorScheme();
-  const isDarkMode = colorScheme === 'dark';
   const [account, setAccount] = useState<any>(null);
   const { t } = useTranslation();
 
@@ -96,12 +96,7 @@ const EditAccountScreen: React.FC<Props> = ({ navigation, route }) => {
 
   if (!account) {
     return (
-      <View
-        className="flex-1 items-center justify-center"
-        style={{
-          backgroundColor: isDarkMode ? 'rgb(22 22 22)' : 'rgb(249 250 251)',
-        }}
-      >
+      <View className="flex-1 items-center justify-center bg-background-primary">
         <Text className="text-text-primary">{t('common.loading')}</Text>
       </View>
     );

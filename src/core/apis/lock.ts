@@ -40,7 +40,8 @@ export async function verifyPassword(
     console.log('✅ apisLock.verifyPassword - Password verified successfully');
     return { success: true };
   } catch (error) {
-    console.log('❌ apisLock.verifyPassword - Verification failed:', error.message);
+    const message = error instanceof Error ? error.message : String(error);
+    console.log('❌ apisLock.verifyPassword - Verification failed:', message);
     return { success: false, error: 'Invalid password' };
   }
 }

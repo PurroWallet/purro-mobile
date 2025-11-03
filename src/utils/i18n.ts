@@ -70,7 +70,7 @@ const en = {
 i18n
   .use(initReactI18next)
   .init({
-    compatibilityJSON: 'v3',
+    compatibilityJSON: 'v4',
     resources: { en },
     lng: 'en',
     fallbackLng: 'en',

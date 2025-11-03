@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { FormProvider } from 'react-hook-form';
 import { Alert, ScrollView, Text, View } from 'react-native';
@@ -5,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { z } from 'zod';
 import { Button, FormInput } from '@/components';
 import { useZodForm, ZodFormValues } from '@/core/hooks/form/useZodForm';
-import type { ImportSeedPhraseScreenProps } from '@/types/navigation';
+import type { NavigationProp } from '@/types/navigation';
 import { useTranslation } from '@/utils/i18n';
 
 const importSeedPhraseSchema = z
@@ -29,7 +30,8 @@ const importSeedPhraseSchema = z
 
 type ImportSeedPhraseFormValues = ZodFormValues<typeof importSeedPhraseSchema>;
 
-const ImportSeedPhraseScreen: React.FC<ImportSeedPhraseScreenProps> = ({ navigation }) => {
+const ImportSeedPhraseScreen: React.FC = () => {
+  const navigation = useNavigation<NavigationProp<'ImportSeedPhrase'>>();
   const [isImporting, setIsImporting] = useState(false);
   const { t } = useTranslation();
 
