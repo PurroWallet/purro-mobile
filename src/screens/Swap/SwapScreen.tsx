@@ -1,8 +1,11 @@
 import React from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SwapContent } from './components/SwapContent';
+import { useSwapScreen } from './hooks/useSwapScreen';
 
 const SwapScreen: React.FC = () => {
-  return <SafeAreaView className="flex-1 bg-primary"></SafeAreaView>;
+  const screenProps = useSwapScreen();
+
+  return <SwapContent {...screenProps} />;
 };
 
 export default SwapScreen;

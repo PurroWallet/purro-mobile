@@ -1,0 +1,177 @@
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import type { RefObject } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { Alert } from 'react-native';
+import type { AccountBottomSheetRef } from '@/components/AccountBottomSheet';
+import { apisKeychain, apisLock, apisWallet } from '@/core/apis';
+import { useCurrentAccount } from '@/core/hooks/wallet/useCurrentAccount';
+import { useAppStore } from '@/stores/appStore';
+import type { NavigationProp, RootStackParamList } from '@/types/navigation';
+import { useTranslation } from '@/utils/i18n';
+import type { ReceiveTokenSheetRef } from '../components/ReceiveTokenSheet';
+import type { SentTokenSheetRef } from '../components/SendTokenSheet';
+
+export interface Account {
+  address: string;
+  type?: string;
+  brandName?: string;
+  alianName?: string;
+}
+
+export interface PerpPosition {
+  id: string;
+  name: string;
+  multiplier: string;
+  value: string;
+  change: string;
+  changeType: 'positive' | 'negative';
+}
+
+export interface Token {
+  id: string;
+  name: string;
+  symbol: string;
+  balance: string;
+  value: string;
+}
+
+export interface UseHomeScreenResult {
+  t: ReturnType<typeof useTranslation>['t'];
+  accountBottomSheetRef: RefObject<AccountBottomSheetRef | null>;
+  sentTokenSheetRef: RefObject<SentTokenSheetRef | null>;
+  receiveTokenSheetRef: RefObject<ReceiveTokenSheetRef | null>;
+  selectedTab: 'EVM' | 'Spot' | 'Perpetuals';
+  onSelectTab: (tab: 'EVM' | 'Spot' | 'Perpetuals') => void;
+  currentAccount: Account | null;
+  perpPositions: PerpPosition[];
+  tokens: Token[];
+  handleAccountSelect: (account: Account) => void;
+  handleResetWallet: () => Promise<void>;
+  openAccountSheet: () => void;
+  openSendSheet: () => void;
+  openReceiveSheet: () => void;
+}
+
+export const useHomeScreen = (): UseHomeScreenResult => {
+  const { t } = useTranslation();
+  const navigation = useNavigation<NavigationProp<keyof RootStackParamList>>();
+  const accountBottomSheetRef = useRef<AccountBottomSheetRef | null>(null);
+  const sentTokenSheetRef = useRef<SentTokenSheetRef | null>(null);
+  const receiveTokenSheetRef = useRef<ReceiveTokenSheetRef | null>(null);
+  const setWalletExists = useAppStore((state) => state.setWalletExists);
+  const [selectedTab, setSelectedTab] = useState<'EVM' | 'Spot' | 'Perpetuals'>('EVM');
+  const {
+    currentAccount: currentAccountQuery,
+    refetchCurrentAccount,
+    setCurrentAccount: setCurrentAccountQuery,
+  } = useCurrentAccount();
+  const currentAccount = (currentAccountQuery as Account | null) ?? null;
+
+  const perpPositions = useMemo<PerpPosition[]>(
+    () => [
+      {
+        id: '1',
+        name: 'Lilly',
+        multiplier: '20x',
+        value: '$111,638',
+        change: '-20%',
+        changeType: 'negative',
+      },
+      {
+        id: '2',
+        name: 'LIQD',
+        multiplier: '20x',
+        value: '$111,638',
+        change: '-20%',
+        changeType: 'negative',
+      },
+      {
+        id: '3',
+        name: 'LIQD',
+        multiplier: '20x',
+        value: '$111,638',
+        change: '-20%',
+        changeType: 'negative',
+      },
+    ],
+    [],
+  );
+
+  const tokens = useMemo<Token[]>(
+    () => [
+      {
+        id: '1',
+        name: 'Hyperliquid',
+        symbol: 'HYPE',
+        balance: '0',
+        value: '$0.00',
+      },
+    ],
+    [],
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      refetchCurrentAccount();
+    }, [refetchCurrentAccount]),
+  );
+
+  const handleAccountSelect = useCallback(
+    (account: Account) => {
+      setCurrentAccountQuery(account);
+    },
+    [setCurrentAccountQuery],
+  );
+
+  const handleResetWallet = useCallback(async () => {
+    try {
+      apisWallet.resetWallet();
+      await apisLock.lockWallet();
+
+      try {
+        await apisKeychain.resetGenericPassword();
+      } catch (error) {
+        console.log('No keychain data to clear:', error);
+      }
+
+      setWalletExists(false);
+      navigation.navigate('Welcome');
+    } catch (error) {
+      console.error('Error resetting wallet:', error);
+      Alert.alert(t('errors.generic.title'), t('errors.wallet.resetFailed'));
+    }
+  }, [navigation, setWalletExists, t]);
+
+  const openAccountSheet = useCallback(() => {
+    accountBottomSheetRef.current?.present();
+  }, []);
+
+  const openSendSheet = useCallback(() => {
+    sentTokenSheetRef.current?.present();
+  }, []);
+
+  const openReceiveSheet = useCallback(() => {
+    receiveTokenSheetRef.current?.present();
+  }, []);
+
+  const onSelectTab = useCallback((tab: 'EVM' | 'Spot' | 'Perpetuals') => {
+    setSelectedTab(tab);
+  }, []);
+
+  return {
+    t,
+    accountBottomSheetRef,
+    sentTokenSheetRef,
+    receiveTokenSheetRef,
+    selectedTab,
+    onSelectTab,
+    currentAccount,
+    perpPositions,
+    tokens,
+    handleAccountSelect,
+    handleResetWallet,
+    openAccountSheet,
+    openSendSheet,
+    openReceiveSheet,
+  };
+};

@@ -28,23 +28,22 @@ import { useAppPreventScreenshotOnScreen } from '@/core/hooks/native/security';
 import { screenProtection } from '@/core/services/screenProtection';
 import { web3AuthService } from '@/core/services/Web3AuthService';
 import { excludeFilesFromBackup } from '@/core/utils/appFS';
+import MainTabNavigator from '@/navigation/MainTabNavigator';
+import {
+  CreatePasswordScreen,
+  ImportMethodsScreen,
+  ImportPrivateKeyScreen,
+  ImportSeedPhraseScreen,
+  ImportWalletScreen,
+  SeedPhraseBackupScreen,
+  SeedPhraseDisplayScreen,
+  SeedPhraseVerifyScreen,
+  UnlockScreen,
+  WalletSuccessScreen,
+  WelcomeScreen,
+} from '@/screens';
 import { useAppStore } from '@/stores/appStore';
-import MainTabNavigator from './src/navigation/MainTabNavigator';
-// CRITICAL: Polyfills are now loaded in index.js at the very top with proper order
-import CreatePasswordScreen from './src/screens/CreatePasswordScreen';
-import ImportMethodsScreen from './src/screens/ImportMethodsScreen';
-import ImportPrivateKeyScreen from './src/screens/ImportPrivateKeyScreen';
-import ImportSeedPhraseScreen from './src/screens/ImportSeedPhraseScreen';
-import ImportWalletScreen from './src/screens/ImportWalletScreen';
-import SeedPhraseBackupScreen from './src/screens/SeedPhraseBackupScreen';
-import SeedPhraseDisplayScreen from './src/screens/SeedPhraseDisplayScreen';
-import SeedPhraseVerifyScreen from './src/screens/SeedPhraseVerifyScreen';
-import UnlockScreen from './src/screens/UnlockScreen';
-import WalletSuccessScreen from './src/screens/WalletSuccessScreen';
-// Import screens
-import WelcomeScreen from './src/screens/WelcomeScreen';
-
-import type { RootStackParamList } from './src/types/navigation';
+import type { RootStackParamList } from '@/types/navigation';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const queryClient = new QueryClient();
