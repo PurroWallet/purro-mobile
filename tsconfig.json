@@ -13,7 +13,8 @@
       "@/providers/*": ["src/providers/*"],
       "@/screens/*": ["src/screens/*"],
       "@/theme/*": ["src/theme/*"],
-      "@/types/*": ["src/types/*"]
+      "@/types/*": ["src/types/*"],
+      "@/assets/*": ["src/assets/*"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx", "nativewind-env.d.ts"],

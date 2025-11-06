@@ -37,7 +37,7 @@ const HomeContent: React.FC<HomeContentProps> = ({
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-primary">
+    <SafeAreaView className="flex-1 bg-primary dark:bg-primary">
       <View className="px-6 pt-5 pb-2">
         <View className="flex-row items-center justify-between">
           <TouchableOpacity className="flex-row items-center gap-4" onPress={openAccountSheet}>

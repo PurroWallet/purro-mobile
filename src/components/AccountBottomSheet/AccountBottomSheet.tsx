@@ -62,14 +62,16 @@ const AccountBottomSheet = forwardRef<AccountBottomSheetRef, AccountBottomSheetP
     const renderBackground = useCallback((props: any) => <CustomBackground {...props} />, []);
 
     const handleAddAccount = useCallback(() => {
-      // Use a timeout to ensure the sheet is fully presented before navigating
-      setTimeout(() => {
+      // Use requestAnimationFrame instead of setTimeout to avoid memory leaks
+      const frame = requestAnimationFrame(() => {
         try {
           navigation.navigate('AddAccount');
         } catch (error) {
           console.log('Navigation error:', error);
         }
-      }, 100);
+      });
+      // No cleanup needed - requestAnimationFrame completes immediately
+      return () => cancelAnimationFrame(frame);
     }, [navigation]);
 
     const handleSettings = useCallback(() => {

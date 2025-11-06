@@ -132,7 +132,7 @@
       "home": "Home",
       "swap": "Swap",
       "nft": "NFT",
-      "dapps": "DApps"
+      "history": "History"
     }
   },
   "accountBottomSheet": {
@@ -177,6 +177,10 @@
         "darkTitle": "Dark Mode",
         "lightSubtitle": "Switch to light theme",
         "darkSubtitle": "Switch to dark theme"
+      },
+      "language": {
+        "title": "Language",
+        "subtitle": "Change app language"
       },
       "walletSection": "Wallet",
       "aboutSection": "About",

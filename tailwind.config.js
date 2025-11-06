@@ -12,7 +12,6 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Sửa: dùng --background thay vì --color-background-secondary
         primary: colorVar('--background'),
         background: {
           primary: colorVar('--background'),

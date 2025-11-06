@@ -2,9 +2,10 @@ import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import type { NavigationProp } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { memo, useEffect, useMemo, useState } from 'react';
 import { Alert, ScrollView, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from '@/components/Icon';
+import LanguageToggle from '@/components/LanguageToggle';
 import ThemeToggle from '@/components/ThemeToggle';
 import { apisKeychain, apisLock, apisWallet } from '@/core/apis';
 import { useBiometrics } from '@/core/hooks/biometrics';
@@ -16,6 +17,8 @@ import type { RootStackParamList } from '@/types/navigation';
 import { useTranslation } from '@/utils/i18n';
 import type { AccountStackParamList } from '../AccountStackNavigator';
 import BaseScreen from '../components/BaseScreen';
+
+// import { useTranslation } from '@/utils/i18n';
 
 type Props = {
   parentNavigation?: NavigationProp<RootStackParamList>;
@@ -31,48 +34,43 @@ interface SettingsOption {
 }
 
 // Setting Item Component
-const SettingItem: React.FC<SettingsOption> = ({
-  title,
-  subtitle,
-  onPress,
-  showArrow = true,
-  rightComponent,
-  danger = false,
-}) => (
-  <TouchableOpacity
-    className={`flex-row items-center justify-between rounded-xl px-4 py-4 ${
-      danger ? 'bg-system-error/10' : 'bg-background-secondary/60'
-    }`}
-    onPress={onPress}
-    disabled={!onPress}
-    activeOpacity={onPress ? 0.8 : 1}
-  >
-    <View className="flex-1">
-      <Text
-        className={`text-lg font-semibold ${danger ? 'text-system-error' : 'text-text-primary'}`}
-      >
-        {title}
-      </Text>
-      {subtitle && <Text className="mt-1 text-sm text-text-secondary">{subtitle}</Text>}
-    </View>
-    {rightComponent || (showArrow && <Icon name="ChevronRight" size={20} />)}
-  </TouchableOpacity>
+const SettingItem: React.FC<SettingsOption> = memo(
+  ({ title, subtitle, onPress, showArrow = true, rightComponent, danger = false }) => (
+    <TouchableOpacity
+      className={`flex-row items-center justify-between rounded-xl px-4 py-4 ${
+        danger ? 'bg-system-error/10' : 'bg-background-secondary/60'
+      }`}
+      onPress={onPress}
+      disabled={!onPress}
+      activeOpacity={onPress ? 0.8 : 1}
+    >
+      <View className="flex-1">
+        <Text
+          className={`text-lg font-semibold ${danger ? 'text-system-error' : 'text-text-primary'}`}
+        >
+          {title}
+        </Text>
+        {subtitle && <Text className="mt-1 text-sm text-text-secondary">{subtitle}</Text>}
+      </View>
+      {rightComponent || (showArrow && <Icon name="ChevronRight" size={20} />)}
+    </TouchableOpacity>
+  ),
 );
 
 // Section Header Component
-const SectionHeader: React.FC<{ title: string }> = ({ title }) => (
+const SectionHeader: React.FC<{ title: string }> = memo(({ title }) => (
   <View className="">
     <Text className="text-sm font-semibold uppercase tracking-[1px] text-text-secondary mb-4">
       {title}
     </Text>
   </View>
-);
+));
 
 const SettingsScreen: React.FC<Props> = ({ parentNavigation }) => {
   const navigation = useNavigation<NativeStackNavigationProp<AccountStackParamList, 'Settings'>>();
   const setWalletExists = useAppStore((state) => state.setWalletExists);
-  const { t } = useTranslation();
-  const { themeMode, setThemeMode } = useThemeMode();
+  const { t, i18n } = useTranslation();
+  const { themeMode } = useThemeMode();
   const isDarkMode = themeMode === 'dark';
   const {
     computed: { isBiometricsEnabled, defaultTypeLabel, couldSetupBiometrics },
@@ -84,7 +82,7 @@ const SettingsScreen: React.FC<Props> = ({ parentNavigation }) => {
 
   useEffect(() => {
     fetchBiometrics();
-  }, [fetchBiometrics]);
+  }, []); // Run once on mount - fetchBiometrics is from useBiometrics hook
 
   const handleBiometricToggle = async (value: boolean) => {
     if (isEnablingBiometrics) return;
@@ -210,27 +208,20 @@ const SettingsScreen: React.FC<Props> = ({ parentNavigation }) => {
     );
   };
 
-  const handleChangeTheme = (nextMode: ThemeMode) => {
-    console.log('🎨 SettingsScreen - Changing theme to:', nextMode);
-    setThemeMode(nextMode);
-  };
-
-  const themeToggleOptions = useMemo(() => {
-    return {
-      label: t(
-        isDarkMode
-          ? 'accountBottomSheet.settingsScreen.theme.darkTitle'
-          : 'accountBottomSheet.settingsScreen.theme.lightTitle',
-      ),
-      subtitle: t(
+  const themeSubtitle = useMemo(
+    () =>
+      t(
         isDarkMode
           ? 'accountBottomSheet.settingsScreen.theme.lightSubtitle'
           : 'accountBottomSheet.settingsScreen.theme.darkSubtitle',
       ),
-      nextMode: isDarkMode ? 'light' : 'dark',
-      value: isDarkMode,
-    };
-  }, [isDarkMode, t]);
+    [isDarkMode, t],
+  );
+
+  const languageSubtitle = useMemo(
+    () => (i18n.language === 'vi' ? 'Tiếng Việt' : 'English'),
+    [i18n.language],
+  );
 
   const handleBackupWallet = () => {
     navigation.navigate('SeedPhraseBackup');
@@ -290,12 +281,13 @@ const SettingsScreen: React.FC<Props> = ({ parentNavigation }) => {
       title={t('accountBottomSheet.settingsScreen.headerTitle')}
       showBackButton={true}
       onBack={() => navigation.goBack()}
-      isScrollable={true}
-      contentContainerStyle={{
-        paddingHorizontal: 20,
-      }}
+      isScrollable={false}
     >
-      <BottomSheetScrollView className="w-full" contentContainerClassName="">
+      <BottomSheetScrollView
+        className="w-full"
+        contentContainerStyle={{ paddingHorizontal: 20 }}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Security Section */}
         <View className="mb-4">
           <SectionHeader title={t('accountBottomSheet.settingsScreen.sections.security')} />
@@ -339,9 +331,15 @@ const SettingsScreen: React.FC<Props> = ({ parentNavigation }) => {
             />
             <SettingItem
               title={t('accountBottomSheet.settingsScreen.theme.title')}
-              subtitle={themeToggleOptions.subtitle}
-              onPress={() => handleChangeTheme(themeToggleOptions.nextMode as ThemeMode)}
+              subtitle={themeSubtitle}
+              showArrow={false}
               rightComponent={<ThemeToggle />}
+            />
+            <SettingItem
+              title={t('accountBottomSheet.settingsScreen.language.title')}
+              subtitle={languageSubtitle}
+              showArrow={false}
+              rightComponent={<LanguageToggle />}
             />
           </View>
         </View>

@@ -61,7 +61,7 @@ export type MainTabParamList = {
   HomeMain: undefined;
   Swap: undefined;
   Nft: undefined;
-  Dapps: undefined;
+  History: undefined;
 };
 
 export type NavigationProp<T extends keyof RootStackParamList> = BaseNavigationProp<

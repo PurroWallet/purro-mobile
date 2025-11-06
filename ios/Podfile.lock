@@ -1817,7 +1817,7 @@ PODS:
     - React-Core
   - react-native-get-random-values (1.11.0):
     - React-Core
-  - react-native-keyboard-controller (1.19.4):
+  - react-native-keyboard-controller (1.19.5):
     - boost
     - DoubleConversion
     - fast_float
@@ -1835,7 +1835,7 @@ PODS:
     - React-graphics
     - React-ImageManager
     - React-jsi
-    - react-native-keyboard-controller/common (= 1.19.4)
+    - react-native-keyboard-controller/common (= 1.19.5)
     - React-NativeModulesApple
     - React-RCTFabric
     - React-renderercss
@@ -1846,7 +1846,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - react-native-keyboard-controller/common (1.19.4):
+  - react-native-keyboard-controller/common (1.19.5):
     - boost
     - DoubleConversion
     - fast_float
@@ -3275,7 +3275,7 @@ SPEC CHECKSUMS:
   react-native-blur: 6af83e7e3c4c1446a188d9b2c493600fc4beb173
   react-native-encrypted-storage: 569d114e329b1c2c2d9f8c84bcdbe4478dda2258
   react-native-get-random-values: d16467cf726c618e9c7a8c3c39c31faa2244bbba
-  react-native-keyboard-controller: 0570deee622929b04a0ca037f6076d3289ad01c7
+  react-native-keyboard-controller: 14c7dd082f9d73b0bf82a45fef2bc198f1bed41c
   react-native-mmkv: ac7507625cd74bac0eb5333604a7cd7b08fe9e3e
   react-native-quick-crypto: dac9db2adb0a61b4881909b6db7c51eaaada66a8
   react-native-safe-area-context: c00143b4823773bba23f2f19f85663ae89ceb460

@@ -138,7 +138,7 @@
       "home": "Trang chủ",
       "swap": "Swap",
       "nft": "NFT",
-      "dapps": "DApps"
+      "history": "History"
     }
   },
   "accountBottomSheet": {
@@ -183,6 +183,10 @@
         "darkTitle": "Chế độ tối",
         "lightSubtitle": "Chuyển sang giao diện sáng",
         "darkSubtitle": "Chuyển sang giao diện tối"
+      },
+      "language": {
+        "title": "Ngôn ngữ",
+        "subtitle": "Thay đổi ngôn ngữ ứng dụng"
       },
       "walletSection": "Ví",
       "aboutSection": "Giới thiệu",

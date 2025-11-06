@@ -1,9 +1,10 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ArrowLeftRight, Compass, Home as HomeIcon, Image as ImageIcon } from 'lucide-react-native';
-import { useColorScheme } from 'nativewind';
 import React from 'react';
 import { Text, View } from 'react-native';
+import { useThemeMode } from '@/core/hooks/useTheme';
 import { HomeScreen } from '@/screens';
+import HistoryScreen from '@/screens/History/HistoryScreen';
 import SwapScreen from '@/screens/Swap/SwapScreen';
 import type { MainTabParamList } from '@/types/navigation';
 import { useTranslation } from '@/utils/i18n';
@@ -25,12 +26,11 @@ const createPlaceholderScreen = (key: string) => {
 };
 
 const NftScreen = createPlaceholderScreen('home.nav.nft');
-const DappsScreen = createPlaceholderScreen('home.nav.dapps');
 
 const MainTabNavigator: React.FC = () => {
   const { t } = useTranslation();
-  const { colorScheme } = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const { themeMode } = useThemeMode();
+  const isDark = themeMode === 'dark';
 
   const tabBarBackground = isDark ? '#25272C' : '#FFFFFF';
   const tabBarBorder = isDark ? '#3A3C42' : '#E5E7EB';
@@ -66,7 +66,7 @@ const MainTabNavigator: React.FC = () => {
                 ? t('home.nav.swap')
                 : route.name === 'Nft'
                   ? t('home.nav.nft')
-                  : t('home.nav.dapps')}
+                  : t('home.nav.history')}
           </Text>
         ),
         tabBarIcon: ({ color, size }) => {
@@ -77,7 +77,7 @@ const MainTabNavigator: React.FC = () => {
               return <ArrowLeftRight size={size} color={color} />;
             case 'Nft':
               return <ImageIcon size={size} color={color} />;
-            case 'Dapps':
+            case 'History':
             default:
               return <Compass size={size} color={color} />;
           }
@@ -87,7 +87,7 @@ const MainTabNavigator: React.FC = () => {
       <Tab.Screen name="HomeMain" component={HomeScreen} />
       <Tab.Screen name="Swap" component={SwapScreen} />
       <Tab.Screen name="Nft" component={NftScreen} />
-      <Tab.Screen name="Dapps" component={DappsScreen} />
+      <Tab.Screen name="History" component={HistoryScreen} />
     </Tab.Navigator>
   );
 };

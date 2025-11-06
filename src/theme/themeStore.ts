@@ -14,12 +14,24 @@ interface ThemeState {
   toggleThemeMode: () => void;
 }
 
+let persistTimeout: NodeJS.Timeout | null = null;
+
 const applyTheme = (mode: ThemeMode, persist: boolean) => {
-  console.log('🎨 Applying theme:', mode, 'persist:', persist);
+  // Apply theme immediately for responsive UI
   globalColorScheme.set(mode);
 
+  // Clear any pending timeout to prevent memory leak
+  if (persistTimeout) {
+    clearTimeout(persistTimeout);
+    persistTimeout = null;
+  }
+
+  // Debounce disk writes to reduce I/O
   if (persist) {
-    preferenceService.setPreference('themeMode', mode);
+    persistTimeout = setTimeout(() => {
+      preferenceService.setPreference('themeMode', mode);
+      persistTimeout = null;
+    }, 500);
   }
 };
 

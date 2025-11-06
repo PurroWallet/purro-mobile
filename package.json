@@ -6,7 +6,7 @@
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "lint": "biome lint .",
-    "fmt": "biome format .",
+    "fmt": "biome format . && yarn biome format --write",
     "check": "bunx @biomejs/biome check --write ./src",
     "check:fix": "bunx @biomejs/biome check --write --unsafe ./src",
     "start": "react-native start --reset-cache",

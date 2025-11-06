@@ -56,7 +56,8 @@ export function useBiometrics(_options?: { autoFetch?: boolean }) {
     };
 
     initialize();
-  }, [setBiometricsInfo]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run once on mount - setBiometricsInfo is stable from zustand
 
   const fetchBiometrics = useCallback(async () => {
     try {

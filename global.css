@@ -46,7 +46,7 @@
   --color-system-info: 90 200 250;
 }
 
-.dark {
+.dark:root {
   /* Base */
   --background: 22 22 22;
   --color-secondary: 37 39 44; /* surface */
