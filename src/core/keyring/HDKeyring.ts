@@ -1,12 +1,8 @@
 import { HDKey } from '@scure/bip32';
 import * as bip39 from 'bip39';
-import { Buffer } from 'buffer';
 import { Wallet } from 'ethers';
 import { AbstractKeyring } from './AbstractKeyring';
 import { HDKeyringData, KEYRING_CLASS, KEYRING_TYPE } from './types';
-
-// Polyfill Buffer for bip39 in React Native
-global.Buffer = global.Buffer || Buffer;
 
 /**
  * HD Keyring implementation for mnemonic-based wallets
@@ -20,7 +16,13 @@ export class HDKeyring extends AbstractKeyring<HDKeyringData> {
   private wallets: Wallet[] = [];
   private hdKey!: HDKey;
 
-  constructor(options: { mnemonic?: string; passphrase?: string; numberOfAccounts?: number } = {}) {
+  constructor(
+    options: {
+      mnemonic?: string;
+      passphrase?: string;
+      numberOfAccounts?: number;
+    } = {},
+  ) {
     super();
 
     if (options.mnemonic) {
@@ -114,43 +116,24 @@ export class HDKeyring extends AbstractKeyring<HDKeyringData> {
   }
 
   async signTransaction(address: string, transaction: any): Promise<any> {
-    const wallet = this.getWalletByAddress(address);
-    if (!wallet) {
-      throw new Error('Account not found');
-    }
-
-    return wallet.signTransaction(transaction);
+    return this._signWithWallet(address, (wallet) => wallet.signTransaction(transaction));
   }
 
   async signMessage(address: string, message: any): Promise<string> {
-    const wallet = this.getWalletByAddress(address);
-    if (!wallet) {
-      throw new Error('Account not found');
-    }
-
-    return wallet.signMessage(message);
+    return this._signWithWallet(address, (wallet) => wallet.signMessage(message));
   }
 
   async signTypedData(address: string, typedData: any): Promise<string> {
-    const wallet = this.getWalletByAddress(address);
-    if (!wallet) {
-      throw new Error('Account not found');
-    }
-
-    // Use _signTypedData which is the internal method in ethers v6
-    return (wallet as any)._signTypedData(typedData.domain, typedData.types, typedData.value);
+    return this._signWithWallet(address, (wallet) =>
+      (wallet as any)._signTypedData(typedData.domain, typedData.types, typedData.value),
+    );
   }
 
   async exportAccount(address: string): Promise<string> {
-    const wallet = this.getWalletByAddress(address);
-    if (!wallet) {
-      throw new Error('Account not found');
-    }
-
-    return wallet.privateKey;
+    return this._signWithWallet(address, (wallet) => wallet.privateKey);
   }
 
-  private getWalletByAddress(address: string): Wallet | undefined {
+  protected async getWalletByAddress(address: string): Promise<Wallet | undefined> {
     return this.wallets.find((w) => w.address.toLowerCase() === address.toLowerCase());
   }
 

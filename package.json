@@ -1,5 +1,5 @@
 {
-  "name": "PurroWallet",
+  "name": "purrowallet",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -12,7 +12,7 @@
     "test": "jest",
     "open:xcode": "xed -b ios",
     "open:android": "open -a Android\\ Studio",
-    "reset": "rm -rf node_modules bun.lock ios/Pods ios/build ios/Podfile.lock && yarn install && cd ios && pod install && cd ..",
+    "reset": "rm -rf node_modules yarn.lock ios/Pods ios/build ios/Podfile.lock && yarn install && cd ios && pod install && cd ..",
     "prepare": "husky"
   },
   "dependencies": {
@@ -22,8 +22,6 @@
     "@ethersproject/wallet": "^5.8.0",
     "@gorhom/bottom-sheet": "^5",
     "@hookform/resolvers": "^5.2.2",
-    "@noble/hashes": "^2.0.1",
-    "@noble/secp256k1": "^3.0.0",
     "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-native-clipboard/clipboard": "^1.16.3",
     "@react-native-community/blur": "^4.4.1",
@@ -38,16 +36,12 @@
     "@web3auth/base-provider": "^9.7.0",
     "@web3auth/ethereum-provider": "^9.7.0",
     "@web3auth/react-native-sdk": "^8.1.0",
-    "bip39": "^3.1.0",
     "buffer": "^6.0.3",
-    "crypto-js": "^4.2.0",
     "empty-module": "^0.0.2",
-    "ethereum-cryptography": "^3.2.0",
     "ethers": "^5.7.2",
     "event": "^1.0.0",
     "events": "^3.3.0",
     "i18next": "^25.5.2",
-    "lodash": "^4.17.21",
     "lucide-react-native": "^0.545.0",
     "nativewind": "4.1.23",
     "react": "19.1.1",

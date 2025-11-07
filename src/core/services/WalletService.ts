@@ -1,4 +1,5 @@
-import { KEYRING_CLASS } from '../keyring/types';
+import { generateMnemonic } from '../keyring';
+import { KEYRING_CLASS, KEYRING_TYPE } from '../keyring/types';
 import { ContactBookService } from './ContactBookService';
 import { KeyringService } from './KeyringService';
 import { LockService } from './LockService';
@@ -37,30 +38,19 @@ export class WalletService {
     addresses: string[];
   }> {
     try {
-      console.log('🏗️ WalletService.createWallet - Starting wallet creation...');
-      console.log('🏗️ Password provided:', !!password);
-
       // Boot keyring service for new wallet creation (no vault verification)
-      console.log('🏗️ Booting keyring service for new wallet...');
       await this.keyringService.bootForNewWallet(password);
-      console.log('🏗️ Keyring service booted successfully');
-
       // Generate mnemonic and prepare alias in parallel
-      console.log('🏗️ Generating mnemonic and alias...');
       const [mnemonic, alias] = await Promise.all([
-        Promise.resolve(this.keyringService.generateMnemonic()),
+        Promise.resolve(generateMnemonic()),
         Promise.resolve(this.generateAliasName(KEYRING_CLASS.MNEMONIC, 0, 0)),
       ]);
-      console.log('🏗️ Generated mnemonic length:', mnemonic.length);
-      console.log('🏗️ Generated alias:', alias);
 
       // Create HD keyring with mnemonic
-      console.log('🏗️ Creating HD keyring with mnemonic...');
       const addresses = await this.keyringService.createHDKeyring(mnemonic);
-      console.log('🏗️ Created HD keyring with addresses:', addresses.length);
 
       // Store contact with alias
-      await this.contactBookService.addContact({
+      this.contactBookService.addContact({
         address: addresses[0],
         name: alias,
         isAlias: true,
@@ -74,7 +64,7 @@ export class WalletService {
   }
 
   /**
-   * Import wallet with mnemonic - Optimized with parallel operations
+   * Import wallet with mnemonic
    */
   async importWalletWithMnemonic(
     mnemonic: string,
@@ -85,24 +75,30 @@ export class WalletService {
       // Boot keyring service with password
       await this.keyringService.boot(password);
 
-      // Create HD keyring and prepare alias in parallel
-      const [addresses, alias] = await Promise.all([
-        this.keyringService.createHDKeyring(mnemonic, passphrase),
-        Promise.resolve(this.generateAliasName(KEYRING_CLASS.MNEMONIC, 0, 0)),
-      ]);
+      // Get total account count BEFORE creating the new one for proper naming
+      const allAccountsBefore = await this.getAllAccounts();
+      const nextAccountNumber = allAccountsBefore.length + 1;
+      console.log(
+        '📥 importWalletWithMnemonic: Current accounts:',
+        allAccountsBefore.length,
+        'Next will be Account',
+        nextAccountNumber,
+      );
 
-      // Store contact with alias
-      try {
-        this.contactBookService.addContact({
-          address: addresses[0],
-          name: alias,
-          isAlias: true,
-          brandName: KEYRING_CLASS.MNEMONIC,
-        });
-      } catch (error) {
-        // Handle error silently
-      }
+      // Create HD keyring with mnemonic
+      const addresses = await this.keyringService.createHDKeyring(mnemonic, passphrase);
 
+      // Generate proper account name based on global sequential numbering
+      const alias = `Account ${nextAccountNumber}`;
+
+      this.contactBookService.addContact({
+        address: addresses[0],
+        name: alias,
+        isAlias: true,
+        brandName: KEYRING_CLASS.MNEMONIC,
+      });
+
+      console.log('✅ importWalletWithMnemonic: Created account with alias:', alias);
       return addresses;
     } catch (error) {
       throw error;
@@ -114,64 +110,34 @@ export class WalletService {
    */
   async importWalletWithPrivateKey(privateKey: string): Promise<string[]> {
     try {
-      console.log('🔑 WalletService.importWalletWithPrivateKey - Starting private key import...');
-      console.log('🔑 Private key provided:', !!privateKey, 'length:', privateKey.length);
+      // Get total account count BEFORE creating the new one for proper naming
+      const allAccountsBefore = await this.getAllAccounts();
+      const nextAccountNumber = allAccountsBefore.length + 1;
+      console.log(
+        '🔑 importWalletWithPrivateKey: Current accounts:',
+        allAccountsBefore.length,
+        'Next will be Account',
+        nextAccountNumber,
+      );
 
       // Create simple keyring with private key
-      console.log('🔑 Creating simple keyring with private key...');
       const addresses = await this.keyringService.createSimpleKeyring(privateKey);
-      console.log('🔑 Created simple keyring with addresses:', addresses.length);
 
-      // Generate alias for first account
-      const alias = this.generateAliasName(KEYRING_CLASS.PRIVATE_KEY, 0, 0);
+      // Generate proper account name based on global sequential numbering (not just index 0)
+      const alias = `Account ${nextAccountNumber}`;
 
       // Store contact with alias
-      await this.contactBookService.addContact({
+      this.contactBookService.addContact({
         address: addresses[0],
         name: alias,
         isAlias: true,
         brandName: KEYRING_CLASS.PRIVATE_KEY,
       });
 
+      console.log('✅ importWalletWithPrivateKey: Created account with alias:', alias);
       return addresses;
     } catch (error) {
       console.error('Failed to import wallet with private key:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Import wallet with mnemonic (for new wallet creation - no vault verification)
-   */
-  async importWalletWithMnemonicNew(
-    mnemonic: string,
-    password: string,
-    passphrase?: string,
-  ): Promise<string[]> {
-    try {
-      console.log('📥 WalletService.importWalletWithMnemonicNew - Starting mnemonic import...');
-      console.log('📥 Mnemonic provided:', !!mnemonic, 'length:', mnemonic.length);
-      console.log('📥 Password provided:', !!password);
-
-      // Create HD keyring with mnemonic
-      console.log('📥 Creating HD keyring with imported mnemonic...');
-      const addresses = await this.keyringService.createHDKeyring(mnemonic, passphrase);
-      console.log('📥 Created HD keyring with addresses:', addresses.length);
-
-      // Generate alias for first account
-      const alias = this.generateAliasName(KEYRING_CLASS.MNEMONIC, 0, 0);
-
-      // Store contact with alias
-      await this.contactBookService.addContact({
-        address: addresses[0],
-        name: alias,
-        isAlias: true,
-        brandName: KEYRING_CLASS.MNEMONIC,
-      });
-
-      return addresses;
-    } catch (error) {
-      console.error('Failed to import wallet with mnemonic:', error);
       throw error;
     }
   }
@@ -200,13 +166,6 @@ export class WalletService {
   }
 
   /**
-   * Boot keyring for new wallet creation (no vault verification)
-   */
-  async bootForNewWallet(password: string): Promise<void> {
-    return this.keyringService.bootForNewWallet(password);
-  }
-
-  /**
    * Check if wallet is locked
    */
   isLocked(): boolean {
@@ -228,7 +187,7 @@ export class WalletService {
           address: account.address,
           type: account.type,
           brandName: account.brandName,
-          alianName: contact?.name || account.alianName, // Use stored alias first
+          aliasName: contact?.name || account.aliasName, // Use stored alias first
         });
       }
 
@@ -257,7 +216,7 @@ export class WalletService {
       const contact = this.contactBookService.getContactByAddress(currentAddress);
       return {
         address: currentAddress,
-        alianName: contact?.name,
+        aliasName: contact?.name,
         brandName: contact?.brandName,
       };
     } catch (error) {
@@ -267,35 +226,71 @@ export class WalletService {
   }
 
   /**
-   * Set current account
+   * Add new account to specific keyring based on current account
    */
-  setCurrentAccount(address: string): void {
-    this.lockService.setCurrentAddress(address);
-  }
-
-  /**
-   * Add new account
-   */
-  async addNewAccount(): Promise<string> {
+  async addNewAccount(currentAccountAddress?: string): Promise<string> {
     try {
-      // Add account to HD keyring
-      const addresses = await this.keyringService.addAccounts(1);
+      console.log('📝 WalletService: Adding new account...');
+      console.log('📍 Current account address:', currentAccountAddress?.substring(0, 10) + '...');
 
-      // Generate alias for new account
-      const allAccounts = await this.getAllAccounts();
-      const alias = this.generateAliasName(KEYRING_CLASS.MNEMONIC, 0, allAccounts.length - 1);
+      // Get total account count BEFORE adding the new one for proper naming
+      const allAccountsBefore = await this.getAllAccounts();
+      const nextAccountNumber = allAccountsBefore.length + 1;
+      console.log(
+        '📝 addNewAccount: Current accounts:',
+        allAccountsBefore.length,
+        'Next will be Account',
+        nextAccountNumber,
+      );
+
+      let addresses: string[];
+      let keyring: any;
+
+      if (currentAccountAddress) {
+        // Find the keyring containing the current account and add to it
+        console.log('🔍 Finding keyring for current account...');
+        keyring = await this.keyringService.getKeyringForAddress(currentAccountAddress);
+        console.log('✅ Found keyring type:', keyring.type);
+
+        if (keyring.type !== 'HD') {
+          throw new Error('Current account is not from an HD wallet - cannot add more accounts');
+        }
+
+        console.log('➕ Adding account to the same keyring as current account...');
+        addresses = await keyring.addAccounts(1);
+        console.log('✅ Account added to correct keyring');
+
+        // IMPORTANT: Update the KeyringService cache since we bypassed its addAccounts method
+        await this.keyringService.refreshAccountsCache();
+      } else {
+        // Fallback: Add to first HD keyring if no current account specified
+        console.log('⚠️ No current account specified, using first HD keyring...');
+        addresses = await this.keyringService.addAccounts(1);
+        // Get the keyring that was used to add the account
+        const hdKeyrings = this.keyringService.getKeyringsByType(KEYRING_TYPE.HD);
+        keyring = hdKeyrings.length > 0 ? hdKeyrings[0] : null;
+        console.log('✅ Account added to first HD keyring (fallback)');
+      }
+
+      // Generate proper account name based on global sequential numbering
+      const alias = `Account ${nextAccountNumber}`;
 
       // Store contact with alias
-      await this.contactBookService.addContact({
+      this.contactBookService.addContact({
         address: addresses[0],
         name: alias,
         isAlias: true,
         brandName: KEYRING_CLASS.MNEMONIC,
       });
 
+      console.log(
+        '✅ Account created successfully with alias:',
+        alias,
+        addresses[0].substring(0, 10) + '...',
+      );
       return addresses[0];
     } catch (error) {
-      console.error('Failed to add new account:', error);
+      console.error('❌ Failed to add new account:', error);
       throw error;
     }
   }
@@ -373,140 +368,35 @@ export class WalletService {
     }
   }
 
-  // ===== SOCIAL LOGIN FUNCTIONALITY DISABLED =====
-  // Social login backend methods have been commented out
-  // but kept for reference if functionality needs to be restored later
-  //
-  // /**
-  //  * Create wallet from social login - Integrates Web3Auth with existing wallet system
-  //  */
-  // async createSocialWallet(socialData: SocialLoginResult): Promise<{
-  //   address: string;
-  //   userInfo: SocialUserInfo;
-  // }> {
-  //   return trackOperation('wallet.createSocial', async () => {
-  //     console.log('🚀 WalletService.createSocialWallet - Creating wallet from social login...');
-  //
-  //     try {
-  //       let address: string;
-  //
-  //       // Check if we have a managed key scenario (Web3Auth security feature)
-  //       if (socialData.privateKey === "WEB3AUTH_MANAGED") {
-  //         console.log('🔐 Using Web3Auth provider-managed keys (secure approach)');
-  //
-  //         // Use the address from the social login result directly
-  //         address = socialData.address;
-  //
-  //         if (!address) {
-  //           throw new Error('No address available from Web3Auth provider');
-  //         }
-  //
-  //         // Store Web3Auth provider reference for signing operations
-  //         // The private key remains managed by Web3Auth for security
-  //         await this.keyringService.storeWeb3AuthProvider(socialData.provider);
-  //
-  //       } else {
-  //         // Traditional private key import
-  //         console.log('🔐 Importing private key into keyring system');
-  //         const addresses = await this.keyringService.createSimpleKeyring(socialData.privateKey);
-  //
-  //         if (!addresses || addresses.length === 0) {
-  //           throw new Error('Failed to create wallet from social login');
-  //         }
-  //
-  //         address = addresses[0];
-  //       }
-  //
-  //       // Generate alias for social account
-  //       const alias = this.generateSocialAliasName(socialData.userInfo);
-  //
-  //       // Store contact with social user info
-  //       await this.contactBookService.addContact({
-  //         address: address,
-  //         name: alias,
-  //         isAlias: true,
-  //         brandName: `Social (${socialData.userInfo.typeOfLogin})`,
-  //         socialUserInfo: socialData.userInfo, // Store social user info for future reference
-  //       });
-  //
-  //       // Mark wallet as unlocked
-  //       this.lockService.markAsUnlocked();
-  //       this.lockService.setCurrentAddress(address);
-  //
-  //       console.log('✅ Social wallet created successfully');
-  //
-  //       return {
-  //         address: address,
-  //         userInfo: socialData.userInfo,
-  //       };
-  //     } catch (error) {
-  //       console.error('❌ Failed to create social wallet:', error);
-  //       throw error;
-  //     }
-  //   });
-  // }
+  /**
+   * Export mnemonic for specific account address
+   * This ensures the correct mnemonic is shown for the selected account
+   */
+  async exportMnemonicForAddress(address: string): Promise<string> {
+    try {
+      console.log(
+        '🔐 WalletService: Exporting mnemonic for address:',
+        address.substring(0, 10) + '...',
+      );
 
-  // /**
-  //  * Get all social accounts
-  //  */
-  // async getSocialAccounts(): Promise<any[]> {
-  //   try {
-  //     const allAccounts = await this.getAllAccounts();
-  //     return allAccounts.filter(account =>
-  //       account.brandName && account.brandName.includes('Social')
-  //     );
-  //   } catch (error) {
-  //     console.error('Failed to get social accounts:', error);
-  //     return [];
-  //   }
-  // }
-  //
-  // /**
-  //  * Check if social account exists
-  //  */
-  // async hasSocialAccount(verifierId: string): Promise<boolean> {
-  //   try {
-  //     const socialAccounts = await this.getSocialAccounts();
-  //     return socialAccounts.some(account =>
-  //       account.socialUserInfo?.verifierId === verifierId
-  //     );
-  //   } catch (error) {
-  //     console.error('Failed to check social account existence:', error);
-  //     return false;
-  //   }
-  // }
-  //
-  // /**
-  //  * Get social account by verifier ID
-  //  */
-  // async getSocialAccount(verifierId: string): Promise<any | null> {
-  //   try {
-  //     const socialAccounts = await this.getSocialAccounts();
-  //     return socialAccounts.find(account =>
-  //       account.socialUserInfo?.verifierId === verifierId
-  //     ) || null;
-  //   } catch (error) {
-  //     console.error('Failed to get social account:', error);
-  //     return null;
-  //   }
-  // }
-  //
-  // /**
-  //  * Generate alias name for social accounts
-  //  */
-  // private generateSocialAliasName(userInfo: SocialUserInfo): string {
-  //   const providerName = userInfo.typeOfLogin.charAt(0).toUpperCase() + userInfo.typeOfLogin.slice(1);
-  //
-  //   if (userInfo.name) {
-  //     return `${userInfo.name} (${providerName})`;
-  //   } else if (userInfo.email) {
-  //     const emailParts = userInfo.email.split('@');
-  //     return `${emailParts[0]} (${providerName})`;
-  //   } else {
-  //     return `${providerName} Account`;
-  //   }
-  // }
-  // ===== END SOCIAL LOGIN FUNCTIONALITY =====
+      // Get the keyring that contains this address
+      const keyring = await this.keyringService.getKeyringForAddress(address);
+      console.log('✅ WalletService: Found keyring type:', keyring.type);
+
+      if (keyring.type !== 'HD') {
+        throw new Error('Account is not from an HD wallet (seed phrase)');
+      }
+
+      // Export mnemonic from the correct keyring
+      const mnemonic = (keyring as any).getMnemonic();
+      console.log('✅ WalletService: Mnemonic exported successfully');
+
+      return mnemonic;
+    } catch (error) {
+      console.error('❌ Failed to export mnemonic for address:', error);
+      throw error;
+    }
+  }
 
   /**
    * Reset wallet
@@ -521,13 +411,8 @@ export class WalletService {
    * Generate alias name
    */
   generateAliasName(brandName: string, keyringCount: number, addressCount: number): string {
-    if (brandName === KEYRING_CLASS.MNEMONIC) {
-      return `Account ${addressCount + 1}`;
-    } else if (brandName === KEYRING_CLASS.PRIVATE_KEY) {
-      return `Private Key ${keyringCount + 1}`;
-    } else {
-      return `${brandName} ${addressCount + 1}`;
-    }
+    // All wallets should use "Account {index}" naming
+    return `Account ${addressCount + 1}`;
   }
 }
 

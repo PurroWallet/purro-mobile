@@ -4,6 +4,7 @@ import { Image, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import DefaultIcon from '@/assets/common/icon.png';
 import { Icon } from '@/components/Icon';
+import { formatAddress } from '@/utils/address';
 import SheetHeader from './SheetHeader';
 
 interface BaseScreenProps {
@@ -36,11 +37,6 @@ const BaseScreen: React.FC<BaseScreenProps> = ({
   const { top: topSafeArea } = useSafeAreaInsets();
   const { colorScheme } = useColorScheme();
   const isDarkMode = colorScheme === 'dark';
-
-  const formatAddress = (address: string) => {
-    if (!address) return '';
-    return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
-  };
 
   const renderHeader = () => {
     if (!title && !showAccountInfo) return null;

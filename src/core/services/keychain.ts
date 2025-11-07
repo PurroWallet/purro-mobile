@@ -38,15 +38,12 @@ class SecureKeychain {
     password: string,
     type: KEYCHAIN_AUTH_TYPES = KEYCHAIN_AUTH_TYPES.BIOMETRICS,
   ): Promise<void> {
-    console.log('🔐 Setting generic password with type:', type);
-
     const authOptions: Partial<RNKeychain.Options> = {
       accessible: RNKeychain.ACCESSIBLE.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
       service: 'com.purrowallet',
     };
 
     if (type === KEYCHAIN_AUTH_TYPES.BIOMETRICS) {
-      console.log('🔐 Configuring for biometric authentication...');
       authOptions.accessControl = RNKeychain.ACCESS_CONTROL.BIOMETRY_CURRENT_SET;
       authOptions.authenticationType = RNKeychain.AUTHENTICATION_TYPE.BIOMETRICS;
       authOptions.authenticationPrompt = {
@@ -58,13 +55,9 @@ class SecureKeychain {
       authOptions.accessControl = RNKeychain.ACCESS_CONTROL.DEVICE_PASSCODE;
     }
 
-    console.log('🔐 Auth options:', authOptions);
-
     const encryptedPassword = await this.encryptPassword(password);
 
-    console.log('🔐 Saving to keychain with Face ID protection...');
     await RNKeychain.setGenericPassword('purro-user', encryptedPassword, authOptions);
-    console.log('✅ Password saved to keychain successfully');
 
     keychainStorage.setItem(KEYCHAIN_AUTH_TYPES_KEY, type);
   }

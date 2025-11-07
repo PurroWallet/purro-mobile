@@ -22,7 +22,7 @@ export interface Account {
   address: string;
   type: string;
   brandName: string;
-  alianName?: string;
+  aliasName?: string;
   index?: number;
   balance?: string;
 }

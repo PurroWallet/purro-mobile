@@ -13,6 +13,7 @@ import BaseScreen from '../components/BaseScreen';
 type Props = NativeStackScreenProps<AccountStackParamList, 'AddAccount'> & {
   onClose: () => void;
   parentNavigation: NavigationProp<any>;
+  currentAccount: any;
 };
 
 interface AccountOption {
@@ -25,8 +26,10 @@ interface AccountOption {
 
 const AddAccountScreen: React.FC<Props> = ({
   navigation,
+  route,
   onClose: _onClose,
   parentNavigation: _parentNavigation,
+  currentAccount,
 }) => {
   const { t } = useTranslation();
   const { colorScheme } = useColorScheme();
@@ -37,20 +40,28 @@ const AddAccountScreen: React.FC<Props> = ({
   };
 
   const handleCreateNew = () => {
-    // Navigate to password verification screen first
-    navigation.navigate('PasswordVerification', {
-      accountAddress: '',
-      onSuccess: async (verifiedPassword) => {
-        try {
-          await walletController.addNewAccount();
-          // Navigate to success screen
-          navigation.navigate('Success', {
-            title: 'Account Created!',
-            message: 'New account has been created successfully.',
-            buttonText: 'Done',
-          });
-        } catch (error) {
-          Alert.alert('Error', 'Failed to create new account');
+    console.log('📝 AddAccountScreen: Creating new account...');
+    console.log(
+      '📍 Current account:',
+      currentAccount?.aliasName ||
+        currentAccount?.address?.substring(0, 10) + '...' ||
+        'No current account',
+    );
+
+    // Navigate to seed phrase selection screen first
+    navigation.navigate('SelectSeedPhrase', {
+      onAccountCreated: (newAccount) => {
+        console.log('📝 AddAccountScreen: New account created callback');
+        console.log('📍 New account:', newAccount.address.substring(0, 10) + '...');
+
+        // Call the callback if available
+        if (route.params?.onNewAccountCreated) {
+          route.params.onNewAccountCreated(newAccount);
+        }
+
+        // Update parent navigation with new account
+        if (_parentNavigation && _parentNavigation.setParams) {
+          _parentNavigation.setParams({ newAccount });
         }
       },
     });

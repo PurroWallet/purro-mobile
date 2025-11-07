@@ -10,7 +10,7 @@ interface Account {
   address: string;
   type: string;
   brandName: string;
-  alianName?: string;
+  aliasName?: string;
 }
 
 interface AccountBottomSheetProps {
@@ -64,19 +64,14 @@ const AccountBottomSheet = forwardRef<AccountBottomSheetRef, AccountBottomSheetP
     const renderBackground = useCallback((props: any) => <CustomBackground {...props} />, []);
 
     const handleAddAccount = useCallback(() => {
-      // Use a timeout to ensure the sheet is fully presented before navigating
-      setTimeout(() => {
-        try {
-          navigation.navigate('AddAccount');
-        } catch (error) {
-          console.log('Navigation error:', error);
-        }
-      }, 100);
-    }, [navigation]);
+      // Navigation is handled by the nested AccountStackNavigator
+      console.log('📝 AccountBottomSheet: Add account requested');
+    }, []);
 
     const handleSettings = useCallback(() => {
-      navigation.navigate('Settings');
-    }, [navigation]);
+      // Navigation is handled by the nested AccountStackNavigator
+      console.log('📝 AccountBottomSheet: Settings requested');
+    }, []);
 
     // Expose present/dismiss methods
     useImperativeHandle(ref, () => ({
@@ -88,7 +83,7 @@ const AccountBottomSheet = forwardRef<AccountBottomSheetRef, AccountBottomSheetP
       },
     }));
 
-    const currentAccountName = currentAccount?.alianName || 'Account 1';
+    const currentAccountName = currentAccount?.aliasName || 'Account 1';
     const currentAccountAddress = currentAccount?.address || '';
 
     return (

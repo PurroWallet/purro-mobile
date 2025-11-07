@@ -48,25 +48,19 @@ export class Web3AuthService {
     }
 
     try {
-      console.log('🔐 Initializing Web3Auth v8.1.0...');
-
-      // CRITICAL: Create EthereumPrivateKeyProvider FIRST (mandatory in v8.1.0)
       this.ethereumProvider = new EthereumPrivateKeyProvider({
         config: { chainConfig },
       });
 
-      // Initialize Web3Auth with required privateKeyProvider
       this.web3auth = new Web3Auth(WebBrowser, EncryptedStorage, {
         clientId,
         network: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
         redirectUrl: resolvedRedirectUrl,
-        privateKeyProvider: this.ethereumProvider, // MANDATORY in v8.1.0
+        privateKeyProvider: this.ethereumProvider,
       });
 
       await this.web3auth.init();
       this.initialized = true;
-
-      console.log('✅ Web3Auth v8.1.0 initialized successfully');
     } catch (error) {
       console.error('❌ Failed to initialize Web3Auth:', error);
       throw error;
@@ -79,24 +73,14 @@ export class Web3AuthService {
     }
 
     try {
-      console.log('🔐 Logging in with Google (v8.1.0)...');
-
       // Login with Google using v8.1.0 pattern
       const info = await this.web3auth!.login({
         loginProvider: LOGIN_PROVIDER.GOOGLE,
         redirectUrl: resolvedRedirectUrl,
       });
 
-      console.log('📋 Login successful, Web3Auth info:', info);
-
       // Get user info
       const userInfo = this.web3auth!.userInfo();
-      console.log('📋 User info retrieved:', userInfo);
-
-      console.log('✅ Google login successful:', {
-        email: userInfo?.email,
-        name: userInfo?.name,
-      });
 
       return {
         userInfo: {
@@ -118,7 +102,6 @@ export class Web3AuthService {
   async logout(): Promise<void> {
     if (this.web3auth) {
       await this.web3auth.logout();
-      console.log('✅ Logged out successfully');
     }
   }
 

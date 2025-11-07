@@ -35,12 +35,9 @@ export async function verifyPassword(
   password: string,
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    console.log('🔐 apisLock.verifyPassword - Starting verification...');
     await keyringService.verifyPassword(password);
-    console.log('✅ apisLock.verifyPassword - Password verified successfully');
     return { success: true };
   } catch (error) {
-    console.log('❌ apisLock.verifyPassword - Verification failed:', error.message);
     return { success: false, error: 'Invalid password' };
   }
 }

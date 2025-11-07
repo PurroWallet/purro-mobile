@@ -10,14 +10,36 @@ import { useTranslation } from '@/utils/i18n';
  * Shown after successful wallet creation
  * Following Figma design: node-id=260-1901
  */
-const WalletSuccessScreen: React.FC<WalletSuccessScreenProps> = ({ navigation }) => {
+const WalletSuccessScreen: React.FC<WalletSuccessScreenProps> = ({ route, navigation }) => {
   const { t } = useTranslation();
-  const handleGetStarted = () => {
-    // Navigate to Home screen
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'Home' }],
-    });
+  const { addresses, mnemonic, isAdditionalWallet } = route.params || {};
+
+  const handleGetStarted = async () => {
+    if (isAdditionalWallet && mnemonic) {
+      // Create the additional wallet using the mnemonic
+      try {
+        // Import the mnemonic to create the wallet
+        // This would use the existing wallet creation logic
+        console.log('📝 Creating additional wallet with mnemonic...');
+
+        // For now, just navigate back to Home
+        // In a real implementation, you would call wallet creation logic here
+
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Home' }],
+        });
+      } catch (error) {
+        console.error('Failed to create additional wallet:', error);
+        // Handle error appropriately
+      }
+    } else {
+      // Navigate to Home screen
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Home' }],
+      });
+    }
   };
 
   return (

@@ -7,30 +7,73 @@ import {
 import { useColorScheme } from 'nativewind';
 import React, { useMemo } from 'react';
 import AccountListScreen from './screens/AccountListScreen.tsx';
+import AccountSeedPhraseDisplayScreen from './screens/AccountSeedPhraseDisplayScreen.tsx';
 import AddAccountScreen from './screens/AddAccountScreen.tsx';
+import AdditionalSeedPhraseDisplayScreen from './screens/AdditionalSeedPhraseDisplayScreen.tsx';
 import CreatePasswordScreen from './screens/CreatePasswordScreen.tsx';
 import EditAccountNameScreen from './screens/EditAccountNameScreen.tsx';
 import EditAccountScreen from './screens/EditAccountScreen.tsx';
 import ImportPrivateKeyScreen from './screens/ImportPrivateKeyScreen.tsx';
 import ImportSeedPhraseScreen from './screens/ImportSeedPhraseScreen.tsx';
 import PasswordVerificationScreen from './screens/PasswordVerificationScreen.tsx';
+import PrivateKeyDisplayScreen from './screens/PrivateKeyDisplayScreen.tsx';
 import SeedPhraseBackupScreen from './screens/SeedPhraseBackupScreen.tsx';
+import SeedPhraseBackupWarningScreen from './screens/SeedPhraseBackupWarningScreen.tsx';
+import SeedPhraseDiscoveryScreen from './screens/SeedPhraseDiscoveryScreen.tsx';
+import SelectSeedPhraseScreen from './screens/SelectSeedPhraseScreen.tsx';
 import SettingsScreen from './screens/SettingsScreen.tsx';
 import SuccessScreen from './screens/SuccessScreen.tsx';
 import UnlockScreen from './screens/UnlockScreen.tsx';
 
 export type AccountStackParamList = {
   AccountList: undefined;
-  AddAccount: undefined;
+  AddAccount: { currentAccount: any; onNewAccountCreated?: (account: any) => void };
   EditAccount: { accountAddress: string };
   EditAccountName: { accountAddress: string; currentName: string };
   Settings: undefined;
   ImportSeedPhrase: undefined;
   ImportPrivateKey: undefined;
+  PrivateKeyDisplay: {
+    privateKey: string;
+    accountAddress: string;
+  };
   SeedPhraseBackup: undefined;
+  SeedPhraseBackupWarning: {
+    selectedSeedPhraseId?: string;
+    selectedMnemonic: string;
+  };
+  SeedPhraseDiscovery: {
+    mnemonic: string;
+    password: string;
+    onSuccess?: (account: any) => void;
+  };
+  AccountSeedPhraseDisplay: {
+    selectedSeedPhraseId?: string;
+    selectedMnemonic: string;
+  };
+  AdditionalSeedPhraseDisplay: {
+    mnemonic: string;
+  };
+  SelectSeedPhrase: {
+    mode?: 'create' | 'backup';
+    onAccountCreated?: (account: any) => void;
+  };
   CreatePassword: { mnemonic: string; isPrivateKeyImport?: boolean; isNewAccount?: boolean };
-  Success: { title: string; message: string; buttonText?: string };
-  PasswordVerification: { accountAddress: string; onSuccess: (password: string) => void };
+  Success: {
+    title: string;
+    message: string;
+    buttonText?: string;
+    newAccountAddress?: string;
+    shouldSetAsCurrent?: boolean;
+    onAccountCreated?: (account: any) => void;
+    onSuccess?: () => void;
+  };
+  PasswordVerification: {
+    accountAddress: string;
+    selectedSeedPhraseId?: string;
+    selectedMnemonic?: string;
+    onSuccess: (password: string) => void;
+  };
   Unlock: {
     mnemonic?: string;
     isImport?: boolean;
@@ -97,7 +140,12 @@ const AccountStackNavigator: React.FC<AccountStackNavigatorProps> = ({
           </Stack.Screen>
           <Stack.Screen name="AddAccount">
             {(props) => (
-              <AddAccountScreen {...props} onClose={onClose} parentNavigation={parentNavigation} />
+              <AddAccountScreen
+                {...props}
+                onClose={onClose}
+                parentNavigation={parentNavigation}
+                currentAccount={currentAccount}
+              />
             )}
           </Stack.Screen>
           <Stack.Screen name="ImportSeedPhrase">
@@ -118,8 +166,26 @@ const AccountStackNavigator: React.FC<AccountStackNavigatorProps> = ({
               />
             )}
           </Stack.Screen>
+          <Stack.Screen name="PrivateKeyDisplay">
+            {(props) => (
+              <PrivateKeyDisplayScreen
+                {...props}
+                onClose={onClose}
+                parentNavigation={parentNavigation}
+              />
+            )}
+          </Stack.Screen>
           <Stack.Screen name="SeedPhraseBackup">
             {(props) => <SeedPhraseBackupScreen {...props} onClose={onClose} />}
+          </Stack.Screen>
+          <Stack.Screen name="SelectSeedPhrase">
+            {(props) => (
+              <SelectSeedPhraseScreen
+                {...props}
+                onClose={onClose}
+                parentNavigation={parentNavigation}
+              />
+            )}
           </Stack.Screen>
           <Stack.Screen name="CreatePassword">
             {(props) => (
@@ -133,6 +199,42 @@ const AccountStackNavigator: React.FC<AccountStackNavigatorProps> = ({
           <Stack.Screen name="Unlock">
             {(props) => (
               <UnlockScreen {...props} onClose={onClose} parentNavigation={parentNavigation} />
+            )}
+          </Stack.Screen>
+          <Stack.Screen name="SeedPhraseBackupWarning">
+            {(props) => (
+              <SeedPhraseBackupWarningScreen
+                {...props}
+                onClose={onClose}
+                parentNavigation={parentNavigation}
+              />
+            )}
+          </Stack.Screen>
+          <Stack.Screen name="AccountSeedPhraseDisplay">
+            {(props) => (
+              <AccountSeedPhraseDisplayScreen
+                {...props}
+                onClose={onClose}
+                parentNavigation={parentNavigation}
+              />
+            )}
+          </Stack.Screen>
+          <Stack.Screen name="AdditionalSeedPhraseDisplay">
+            {(props) => (
+              <AdditionalSeedPhraseDisplayScreen
+                {...props}
+                onClose={onClose}
+                parentNavigation={parentNavigation}
+              />
+            )}
+          </Stack.Screen>
+          <Stack.Screen name="SeedPhraseDiscovery">
+            {(props) => (
+              <SeedPhraseDiscoveryScreen
+                {...props}
+                onClose={onClose}
+                parentNavigation={parentNavigation}
+              />
             )}
           </Stack.Screen>
           <Stack.Screen name="Success">

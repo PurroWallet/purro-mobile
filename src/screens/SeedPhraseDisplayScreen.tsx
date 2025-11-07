@@ -25,21 +25,21 @@ const SeedWordCard = ({ word, index }: { word: string; index: number }) => (
 );
 
 const SeedPhraseDisplayScreen: React.FC<SeedPhraseDisplayScreenProps> = ({ route, navigation }) => {
-  const { mnemonic } = route.params;
+  const { mnemonic, isAdditionalWallet } = route.params;
   const { t } = useTranslation();
 
   const [isConfirmed, setIsConfirmed] = useState(false);
-  const [words] = useState(() => mnemonic.split(' '));
+  const [words] = useState(() => mnemonic?.split(' ') || []);
 
   usePreventScreenshot(true);
 
   const handleContinue = () => {
-    if (!isConfirmed) {
+    if (!isConfirmed || !mnemonic) {
       return;
     }
 
     // Navigate to seed phrase verification
-    navigation.navigate('SeedPhraseVerify', { mnemonic });
+    navigation.navigate('SeedPhraseVerify', { mnemonic, isAdditionalWallet });
   };
 
   const toggleConfirmation = () => {

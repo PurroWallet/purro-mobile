@@ -56,7 +56,7 @@ const WordInput = ({
 );
 
 const SeedPhraseVerifyScreen: React.FC<SeedPhraseVerifyScreenProps> = ({ route, navigation }) => {
-  const { mnemonic } = route.params;
+  const { mnemonic, isAdditionalWallet } = route.params;
   const { t } = useTranslation();
 
   const words = useMemo(() => mnemonic.split(' '), [mnemonic]);
@@ -119,9 +119,18 @@ const SeedPhraseVerifyScreen: React.FC<SeedPhraseVerifyScreenProps> = ({ route, 
         return;
       }
 
-      navigation.navigate('CreatePassword', { mnemonic });
+      if (isAdditionalWallet) {
+        // User already has password from Web3Auth, create wallet directly
+        navigation.navigate('WalletSuccess', {
+          mnemonic,
+          isAdditionalWallet: true,
+        });
+      } else {
+        // New user needs to create password
+        navigation.navigate('CreatePassword', { mnemonic });
+      }
     },
-    [verificationFields, words, regenerateVerification, navigation, mnemonic],
+    [verificationFields, words, regenerateVerification, navigation, mnemonic, isAdditionalWallet],
   );
 
   const handleContinue = useCallback(() => {

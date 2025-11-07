@@ -1,4 +1,5 @@
-import { contactBookService, lockService, walletService } from '../services';
+import { KEYRING_TYPE } from '../keyring/types';
+import { contactBookService, keyringService, lockService, walletService } from '../services';
 
 /**
  * Wallet Controller - Main controller for wallet operations
@@ -37,7 +38,10 @@ export class WalletController {
    * Boot keyring for new wallet creation (no vault verification)
    */
   async bootForNewWallet(password: string): Promise<void> {
-    return walletService.bootForNewWallet(password);
+    console.log('🔑 WalletController: Booting for new wallet...');
+    const result = await keyringService.bootForNewWallet(password);
+    console.log('✅ WalletController: Boot complete');
+    return result;
   }
 
   /**
@@ -51,25 +55,20 @@ export class WalletController {
    * Import wallet with mnemonic
    */
   async importWalletWithMnemonic(mnemonic: string, password: string): Promise<string[]> {
-    return walletService.importWalletWithMnemonic(mnemonic, password);
+    console.log('📝 WalletController: Importing wallet with mnemonic...');
+    const result = await walletService.importWalletWithMnemonic(mnemonic, password);
+    console.log('✅ WalletController: Mnemonic import successful, addresses:', result);
+    return result;
   }
 
   /**
    * Import wallet from private key
    */
   async importWalletWithPrivateKey(privateKey: string): Promise<string[]> {
-    return walletService.importWalletWithPrivateKey(privateKey);
-  }
-
-  /**
-   * Import wallet with mnemonic (for new wallet creation - no vault verification)
-   */
-  async importWalletWithMnemonicNew(
-    mnemonic: string,
-    password: string,
-    passphrase?: string,
-  ): Promise<string[]> {
-    return walletService.importWalletWithMnemonicNew(mnemonic, password, passphrase);
+    console.log('🔐 WalletController: Importing wallet with private key...');
+    const result = await walletService.importWalletWithPrivateKey(privateKey);
+    console.log('✅ WalletController: Private key import successful, addresses:', result);
+    return result;
   }
 
   /**
@@ -87,17 +86,44 @@ export class WalletController {
   }
 
   /**
-   * Set current account
+   * Get all keyrings by type
    */
-  setCurrentAccount(address: string): void {
-    walletService.setCurrentAccount(address);
+  async getKeyringsByType(type: KEYRING_TYPE): Promise<any[]> {
+    return keyringService.getKeyringsByType(type);
   }
 
   /**
-   * Add new account
+   * Get all HD keyrings
    */
-  async addNewAccount(): Promise<string> {
-    return walletService.addNewAccount();
+  async getHDKeyrings(): Promise<any[]> {
+    return keyringService.getKeyringsByType(KEYRING_TYPE.HD);
+  }
+
+  /**
+   * Get all HD keyrings with their accounts for seed phrase management
+   */
+  async getHDKeyringsWithAccounts(): Promise<
+    Array<{
+      id: string;
+      accountCount: number;
+      accounts: Array<{ address: string; index: number }>;
+    }>
+  > {
+    return keyringService.getHDKeyringsWithAccounts();
+  }
+
+  /**
+   * Set current account
+   */
+  setCurrentAccount(address: string): void {
+    lockService.setCurrentAddress(address);
+  }
+
+  /**
+   * Add new account to specific keyring based on current account
+   */
+  async addNewAccount(currentAccountAddress?: string): Promise<string> {
+    return walletService.addNewAccount(currentAccountAddress);
   }
 
   /**
@@ -140,6 +166,13 @@ export class WalletController {
    */
   async exportMnemonic(): Promise<string> {
     return walletService.exportMnemonic();
+  }
+
+  /**
+   * Export mnemonic for specific account address
+   */
+  async exportMnemonicForAddress(address: string): Promise<string> {
+    return walletService.exportMnemonicForAddress(address);
   }
 
   /**
@@ -210,6 +243,29 @@ export class WalletController {
    */
   updateAccountAlias(address: string, alias: string): boolean {
     return contactBookService.updateContact(address, { name: alias });
+  }
+
+  /**
+   * Generate proper account name based on global sequential numbering
+   */
+  async generateAccountName(address: string): Promise<string> {
+    try {
+      // Get all accounts in creation order
+      const allAccounts = await this.getAllAccounts();
+
+      // Find the index of this account in the global account list
+      const globalIndex = allAccounts.findIndex((acc) => acc.address === address);
+
+      if (globalIndex !== -1) {
+        return `Account ${globalIndex + 1}`;
+      }
+
+      // Fallback - count accounts and add 1 for new account
+      return `Account ${allAccounts.length + 1}`;
+    } catch (error) {
+      console.error('Error generating account name:', error);
+      return 'Account 1';
+    }
   }
 
   /**

@@ -14,6 +14,7 @@ import BaseScreen from '../components/BaseScreen';
 type Props = NativeStackScreenProps<AccountStackParamList, 'CreatePassword'> & {
   onClose: () => void;
   parentNavigation: any;
+  onAccountCreated?: (account: { address: string }) => void;
 };
 
 interface RouteParams {
@@ -41,6 +42,7 @@ const CreatePasswordScreen: React.FC<Props> = ({
   navigation,
   onClose,
   parentNavigation,
+  onAccountCreated,
   route,
 }) => {
   const { mnemonic, isPrivateKeyImport, isNewAccount } = (route.params || {}) as RouteParams;
@@ -91,6 +93,17 @@ const CreatePasswordScreen: React.FC<Props> = ({
         message: isNewAccount
           ? t('accountBottomSheet.success.accountCreated.message')
           : t('accountBottomSheet.success.walletImported.message'),
+        newAccountAddress: addresses && addresses.length > 0 ? addresses[0] : undefined,
+        shouldSetAsCurrent: isNewAccount,
+        onAccountCreated: (newAccount) => {
+          console.log('📝 CreatePasswordScreen: New account created callback');
+          console.log('📍 New account:', newAccount.address.substring(0, 10) + '...');
+
+          // Update current account if needed
+          if (onAccountCreated) {
+            onAccountCreated(newAccount);
+          }
+        },
       });
     } catch (error) {
       console.error('Failed to create wallet:', error);

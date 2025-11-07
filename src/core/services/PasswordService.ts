@@ -99,7 +99,7 @@ export class PasswordService {
       salt = Buffer.from(storedSalt, 'base64');
     } else {
       // Generate new cryptographically secure salt
-      salt = encryptionService.generateRandomBytes(16);
+      salt = await encryptionService.generateRandomBytes(16);
     }
 
     // Derive key using PBKDF2

@@ -43,35 +43,64 @@ const CreatePasswordScreen: React.FC<CreatePasswordScreenProps> = ({ navigation,
     if (isLoading) return;
 
     try {
+      console.log('🚀 CreatePassword: Starting wallet creation...');
+      console.log('📊 Parameters:', {
+        isWeb3Auth,
+        isImport,
+        hasMnemonic: !!mnemonic,
+        hasPrivateKey: !!privateKey,
+      });
+
       setIsLoading(true);
 
       let addresses: string[] = [];
 
       if (isWeb3Auth && privateKey) {
+        console.log('🔐 Web3Auth flow: Importing private key...');
         // For Web3Auth users: Boot for new wallet, then import private key
+        console.log('🔑 Step 1: Boot for new wallet...');
         await walletController.bootForNewWallet(values.password);
+        console.log('✅ Boot complete. Step 2: Import private key...');
         addresses = await walletController.importWalletWithPrivateKey(privateKey);
+        console.log('✅ Private key imported, addresses:', addresses);
       } else if (isImport && mnemonic) {
+        console.log('📝 Import mnemonic flow...');
         // Import existing wallet: Boot for new wallet, then import mnemonic
+        console.log('🔑 Step 1: Boot for new wallet...');
         await walletController.bootForNewWallet(values.password);
-        addresses = await walletController.importWalletWithMnemonicNew(mnemonic, values.password);
+        console.log('✅ Boot complete. Step 2: Import mnemonic...');
+        addresses = await walletController.importWalletWithMnemonic(mnemonic, values.password);
+        console.log('✅ Mnemonic imported, addresses:', addresses);
       } else if (isImport && privateKey) {
+        console.log('🔐 Import private key flow...');
         // Import private key: Boot for new wallet, then import private key
+        console.log('🔑 Step 1: Boot for new wallet...');
         await walletController.bootForNewWallet(values.password);
+        console.log('✅ Boot complete. Step 2: Import private key...');
         addresses = await walletController.importWalletWithPrivateKey(privateKey);
+        console.log('✅ Private key imported, addresses:', addresses);
       } else {
+        console.log('🆕 Create new wallet flow...');
         // Create new wallet
         const result = await walletController.createWallet(values.password);
         addresses = result.addresses;
+        console.log('✅ New wallet created, addresses:', addresses);
       }
 
-      // Navigate to success screen
-      navigation.replace('WalletSuccess', {
-        addresses,
-        isImport: isImport || isWeb3Auth, // Treat Web3Auth as import
-        socialInfo: isWeb3Auth ? userInfo : undefined,
-      });
+      if (addresses && addresses.length > 0) {
+        console.log('🎯 Success! Navigating to WalletSuccess...');
+        // Navigate to success screen
+        navigation.replace('WalletSuccess', {
+          addresses,
+          isImport: isImport || isWeb3Auth, // Treat Web3Auth as import
+          socialInfo: isWeb3Auth ? userInfo : undefined,
+        });
+      } else {
+        console.error('❌ No addresses returned from wallet creation');
+        Alert.alert('Error', 'Failed to create wallet - no addresses generated');
+      }
     } catch (error) {
+      console.error('❌ CreatePassword error:', error);
       Alert.alert(t('errors.generic.title'), t('errors.wallet.createFailed'));
     } finally {
       setIsLoading(false);

@@ -15,17 +15,55 @@ interface RouteParams {
   title: string;
   message: string;
   buttonText?: string;
+  newAccountAddress?: string;
+  shouldSetAsCurrent?: boolean;
+  onAccountCreated?: (account: any) => void;
+  onSuccess?: () => void;
 }
 
 const SuccessScreen: React.FC<Props> = ({ navigation, onClose, route }) => {
-  const { title, message, buttonText = 'Done' } = (route.params || {}) as RouteParams;
+  const {
+    title,
+    message,
+    buttonText = 'Done',
+    newAccountAddress,
+    shouldSetAsCurrent,
+    onAccountCreated,
+    onSuccess,
+  } = (route.params || {}) as RouteParams;
 
   const handleDone = () => {
+    console.log('✅ SuccessScreen: User clicked done');
+    console.log('📍 New account address:', newAccountAddress?.substring(0, 10) + '...');
+    console.log('🎯 Should set as current:', shouldSetAsCurrent);
+
+    // Set the new account as current if needed
+    if (shouldSetAsCurrent && newAccountAddress && onAccountCreated) {
+      console.log('🔄 Setting new account as current wallet...');
+      const newAccount = {
+        address: newAccountAddress,
+        aliasName: 'New Account', // Will be updated with proper name
+        brandName: 'MNEMONIC',
+      };
+      onAccountCreated(newAccount);
+    }
+
+    // Call onSuccess callback if provided
+    if (onSuccess) {
+      console.log('🔄 Calling onSuccess callback...');
+      onSuccess();
+    }
+
     // Clear navigation stack and go back to AccountList
     navigation.reset({
       index: 0,
       routes: [{ name: 'AccountList' }],
     });
+
+    // Close the bottom sheet after a short delay
+    setTimeout(() => {
+      onClose();
+    }, 100);
   };
 
   return (

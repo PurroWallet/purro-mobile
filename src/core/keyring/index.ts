@@ -1,13 +1,12 @@
-// Export all keyring types and implementations
-
+export * from 'bip39';
 export * from './AbstractKeyring';
 export * from './HDKeyring';
 export * from './SimpleKeyring';
 export * from './types';
 
+import { ethers } from 'ethers';
 import { HDKeyring } from './HDKeyring';
 import { SimpleKeyring } from './SimpleKeyring';
-// Factory function to create keyring by type
 import { IKeyring, KEYRING_TYPE } from './types';
 
 export function createKeyring(type: KEYRING_TYPE, options?: any): IKeyring {
@@ -21,23 +20,11 @@ export function createKeyring(type: KEYRING_TYPE, options?: any): IKeyring {
   }
 }
 
-// Utility function to validate mnemonic
-import * as bip39 from 'bip39';
-
-export function validateMnemonic(mnemonic: string): boolean {
-  return bip39.validateMnemonic(mnemonic);
-}
-
-// Utility function to generate mnemonic
-export function generateMnemonic(strength: number = 128): string {
-  return bip39.generateMnemonic(strength);
-}
-
-// Utility function to validate private key
 export function validatePrivateKey(privateKey: string): boolean {
-  // Remove 0x prefix if present
-  const key = privateKey.startsWith('0x') ? privateKey.slice(2) : privateKey;
-
-  // Validate private key format (64 hex characters)
-  return /^[a-fA-F0-9]{64}$/.test(key);
+  try {
+    const keyWithoutPrefix = privateKey.startsWith('0x') ? privateKey : '0x' + privateKey;
+    return ethers.utils.isHexString(keyWithoutPrefix, 32);
+  } catch {
+    return false;
+  }
 }

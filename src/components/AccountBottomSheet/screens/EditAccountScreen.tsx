@@ -37,7 +37,7 @@ const EditAccountScreen: React.FC<Props> = ({ navigation, route }) => {
   const handleEditName = () => {
     navigation.navigate('EditAccountName', {
       accountAddress,
-      currentName: account?.alianName || '',
+      currentName: account?.aliasName || '',
     });
   };
 
@@ -48,13 +48,12 @@ const EditAccountScreen: React.FC<Props> = ({ navigation, route }) => {
       onSuccess: async () => {
         try {
           const privateKey = await walletController.exportAccount(accountAddress);
-          Alert.alert(t('accountBottomSheet.alerts.privateKeyTitle'), privateKey, [
-            {
-              text: t('accountBottomSheet.alerts.copy'),
-              onPress: () => Clipboard.setString(privateKey),
-            },
-            { text: t('common.cancel'), style: 'cancel' },
-          ]);
+
+          // Navigate to private key display screen
+          navigation.navigate('PrivateKeyDisplay', {
+            privateKey,
+            accountAddress,
+          });
         } catch {
           Alert.alert(
             t('errors.generic.title'),
@@ -151,7 +150,7 @@ const EditAccountScreen: React.FC<Props> = ({ navigation, route }) => {
                 {t('accountBottomSheet.accountName')}
               </Text>
               <Text className="flex-1 text-right text-lg text-text-secondary">
-                {account.alianName || 'Unnamed'}
+                {account.aliasName || 'Unnamed'}
               </Text>
             </View>
             <Icon name="ChevronRight" size={20} />

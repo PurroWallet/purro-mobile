@@ -66,24 +66,26 @@ const ImportSeedPhraseScreen: React.FC<Props> = ({ navigation, onClose, parentNa
       navigation.navigate('PasswordVerification', {
         accountAddress: '',
         onSuccess: async (verifiedPassword) => {
-          // After password verification, directly import with verified password
+          // After password verification, navigate to discovery screen
           try {
-            console.log('📥 ImportSeedPhrase - Direct import with verified password');
-            const addresses = await walletController.importWalletWithMnemonicNew(
-              values.mnemonic.trim(),
-              verifiedPassword,
-            );
-            console.log('📥 ImportSeedPhrase - Success, addresses:', addresses);
+            console.log('📥 ImportSeedPhrase: Starting discovery with verified password...');
+            console.log('📝 Mnemonic:', values.mnemonic.trim().substring(0, 30) + '...');
+            console.log('🔑 Password verified');
 
-            // Navigate to success screen
-            navigation.navigate('Success', {
-              title: 'Import Successful!',
-              message: 'Seed phrase has been imported successfully.',
-              buttonText: 'Done',
+            // Navigate to seed phrase discovery screen with loading animation
+            navigation.navigate('SeedPhraseDiscovery', {
+              mnemonic: values.mnemonic.trim(),
+              password: verifiedPassword,
+              onSuccess: (account: any) => {
+                console.log(
+                  '📥 ImportSeedPhrase: Account created callback for:',
+                  account.address.substring(0, 10) + '...',
+                );
+              },
             });
           } catch (error) {
-            console.error('📥 ImportSeedPhrase - Import failed:', error);
-            Alert.alert('Import Failed', 'Failed to import seed phrase. Please try again.', [
+            console.error('📥 ImportSeedPhrase - Discovery failed:', error);
+            Alert.alert('Import Failed', 'Failed to start account discovery. Please try again.', [
               { text: 'OK' },
             ]);
           }

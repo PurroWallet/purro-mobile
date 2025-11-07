@@ -57,11 +57,6 @@ export const useCreatePasswordForm = ({
             const [, _privateKey, _address] = mnemonic.split(':');
 
             // Create wallet from private key
-            console.log('🔑 Importing private key wallet:', _address);
-
-            // Store the private key in a secure location (this would need proper implementation)
-            // For now, we'll just log it
-            console.log('🔐 Storing private key for address:', _address);
 
             // Create a simple wallet record for the private key
             // In a real implementation, you would store this securely

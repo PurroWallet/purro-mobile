@@ -6,6 +6,7 @@ export type RootStackParamList = {
     mnemonic: string | null;
     privateKey?: string;
     isWeb3Auth?: boolean;
+    isAdditionalWallet?: boolean;
     userInfo?: {
       email?: string;
       name?: string;
@@ -15,7 +16,7 @@ export type RootStackParamList = {
       verifierId?: string;
     };
   };
-  SeedPhraseVerify: { mnemonic: string };
+  SeedPhraseVerify: { mnemonic: string; isAdditionalWallet?: boolean };
   SeedPhraseBackup: undefined;
   CreatePassword: {
     mnemonic?: string;
@@ -33,8 +34,10 @@ export type RootStackParamList = {
     };
   };
   WalletSuccess: {
-    addresses: string[];
+    addresses?: string[];
+    mnemonic?: string;
     isImport?: boolean;
+    isAdditionalWallet?: boolean;
     socialInfo?: {
       email?: string;
       name?: string;

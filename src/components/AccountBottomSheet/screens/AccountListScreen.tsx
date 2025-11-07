@@ -10,6 +10,7 @@ import DefaultIcon from '@/assets/common/icon.png';
 import { Button } from '@/components';
 import { Icon } from '@/components/Icon';
 import { walletController } from '@/core/controllers/WalletController';
+import { formatAddress } from '@/utils/address';
 import type { AccountStackParamList } from '../AccountStackNavigator';
 import BaseScreen from '../components/BaseScreen';
 
@@ -27,7 +28,7 @@ interface Account {
   address: string;
   type: string;
   brandName: string;
-  alianName?: string;
+  aliasName?: string;
 }
 
 interface Network {
@@ -91,10 +92,12 @@ const AccountListScreen: React.FC<Props> = ({
 
   const loadAccounts = async () => {
     try {
+      console.log('📝 AccountListScreen: Loading accounts...');
       const accountsList = await walletController.getAllAccounts();
+      console.log('✅ AccountListScreen: Loaded', accountsList.length, 'accounts');
       setAccounts(accountsList);
     } catch (error) {
-      console.error('Failed to load accounts:', error);
+      console.error('❌ Failed to load accounts:', error);
     }
   };
 
@@ -106,8 +109,34 @@ const AccountListScreen: React.FC<Props> = ({
   const handleAddAccount = () => {
     // Call the callback if provided
     onAddAccount?.();
-    // Navigate to AddAccount screen
-    navigation.navigate('AddAccount');
+    console.log('📝 AccountListScreen: Navigating to AddAccount with current account...');
+    console.log(
+      '📍 Current account:',
+      currentAccount?.aliasName ||
+        currentAccount?.address?.substring(0, 10) + '...' ||
+        'No current account',
+    );
+
+    // Navigate to AddAccount screen with current account context
+    navigation.navigate('AddAccount', {
+      currentAccount,
+      onNewAccountCreated: (newAccount) => {
+        console.log('📝 AccountListScreen: New account created callback');
+        console.log(
+          '📍 New account to set as current:',
+          newAccount.address.substring(0, 10) + '...',
+        );
+
+        // Set the new account as current
+        onAccountSelect(newAccount);
+
+        // Reload accounts to show the new one with longer delay for persistence
+        setTimeout(() => {
+          console.log('📝 AccountListScreen: Reloading accounts after new account creation...');
+          loadAccounts();
+        }, 500); // Increased delay to ensure persistence is complete
+      },
+    });
   };
 
   const handleEditAccount = (account: Account) => {
@@ -119,11 +148,6 @@ const AccountListScreen: React.FC<Props> = ({
     onSettings?.();
     // Navigate to Settings screen
     navigation.navigate('Settings');
-  };
-
-  const formatAddress = (address: string) => {
-    if (!address) return '';
-    return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
   };
 
   // Add Account Button Footer
@@ -141,7 +165,7 @@ const AccountListScreen: React.FC<Props> = ({
   return (
     <BaseScreen
       showAccountInfo={true}
-      currentAccountName={currentAccount?.alianName || 'Account 1'}
+      currentAccountName={currentAccount?.aliasName || 'Account 1'}
       currentAccountAddress={currentAccount?.address || ''}
       onSettings={handleSettings}
       footer={renderFooter()}
@@ -207,7 +231,7 @@ const AccountListScreen: React.FC<Props> = ({
                           isSelected ? 'text-brand-primary font-semibold' : 'text-text-primary'
                         }`}
                       >
-                        {account.alianName || `Account ${index + 1}`}
+                        {account.aliasName || `Account ${index + 1}`}
                       </Text>
                       <Text className="text-sm text-text-secondary">
                         {formatAddress(account.address)}

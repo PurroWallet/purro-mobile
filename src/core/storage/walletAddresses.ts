@@ -12,7 +12,7 @@ interface WalletAddress {
   address: string;
   type: 'HD' | 'Simple';
   brandName: string;
-  alianName?: string;
+  aliasName?: string;
   index?: number; // For HD wallets, account index
   createdAt: number;
 }

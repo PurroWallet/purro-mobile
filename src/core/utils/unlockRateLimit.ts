@@ -10,7 +10,6 @@ const storage = new MMKV({ id: 'unlock-rate-limit' });
 const RATE_LIMIT_CONFIG = {
   MAX_ATTEMPTS: 5,
   LOCKOUT_DURATION: 5 * 60 * 1000, // 5 minutes in milliseconds
-  RESET_DURATION: 15 * 60 * 1000, // 15 minutes in milliseconds
 };
 
 const STORAGE_KEYS = {

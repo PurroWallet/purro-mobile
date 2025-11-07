@@ -4,8 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '@/components';
 import { Icon } from '@/components/Icon';
 import { useThemeMode } from '@/core/hooks/useTheme';
+import { generateMnemonic } from '@/core/keyring';
 import { walletService } from '@/core/services';
-import { keyringService } from '@/core/services/KeyringService';
 import { SocialLoginResult, web3AuthService } from '@/core/services/Web3AuthService';
 import type { WelcomeScreenProps } from '@/types/navigation';
 import { useTranslation } from '@/utils/i18n';
@@ -33,11 +33,15 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
     }
 
     try {
+      console.log('🚀 handleCreateWallet: Starting wallet creation...');
+
       // Generate mnemonic directly - no store needed
-      const mnemonic = keyringService.generateMnemonic();
+      const mnemonic = generateMnemonic();
+      console.log('📝 Generated mnemonic:', mnemonic?.substring(0, 20) + '...');
 
       // Validate mnemonic before navigation
       if (!mnemonic || typeof mnemonic !== 'string' || mnemonic.trim() === '') {
+        console.error('❌ Invalid mnemonic generated:', mnemonic);
         Alert.alert(
           t('errors.generic.title'),
           'Failed to generate seed phrase. Please try again.',
@@ -46,9 +50,11 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
         return;
       }
 
+      console.log('✅ Mnemonic valid, navigating to SeedPhraseDisplay...');
       // Navigate immediately to seed phrase screen
       navigation.navigate('SeedPhraseDisplay', { mnemonic });
     } catch (error) {
+      console.error('❌ handleCreateWallet error:', error);
       Alert.alert(t('errors.generic.title'), t('errors.wallet.createFailed'), [
         { text: t('common.ok'), style: 'default' },
       ]);
@@ -69,19 +75,23 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
     }
 
     try {
+      console.log('🚀 handleSocialLogin: Starting Google login...');
       setLoadingProvider('google');
 
       const result = await web3AuthService.loginWithGoogle();
+      console.log('✅ Web3Auth login successful:', result.userInfo?.email);
 
       // SUCCESS: Navigate to wallet creation flow
-      console.log(`✅ Google login successful:`, result.userInfo);
 
       // Get the private key from Web3Auth provider
+      console.log('🔑 Getting private key from Web3Auth provider...');
       const privateKey = await result.provider?.request({
         method: 'eth_private_key',
       });
+      console.log('🔐 Private key retrieved:', privateKey ? 'SUCCESS' : 'FAILED');
 
       if (privateKey && privateKey.length > 0) {
+        console.log('🎯 Navigating to CreatePassword with Web3Auth data...');
         // For Web3Auth users, skip seed phrase display and go directly to password creation
         // Web3Auth users don't have a traditional seed phrase
         navigation.navigate('CreatePassword', {
@@ -91,6 +101,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ navigation }) => {
           userInfo: result.userInfo,
         });
       } else {
+        console.error('❌ No private key retrieved from Web3Auth');
         // Fallback: Show success message if we can't get the private key
         Alert.alert(
           'Login Successful!',

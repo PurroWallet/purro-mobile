@@ -229,7 +229,8 @@ const SettingsScreen: React.FC<Props> = ({ navigation, parentNavigation }) => {
   }, [isDarkMode, t]);
 
   const handleBackupWallet = () => {
-    navigation.navigate('SeedPhraseBackup');
+    // Navigate to SelectSeedPhrase with backup mode
+    navigation.navigate('SelectSeedPhrase', { mode: 'backup' });
   };
 
   const handleResetWallet = () => {

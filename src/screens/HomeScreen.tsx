@@ -29,7 +29,7 @@ interface Account {
   address: string;
   type: string;
   brandName: string;
-  alianName?: string;
+  aliasName?: string;
 }
 
 interface PerpPosition {
@@ -185,7 +185,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                       : '@kycdict'}
                   </Text>
                   <Text className="text-text-primary text-2xl font-medium">
-                    {currentAccount?.alianName || 'Account 1'}
+                    {currentAccount?.aliasName || 'Account 1'}
                   </Text>
                 </View>
               </TouchableOpacity>

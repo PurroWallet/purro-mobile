@@ -121,17 +121,6 @@ export class ContactBookService extends EventEmitter {
     secureWalletStorage.removeItem(cacheKey);
   }
 
-  // Generate alias name (học hỏi từ Rabby)
-  generateAliasName(brandName: string, keyringCount: number, addressCount: number): string {
-    if (brandName === 'MNEMONIC') {
-      return `Account ${addressCount + 1}`;
-    } else if (brandName === 'PRIVATE_KEY') {
-      return `Private Key ${keyringCount + 1}`;
-    } else {
-      return `${brandName} ${addressCount + 1}`;
-    }
-  }
-
   // Clear all contacts
   clearAll(): void {
     this.contacts = [];

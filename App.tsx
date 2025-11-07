@@ -7,20 +7,15 @@ import { ActivityIndicator, Platform, StatusBar, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import './global.css';
-// Disable DevTools to prevent crypto polyfill issues
 if (__DEV__) {
   // @ts-ignore
   globalThis.__REACT_DEVTOOLS_GLOBAL_HOOK__?.shutdown?.();
-
-  // Import reset vault utility for debugging
-  import('@/utils/resetVault').catch(() => {});
 }
 
-// Screenshot protection components (Rabby pattern)
 import { BackgroundSecureBlurView } from '@/components/customized/BlurViews';
 import { PrivacyBlur } from '@/components/PrivacyBlur';
 import { GlobalSecurityTipStubModal } from '@/components/SecurityTipStubModal';
-import { apisWallet } from '@/core/apis/wallet';
+import { apisWallet } from '@/core/apis';
 import { useAppPreventScreenshotOnScreen } from '@/core/hooks/native/security';
 import { screenProtection } from '@/core/services/screenProtection';
 import { web3AuthService } from '@/core/services/Web3AuthService';
@@ -28,7 +23,6 @@ import { excludeFilesFromBackup } from '@/core/utils/appFS';
 import { ThemeProvider } from '@/providers/ThemeProvider';
 import { useAppStore } from '@/stores/appStore';
 
-// CRITICAL: Polyfills are now loaded in index.js at the very top with proper order
 import CreatePasswordScreen from './src/screens/CreatePasswordScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import ImportMethodsScreen from './src/screens/ImportMethodsScreen';
@@ -40,7 +34,6 @@ import SeedPhraseDisplayScreen from './src/screens/SeedPhraseDisplayScreen';
 import SeedPhraseVerifyScreen from './src/screens/SeedPhraseVerifyScreen';
 import UnlockScreen from './src/screens/UnlockScreen';
 import WalletSuccessScreen from './src/screens/WalletSuccessScreen';
-// Import screens
 import WelcomeScreen from './src/screens/WelcomeScreen';
 
 import type { RootStackParamList } from './src/types/navigation';
@@ -52,32 +45,17 @@ const App: React.FC = () => {
   const { setRoute, setWalletExists, setWalletUnlocked } = useAppStore();
   const [initialRoute, setInitialRoute] = useState<string | null>(null);
 
-  // Screenshot prevention (Rabby pattern)
   useAppPreventScreenshotOnScreen({ isTop: true });
 
-  // Initialize app on mount - OPTIMIZED
   useEffect(() => {
-    // Set status bar style (non-blocking)
     if (Platform.OS === 'ios') {
       StatusBar.setBarStyle('light-content', true);
     }
 
-    // Initialize screen protection service
     screenProtection.init();
+    web3AuthService.initialize().catch(() => {});
+    excludeFilesFromBackup().catch(() => {});
 
-    // Initialize Web3Auth v8.1.0 service synchronously (only once)
-    web3AuthService.initialize().catch(() => {
-      // Handle initialization error silently
-    });
-
-    // Exclude sensitive files from backup (iOS)
-    excludeFilesFromBackup().catch(() => {
-      // Handle backup exclusion error silently
-    });
-
-    // Determine initial route BEFORE rendering navigator to avoid race with
-    // React Navigation's `initialRouteName` semantics. This keeps logic
-    // deterministic and avoids imperative navigation hacks.
     try {
       const hasWallet = apisWallet.hasWallet();
       setWalletExists(hasWallet);
@@ -87,10 +65,7 @@ const App: React.FC = () => {
       if (hasWallet) {
         const isLocked = apisWallet.isLocked();
         setWalletUnlocked(!isLocked);
-
         decidedRoute = isLocked ? 'Unlock' : 'Home';
-      } else {
-        decidedRoute = 'Welcome';
       }
 
       setRoute(decidedRoute);
@@ -100,7 +75,6 @@ const App: React.FC = () => {
       setInitialRoute('Welcome');
     }
 
-    // Cleanup on unmount
     return () => {
       screenProtection.cleanup();
     };
@@ -135,13 +109,12 @@ const App: React.FC = () => {
                       },
                     }}
                   >
-                    {/* Onboarding Flow */}
                     <Stack.Screen name="Welcome" component={WelcomeScreen} />
                     <Stack.Screen
                       name="SeedPhraseDisplay"
                       component={SeedPhraseDisplayScreen}
                       options={{
-                        gestureEnabled: false, // Prevent swipe back on seed phrase screen
+                        gestureEnabled: false,
                       }}
                     />
                     <Stack.Screen
@@ -166,29 +139,24 @@ const App: React.FC = () => {
                       }}
                     />
 
-                    {/* Auth Flow */}
                     <Stack.Screen
                       name="Unlock"
                       component={UnlockScreen}
                       options={{
-                        gestureEnabled: false, // Prevent swipe back on unlock screen
+                        gestureEnabled: false,
                       }}
                     />
 
-                    {/* Import Flow */}
                     <Stack.Screen name="ImportMethods" component={ImportMethodsScreen} />
                     <Stack.Screen name="ImportSeedPhrase" component={ImportSeedPhraseScreen} />
                     <Stack.Screen name="ImportPrivateKey" component={ImportPrivateKeyScreen} />
                     <Stack.Screen name="ImportWallet" component={ImportWalletScreen} />
 
-                    {/* Backup Flow */}
                     <Stack.Screen name="SeedPhraseBackup" component={SeedPhraseBackupScreen} />
 
-                    {/* Main App Flow */}
                     <Stack.Screen name="Home" component={HomeScreen} />
                   </Stack.Navigator>
 
-                  {/* Screenshot protection components (Rabby pattern) */}
                   <BackgroundSecureBlurView />
                   <GlobalSecurityTipStubModal />
                 </NavigationContainer>

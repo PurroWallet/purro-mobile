@@ -1,4 +1,4 @@
-import { Wallet } from 'ethers';
+import { ethers, Wallet } from 'ethers';
 import { AbstractKeyring } from './AbstractKeyring';
 import { KEYRING_CLASS, KEYRING_TYPE, SimpleKeyringData } from './types';
 
@@ -44,30 +44,28 @@ export class SimpleKeyring extends AbstractKeyring<SimpleKeyringData> {
       if (parts.length >= 2) {
         const key = parts[1];
 
-        // Remove 0x prefix if present
-        const cleanKey = key.startsWith('0x') ? key.slice(2) : key;
+        // Validate private key using ethers.js
+        const cleanKey = key.startsWith('0x') ? key : '0x' + key;
 
-        // Validate private key format (64 hex characters)
-        if (!/^[a-fA-F0-9]{64}$/.test(cleanKey)) {
+        if (!ethers.utils.isHexString(cleanKey, 32)) {
           throw new Error('Invalid private key format');
         }
 
-        const wallet = new Wallet('0x' + cleanKey);
+        const wallet = new Wallet(cleanKey);
         this.wallets.push(wallet);
         return;
       }
     }
 
     // Regular private key handling
-    // Remove 0x prefix if present
-    const key = privateKey.startsWith('0x') ? privateKey.slice(2) : privateKey;
+    // Validate private key using ethers.js
+    const key = privateKey.startsWith('0x') ? privateKey : '0x' + privateKey;
 
-    // Validate private key format (64 hex characters)
-    if (!/^[a-fA-F0-9]{64}$/.test(key)) {
+    if (!ethers.utils.isHexString(key, 32)) {
       throw new Error('Invalid private key format');
     }
 
-    const wallet = new Wallet('0x' + key);
+    const wallet = new Wallet(key);
     this.wallets.push(wallet);
   }
 
@@ -86,43 +84,24 @@ export class SimpleKeyring extends AbstractKeyring<SimpleKeyringData> {
   }
 
   async signTransaction(address: string, transaction: any): Promise<any> {
-    const wallet = this.getWalletByAddress(address);
-    if (!wallet) {
-      throw new Error('Account not found');
-    }
-
-    return wallet.signTransaction(transaction);
+    return this._signWithWallet(address, (wallet) => wallet.signTransaction(transaction));
   }
 
   async signMessage(address: string, message: any): Promise<string> {
-    const wallet = this.getWalletByAddress(address);
-    if (!wallet) {
-      throw new Error('Account not found');
-    }
-
-    return wallet.signMessage(message);
+    return this._signWithWallet(address, (wallet) => wallet.signMessage(message));
   }
 
   async signTypedData(address: string, typedData: any): Promise<string> {
-    const wallet = this.getWalletByAddress(address);
-    if (!wallet) {
-      throw new Error('Account not found');
-    }
-
-    // Use _signTypedData which is the internal method in ethers v6
-    return (wallet as any)._signTypedData(typedData.domain, typedData.types, typedData.value);
+    return this._signWithWallet(address, (wallet) =>
+      (wallet as any)._signTypedData(typedData.domain, typedData.types, typedData.value),
+    );
   }
 
   async exportAccount(address: string): Promise<string> {
-    const wallet = this.getWalletByAddress(address);
-    if (!wallet) {
-      throw new Error('Account not found');
-    }
-
-    return wallet.privateKey;
+    return this._signWithWallet(address, (wallet) => wallet.privateKey);
   }
 
-  private getWalletByAddress(address: string): Wallet | undefined {
+  protected async getWalletByAddress(address: string): Promise<Wallet | undefined> {
     return this.wallets.find((w) => w.address.toLowerCase() === address.toLowerCase());
   }
 

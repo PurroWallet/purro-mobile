@@ -24,7 +24,6 @@ class ScreenProtectionService {
     this.autoLockTimeout = setTimeout(() => {
       if (!lockService.isLocked()) {
         lockService.lockWallet();
-        console.log('🔒 Auto-locked wallet after 5 minutes of inactivity');
       }
     }, this.AUTO_LOCK_DELAY);
   }
