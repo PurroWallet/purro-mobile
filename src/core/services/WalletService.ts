@@ -399,6 +399,36 @@ export class WalletService {
   }
 
   /**
+   * Get all HD keyrings with their accounts for seed phrase management
+   */
+  async getHDKeyringsWithAccounts() {
+    try {
+      console.log('📱 WalletService: Getting HD keyrings with accounts...');
+      const result = await this.keyringService.getHDKeyringsWithAccounts();
+      console.log(`✅ Found ${result.length} HD keyrings`);
+      return result;
+    } catch (error) {
+      console.error('Failed to get HD keyrings:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Export mnemonic for specific HD keyring by index
+   */
+  async exportMnemonicForHDKeyring(keyringIndex: number): Promise<string> {
+    try {
+      console.log(`🔐 WalletService: Exporting mnemonic for HD keyring ${keyringIndex}...`);
+      const mnemonic = await this.keyringService.exportMnemonicForHDKeyring(keyringIndex);
+      console.log(`✅ Mnemonic exported for HD keyring ${keyringIndex}`);
+      return mnemonic;
+    } catch (error) {
+      console.error(`Failed to export mnemonic for HD keyring ${keyringIndex}:`, error);
+      throw error;
+    }
+  }
+
+  /**
    * Reset wallet
    */
   resetWallet(): void {

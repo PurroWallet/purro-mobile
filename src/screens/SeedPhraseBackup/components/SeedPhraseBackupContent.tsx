@@ -10,10 +10,10 @@ import type {
   SeedPhraseBackupStrings,
 } from '../hooks/useSeedPhraseBackupScreen';
 
-interface Account {
-  address: string;
-  aliasName?: string;
-  brandName?: string;
+interface HDKeyringInfo {
+  id: string;
+  accountCount: number;
+  accounts: Array<{ address: string; index: number }>;
 }
 
 interface SeedPhraseBackupContentProps {
@@ -31,39 +31,36 @@ export const SeedPhraseBackupContent: React.FC<SeedPhraseBackupContentProps> = (
   isSubmitDisabled,
   onSubmit,
 }) => {
-  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [hdKeyrings, setHdKeyrings] = useState<HDKeyringInfo[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
+  const [selectedKeyring, setSelectedKeyring] = useState<HDKeyringInfo | null>(null);
 
   useEffect(() => {
-    loadAccounts();
+    loadHDKeyrings();
   }, []);
 
-  const loadAccounts = async () => {
-    console.log('📱 SeedPhraseBackup: Loading accounts...');
+  const loadHDKeyrings = async () => {
+    console.log('📱 SeedPhraseBackup: Loading HD keyrings...');
     try {
-      const allAccounts = await walletService.getAllAccounts();
-      console.log('✅ Accounts loaded:', allAccounts.length);
-      setAccounts(allAccounts);
+      const keyrings = await walletService.getHDKeyringsWithAccounts();
+      console.log('✅ HD keyrings loaded:', keyrings.length);
+      setHdKeyrings(keyrings);
 
-      // Auto-select first account if available
-      if (allAccounts.length > 0) {
-        setSelectedAccount(allAccounts[0]);
+      // Auto-select first keyring if available
+      if (keyrings.length > 0) {
+        setSelectedKeyring(keyrings[0]);
       }
     } catch (error) {
-      console.error('❌ Error loading accounts:', error);
-      Alert.alert('Error', 'Failed to load accounts. Please try again.');
+      console.error('❌ Error loading HD keyrings:', error);
+      Alert.alert('Error', 'Failed to load seed phrases. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSelectAccount = (account: Account) => {
-    console.log(
-      '👆 Selected account:',
-      account.aliasName || account.address.substring(0, 10) + '...',
-    );
-    setSelectedAccount(account);
+  const handleSelectKeyring = (keyring: HDKeyringInfo) => {
+    console.log('👆 Selected keyring:', keyring.id);
+    setSelectedKeyring(keyring);
   };
 
   return (
@@ -79,41 +76,47 @@ export const SeedPhraseBackupContent: React.FC<SeedPhraseBackupContentProps> = (
             </Text>
           </View>
 
-          {/* Account Selection */}
+          {/* Seed Phrase Selection */}
           {loading ? (
-            <Text className="text-center text-text-secondary">Loading accounts...</Text>
-          ) : accounts.length > 0 ? (
+            <Text className="text-center text-text-secondary">Loading seed phrases...</Text>
+          ) : hdKeyrings.length === 0 ? (
+            <View className="items-center gap-4">
+              <Text className="text-center text-text-secondary">No seed phrases found</Text>
+              <Text className="text-center text-sm text-text-tertiary">
+                Create a new account to generate your first seed phrase
+              </Text>
+            </View>
+          ) : (
             <View className="w-full gap-3">
-              <Text className="text-sm text-text-secondary">Select account to backup:</Text>
+              <Text className="text-sm text-text-secondary">Select seed phrase to backup:</Text>
               <ScrollView className="max-h-48">
                 <View className="gap-3">
-                  {accounts.map((account, index) => (
+                  {hdKeyrings.map((keyring, index) => (
                     <TouchableOpacity
-                      key={account.address}
+                      key={keyring.id}
                       className={`p-4 rounded-lg border ${
-                        selectedAccount?.address === account.address
+                        selectedKeyring?.id === keyring.id
                           ? 'border-brand-primary bg-[rgba(0,122,255,0.1)]'
                           : 'border-border bg-background-secondary'
                       }`}
-                      onPress={() => handleSelectAccount(account)}
+                      onPress={() => handleSelectKeyring(keyring)}
                     >
-                      <Text className="font-medium text-text-primary">
-                        {account.aliasName || `Account ${index + 1}`}
-                      </Text>
+                      <Text className="font-medium text-text-primary">Seed Phrase {index + 1}</Text>
                       <Text className="text-sm text-text-secondary mt-1">
-                        {account.address.slice(0, 10)}...{account.address.slice(-8)}
+                        {keyring.accountCount} account{keyring.accountCount !== 1 ? 's' : ''}
                       </Text>
-                      <Text className="text-xs text-text-tertiary mt-1">{account.brandName}</Text>
+                      <Text className="text-xs text-text-tertiary mt-1">
+                        {keyring.accounts[0]?.address.slice(0, 10)}...
+                        {keyring.accounts[0]?.address.slice(-8)}
+                      </Text>
                     </TouchableOpacity>
                   ))}
                 </View>
               </ScrollView>
             </View>
-          ) : (
-            <Text className="text-center text-text-secondary">No accounts found</Text>
           )}
 
-          {selectedAccount && (
+          {selectedKeyring && (
             <View className="rounded-xl bg-[rgba(255,107,107,0.1)] p-4">
               <Text className="mb-2 text-[14px] font-semibold text-[#FF6B6B]">
                 {strings.warningTitle}
@@ -145,7 +148,7 @@ export const SeedPhraseBackupContent: React.FC<SeedPhraseBackupContentProps> = (
             type="primary"
             title={isUnlocking ? strings.buttonLoading : strings.buttonSubmit}
             onPress={onSubmit}
-            disabled={isSubmitDisabled || !selectedAccount}
+            disabled={isSubmitDisabled || !selectedKeyring}
           />
         </View>
       </View>

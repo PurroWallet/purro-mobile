@@ -338,6 +338,27 @@ export class KeyringService extends EventEmitter {
     return result;
   }
 
+  // Export mnemonic for specific HD keyring by index
+  async exportMnemonicForHDKeyring(keyringIndex: number): Promise<string> {
+    // If keyrings not loaded, load them now
+    if (this.keyrings.length === 0 && this.password) {
+      await this.loadKeyrings(this.password);
+    }
+
+    const hdKeyrings = this.getKeyringsByType(KEYRING_TYPE.HD);
+
+    if (keyringIndex >= hdKeyrings.length) {
+      throw new Error(`HD keyring index ${keyringIndex} not found`);
+    }
+
+    const keyring = hdKeyrings[keyringIndex];
+    if (keyring.type !== KEYRING_TYPE.HD) {
+      throw new Error('Not an HD keyring');
+    }
+
+    return (keyring as any).getMnemonic();
+  }
+
   // Add new account to the first HD keyring
   async addAccounts(count: number = 1): Promise<string[]> {
     // If keyrings not loaded, load them now

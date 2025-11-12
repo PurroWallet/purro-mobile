@@ -42,7 +42,7 @@ export type AccountStackParamList = {
   };
   SelectSeedPhrase: {
     mode?: 'create' | 'backup';
-    onAccountCreated?: (account: any) => void;
+    onSeedPhraseSelected?: (keyringInfo: any) => void;
   };
   CreatePassword: { mnemonic: string; isPrivateKeyImport?: boolean; isNewAccount?: boolean };
   Success: { title: string; message: string; buttonText?: string };
@@ -136,7 +136,7 @@ const AccountStackNavigator: React.FC<AccountStackNavigatorProps> = ({
             {(props) => (
               <SelectSeedPhraseScreen
                 mode={props.route.params.mode}
-                onAccountCreated={props.route.params.onAccountCreated}
+                onSeedPhraseSelected={props.route.params.onSeedPhraseSelected}
               />
             )}
           </Stack.Screen>

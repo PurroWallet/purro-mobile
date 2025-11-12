@@ -7,95 +7,109 @@ import { walletService } from '@/core/services';
 import type { AccountStackParamList } from '../AccountStackNavigator';
 import BaseScreen from '../components/BaseScreen';
 
-interface Account {
-  address: string;
-  aliasName?: string;
-  brandName?: string;
+interface HDKeyringInfo {
+  id: string;
+  accountCount: number;
+  accounts: Array<{ address: string; index: number }>;
 }
 
 type Props = {
   mode?: 'create' | 'backup';
-  onAccountCreated?: (account: any) => void;
+  onSeedPhraseSelected?: (keyringInfo: HDKeyringInfo) => void;
 };
 
-const SelectSeedPhraseScreen: React.FC<Props> = ({ mode = 'backup', onAccountCreated }) => {
+const SelectSeedPhraseScreen: React.FC<Props> = ({ mode = 'backup', onSeedPhraseSelected }) => {
   const navigation =
     useNavigation<NativeStackNavigationProp<AccountStackParamList, 'SelectSeedPhrase'>>();
-  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [hdKeyrings, setHdKeyrings] = useState<HDKeyringInfo[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
+  const [selectedKeyring, setSelectedKeyring] = useState<HDKeyringInfo | null>(null);
 
   useEffect(() => {
-    loadAccounts();
+    loadHDKeyrings();
   }, []);
 
-  const loadAccounts = async () => {
+  const loadHDKeyrings = async () => {
     try {
-      const allAccounts = await walletService.getAllAccounts();
-      setAccounts(allAccounts);
+      const keyrings = await walletService.getHDKeyringsWithAccounts();
+      setHdKeyrings(keyrings);
+
+      // Auto-select first keyring if available
+      if (keyrings.length > 0) {
+        setSelectedKeyring(keyrings[0]);
+      }
     } catch (error) {
-      console.error('Error loading accounts:', error);
-      Alert.alert('Error', 'Failed to load accounts. Please try again.');
+      console.error('Error loading HD keyrings:', error);
+      Alert.alert('Error', 'Failed to load seed phrases. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSelectAccount = (account: Account) => {
-    setSelectedAccount(account);
+  const handleSelectKeyring = (keyring: HDKeyringInfo) => {
+    setSelectedKeyring(keyring);
   };
 
   const handleNext = async () => {
-    if (!selectedAccount) {
-      Alert.alert('Required', 'Please select an account');
+    if (!selectedKeyring) {
+      Alert.alert('Required', 'Please select a seed phrase');
       return;
     }
 
     if (mode === 'backup') {
+      // Navigate to seed phrase backup with selected keyring
       navigation.navigate('SeedPhraseBackup');
-    } else if (mode === 'create' && onAccountCreated) {
-      // Handle create mode logic
-      onAccountCreated(selectedAccount);
+    } else if (mode === 'create' && onSeedPhraseSelected) {
+      // Pass the selected keyring to the callback
+      onSeedPhraseSelected(selectedKeyring);
       navigation.goBack();
     }
   };
 
   return (
-    <BaseScreen title={mode === 'backup' ? 'Backup Seed Phrase' : 'Select Account'}>
+    <BaseScreen title={mode === 'backup' ? 'Backup Seed Phrase' : 'Select Seed Phrase'}>
       <View className="flex-1 gap-6">
         <View className="items-center gap-4">
           <Text className="w-[335px] text-center text-h4 text-text-primary">
-            {mode === 'backup' ? 'Select Account to Backup' : 'Select Account'}
+            {mode === 'backup' ? 'Select Seed Phrase to Backup' : 'Select Seed Phrase'}
           </Text>
           <Text className="w-[335px] text-center text-button text-text-secondary">
             {mode === 'backup'
-              ? "Choose which account's seed phrase you want to back up"
-              : 'Select an account to continue'}
+              ? 'Choose which seed phrase you want to back up'
+              : 'Select which seed phrase to add a new account to'}
           </Text>
         </View>
 
         {loading ? (
-          <Text className="text-center text-text-secondary">Loading accounts...</Text>
+          <Text className="text-center text-text-secondary">Loading seed phrases...</Text>
+        ) : hdKeyrings.length === 0 ? (
+          <View className="items-center gap-4">
+            <Text className="text-center text-text-secondary">No seed phrases found</Text>
+            <Text className="text-center text-sm text-text-tertiary">
+              Create your first seed phrase by adding a new account
+            </Text>
+          </View>
         ) : (
           <ScrollView className="flex-1">
             <View className="gap-3">
-              {accounts.map((account, index) => (
+              {hdKeyrings.map((keyring, index) => (
                 <TouchableOpacity
-                  key={account.address}
+                  key={keyring.id}
                   className={`p-4 rounded-lg border ${
-                    selectedAccount?.address === account.address
+                    selectedKeyring?.id === keyring.id
                       ? 'border-brand-primary bg-[rgba(0,122,255,0.1)]'
                       : 'border-border bg-background-secondary'
                   }`}
-                  onPress={() => handleSelectAccount(account)}
+                  onPress={() => handleSelectKeyring(keyring)}
                 >
-                  <Text className="font-medium text-text-primary">
-                    {account.aliasName || `Account ${index + 1}`}
-                  </Text>
+                  <Text className="font-medium text-text-primary">Seed Phrase {index + 1}</Text>
                   <Text className="text-sm text-text-secondary mt-1">
-                    {account.address.slice(0, 10)}...{account.address.slice(-8)}
+                    {keyring.accountCount} account{keyring.accountCount !== 1 ? 's' : ''}
                   </Text>
-                  <Text className="text-xs text-text-tertiary mt-1">{account.brandName}</Text>
+                  <Text className="text-xs text-text-tertiary mt-1">
+                    {keyring.accounts[0]?.address.slice(0, 10)}...
+                    {keyring.accounts[0]?.address.slice(-8)}
+                  </Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -104,9 +118,9 @@ const SelectSeedPhraseScreen: React.FC<Props> = ({ mode = 'backup', onAccountCre
 
         <Button
           type="primary"
-          title={mode === 'backup' ? 'Continue to Backup' : 'Select Account'}
+          title={mode === 'backup' ? 'View Seed Phrase' : 'Select Seed Phrase'}
           onPress={handleNext}
-          disabled={!selectedAccount}
+          disabled={!selectedKeyring}
         />
       </View>
     </BaseScreen>
