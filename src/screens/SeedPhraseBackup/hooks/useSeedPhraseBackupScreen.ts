@@ -56,21 +56,14 @@ export const useSeedPhraseBackupScreen = (): UseSeedPhraseBackupScreenResult => 
 
       setIsUnlocking(true);
       try {
-        console.log(
-          `🔐 Unlocking wallet for seed phrase backup (keyring ${selectedKeyringIndex})...`,
-        );
-
         // Unlock the wallet first
         await apisLock.unlockWallet(values.password);
-        console.log('✅ Wallet unlocked successfully');
 
         // Export mnemonic for the specific HD keyring index
         const mnemonic = await walletService.exportMnemonicForHDKeyring(selectedKeyringIndex);
-        console.log(`✅ Mnemonic exported for HD keyring ${selectedKeyringIndex}`);
 
         navigation.navigate('SeedPhraseDisplay', { mnemonic });
       } catch (error) {
-        console.error('Error unlocking wallet:', error);
         Alert.alert(
           'Error',
           error instanceof Error ? error.message : 'Failed to unlock wallet. Please try again.',

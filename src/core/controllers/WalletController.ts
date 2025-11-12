@@ -183,6 +183,13 @@ export class WalletController {
   }
 
   /**
+   * Export mnemonic for specific HD keyring by index
+   */
+  async exportMnemonicForHDKeyring(keyringIndex: number): Promise<string> {
+    return walletService.exportMnemonicForHDKeyring(keyringIndex);
+  }
+
+  /**
    * Reset wallet
    */
   resetWallet(): void {

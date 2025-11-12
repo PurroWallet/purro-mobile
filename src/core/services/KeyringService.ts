@@ -359,6 +359,38 @@ export class KeyringService extends EventEmitter {
     return (keyring as any).getMnemonic();
   }
 
+  // Add new account to specific HD keyring by index
+  async addAccountToSpecificHDKeyring(keyringIndex: number, count: number = 1): Promise<string[]> {
+    // If keyrings not loaded, load them now
+    if (this.keyrings.length === 0 && this.password) {
+      await this.loadKeyrings(this.password);
+    }
+
+    const hdKeyrings = this.getKeyringsByType(KEYRING_TYPE.HD);
+
+    if (keyringIndex >= hdKeyrings.length) {
+      throw new Error(`HD keyring index ${keyringIndex} not found`);
+    }
+
+    const hdKeyring = hdKeyrings[keyringIndex];
+    const addresses = await hdKeyring.addAccounts(count);
+
+    // Persist keyrings
+    await this.persistKeyrings();
+
+    // Update cached accounts
+    for (const address of addresses) {
+      this.cachedAccounts.push({
+        address,
+        type: hdKeyring.type,
+        brandName: this.getBrandName(hdKeyring.type),
+      });
+    }
+    await this.saveAccountAddresses();
+
+    return addresses;
+  }
+
   // Add new account to the first HD keyring
   async addAccounts(count: number = 1): Promise<string[]> {
     // If keyrings not loaded, load them now

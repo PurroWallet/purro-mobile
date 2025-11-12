@@ -300,8 +300,6 @@ export class WalletService {
    */
   async addAccountToHDKeyring(keyringIndex: number): Promise<string> {
     try {
-      console.log(`📝 WalletService: Adding new account to HD keyring ${keyringIndex}...`);
-
       // Get all HD keyrings with their accounts
       const hdKeyrings = await this.keyringService.getHDKeyringsWithAccounts();
 
@@ -309,23 +307,15 @@ export class WalletService {
         throw new Error(`HD keyring index ${keyringIndex} not found`);
       }
 
-      console.log(`✅ Found HD keyring at index ${keyringIndex}`);
-
-      // Use the existing addAccounts method which should add to the first HD keyring
-      // For now, we'll add to the first HD keyring since we don't have a method to add to specific keyring
-      // This is a limitation we need to address in the keyring service
-      const addresses = await this.keyringService.addAccounts(1);
+      // Add account to the specific HD keyring using the keyring service method
+      const addresses = await this.keyringService.addAccountToSpecificHDKeyring(keyringIndex, 1);
 
       if (addresses.length === 0) {
         throw new Error('Failed to add new account');
       }
 
-      const newAddress = addresses[0];
-      console.log(`✅ New account created: ${newAddress.substring(0, 10)}...`);
-
-      return newAddress;
+      return addresses[0];
     } catch (error) {
-      console.error(`❌ Failed to add account to HD keyring ${keyringIndex}:`, error);
       throw error;
     }
   }
@@ -453,12 +443,9 @@ export class WalletService {
    */
   async exportMnemonicForHDKeyring(keyringIndex: number): Promise<string> {
     try {
-      console.log(`🔐 WalletService: Exporting mnemonic for HD keyring ${keyringIndex}...`);
       const mnemonic = await this.keyringService.exportMnemonicForHDKeyring(keyringIndex);
-      console.log(`✅ Mnemonic exported for HD keyring ${keyringIndex}`);
       return mnemonic;
     } catch (error) {
-      console.error(`Failed to export mnemonic for HD keyring ${keyringIndex}:`, error);
       throw error;
     }
   }

@@ -43,11 +43,8 @@ const AddAccountScreen: React.FC<Props> = ({ onClose: _onClose }) => {
           accountAddress: '',
           onSuccess: async (verifiedPassword) => {
             try {
-              console.log(`🔐 Adding new account to ${keyringInfo.id} (index ${keyringIndex})`);
-
               // Add account to the selected HD keyring
               const newAddress = await walletController.addAccountToHDKeyring(keyringIndex);
-              console.log(`✅ New account created: ${newAddress.substring(0, 10)}...`);
 
               // Navigate to success screen
               navigation.navigate('Success', {
@@ -56,7 +53,6 @@ const AddAccountScreen: React.FC<Props> = ({ onClose: _onClose }) => {
                 buttonText: 'Done',
               });
             } catch (error) {
-              console.error('❌ Failed to create new account:', error);
               Alert.alert('Error', 'Failed to create new account');
             }
           },

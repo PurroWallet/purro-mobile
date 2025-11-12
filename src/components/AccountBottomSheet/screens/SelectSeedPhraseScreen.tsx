@@ -34,12 +34,10 @@ const SelectSeedPhraseScreen: React.FC<Props> = ({ mode = 'backup', onSeedPhrase
       const keyrings = await walletService.getHDKeyringsWithAccounts();
       setHdKeyrings(keyrings);
 
-      // Auto-select first keyring if available
       if (keyrings.length > 0) {
         setSelectedKeyring(keyrings[0]);
       }
     } catch (error) {
-      console.error('Error loading HD keyrings:', error);
       Alert.alert('Error', 'Failed to load seed phrases. Please try again.');
     } finally {
       setLoading(false);
@@ -66,8 +64,8 @@ const SelectSeedPhraseScreen: React.FC<Props> = ({ mode = 'backup', onSeedPhrase
       });
     } else if (mode === 'create' && onSeedPhraseSelected) {
       // Pass the selected keyring to the callback
+      // Navigation is handled by the callback to prevent race conditions
       onSeedPhraseSelected(selectedKeyring);
-      navigation.goBack();
     }
   };
 

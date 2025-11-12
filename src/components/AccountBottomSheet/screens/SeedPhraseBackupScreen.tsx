@@ -13,11 +13,14 @@ type Props = NativeStackScreenProps<AccountStackParamList, 'SeedPhraseBackup'> &
   onClose: () => void;
 };
 
-const SeedPhraseBackupScreen: React.FC<Props> = ({ navigation, onClose }) => {
+const SeedPhraseBackupScreen: React.FC<Props> = ({ navigation, route, onClose }) => {
   const [seedPhrase, setSeedPhrase] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isRevealed, setIsRevealed] = useState<boolean>(false);
   const { t } = useTranslation();
+
+  // Get the selected keyring index from route params, default to 0 if not provided
+  const selectedKeyringIndex = route.params?.selectedKeyringIndex ?? 0;
 
   useEffect(() => {
     const loadSeedPhrase = async () => {
@@ -30,7 +33,7 @@ const SeedPhraseBackupScreen: React.FC<Props> = ({ navigation, onClose }) => {
           return;
         }
 
-        const mnemonic = await walletController.exportMnemonic();
+        const mnemonic = await walletController.exportMnemonicForHDKeyring(selectedKeyringIndex);
         setSeedPhrase(mnemonic || '');
       } catch (error) {
         Alert.alert(t('errors.generic.title'), t('accountBottomSheet.errors.loadSeedPhraseFailed'));
