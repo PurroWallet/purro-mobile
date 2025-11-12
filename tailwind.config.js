@@ -2,29 +2,37 @@ const colorVar = (variable) => `rgb(var(${variable}) / <alpha-value>)`;
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ['./App.{js,jsx,ts,tsx}', './src/**/*.{js,jsx,ts,tsx}'],
+  content: [
+    './App.{js,jsx,ts,tsx}',
+    './src/**/*.{js,jsx,ts,tsx}',
+    './src/screens/**/*.{js,jsx,ts,tsx}',
+  ],
   darkMode: 'class',
   presets: [require('nativewind/preset')],
   theme: {
     extend: {
       colors: {
+        primary: colorVar('--background'),
         background: {
-          primary: colorVar('--color-background-primary'),
-          secondary: colorVar('--color-background-secondary'),
-          tertiary: colorVar('--color-background-tertiary'),
+          primary: colorVar('--background'),
+          secondary: colorVar('--color-secondary'),
+          tertiary: colorVar('--color-tertiary'),
         },
+
         text: {
           primary: colorVar('--color-text-primary'),
           secondary: colorVar('--color-text-secondary'),
           tertiary: colorVar('--color-text-tertiary'),
-          disabled: colorVar('--color-text-disabled'),
+          disabled: colorVar('--color-disabled'),
         },
+
         brand: {
           primary: colorVar('--color-brand-primary'),
           secondary: colorVar('--color-brand-secondary'),
           disabled: colorVar('--color-brand-disabled'),
           light: colorVar('--color-brand-light'),
         },
+
         button: {
           primary: colorVar('--color-button-primary'),
           'primary-text': colorVar('--color-button-primary-text'),
@@ -33,15 +41,19 @@ module.exports = {
           secondary: colorVar('--color-button-secondary'),
           'secondary-text': colorVar('--color-button-secondary-text'),
         },
+
+        // Sửa: overlay đã có alpha trong CSS variable rồi
         overlay: {
           dark: 'rgb(var(--color-overlay-dark))',
           light: 'rgb(var(--color-overlay-light))',
           card: 'rgb(var(--color-overlay-card))',
         },
+
         border: {
           primary: colorVar('--color-border-primary'),
           secondary: colorVar('--color-border-secondary'),
         },
+
         system: {
           white: colorVar('--color-system-white'),
           black: colorVar('--color-system-black'),
@@ -70,5 +82,8 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  plugins: [require('tailwindcss-animate')],
+  corePlugins: {
+    preflight: false,
+  },
 };

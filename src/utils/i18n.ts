@@ -4,11 +4,12 @@
 
 import i18n from 'i18next';
 import { initReactI18next, useTranslation as useI18nTranslation } from 'react-i18next';
-import messages from '@/locales/en/messages.json';
+import enMessages from '@/locales/en/messages.json';
+import viMessages from '@/locales/vi/messages.json';
 
 // English translations
 const en = {
-  translation: messages as Record<string, any>,
+  translation: enMessages as Record<string, any>,
   fallback: {
     common: {
       continue: 'Continue',
@@ -66,12 +67,17 @@ const en = {
   },
 };
 
+// Vietnamese translations
+const vi = {
+  translation: viMessages as Record<string, any>,
+};
+
 // Initialize i18n
 i18n
   .use(initReactI18next)
   .init({
-    compatibilityJSON: 'v3',
-    resources: { en },
+    compatibilityJSON: 'v4',
+    resources: { en, vi },
     lng: 'en',
     fallbackLng: 'en',
     interpolation: {

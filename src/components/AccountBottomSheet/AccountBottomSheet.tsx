@@ -1,8 +1,8 @@
 import { BottomSheetBackdrop, BottomSheetModal } from '@gorhom/bottom-sheet';
 import type { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
-import type { NavigationProp } from '@react-navigation/native';
-import { useColorScheme } from 'nativewind';
+import { type NavigationProp, useNavigation } from '@react-navigation/native';
 import React, { forwardRef, useCallback, useImperativeHandle, useMemo, useRef } from 'react';
+import type { RootStackParamList } from '@/types/navigation';
 import AccountStackNavigator from './AccountStackNavigator';
 import CustomBackground from './CustomBackground';
 
@@ -10,14 +10,13 @@ interface Account {
   address: string;
   type: string;
   brandName: string;
-  aliasName?: string;
+  alianName?: string;
 }
 
 interface AccountBottomSheetProps {
   onClose: () => void;
-  currentAccount: Account | null;
+  currentAccount?: Account | null;
   onAccountSelect: (account: Account) => void;
-  navigation: NavigationProp<any>;
   onResetWallet?: () => void;
 }
 
@@ -27,10 +26,9 @@ export interface AccountBottomSheetRef {
 }
 
 const AccountBottomSheet = forwardRef<AccountBottomSheetRef, AccountBottomSheetProps>(
-  ({ onClose, currentAccount, onAccountSelect, navigation, onResetWallet }, ref) => {
+  ({ onClose, currentAccount, onAccountSelect, onResetWallet }, ref) => {
+    const navigation = useNavigation<NavigationProp<any>>();
     const bottomSheetRef = useRef<BottomSheetModalMethods>(null);
-    const { colorScheme } = useColorScheme();
-    const isDarkMode = colorScheme === 'dark';
 
     // Snap points for the bottom sheet - using fixed height for navigator
     const snapPoints = useMemo(() => ['90%'], []);
@@ -64,13 +62,20 @@ const AccountBottomSheet = forwardRef<AccountBottomSheetRef, AccountBottomSheetP
     const renderBackground = useCallback((props: any) => <CustomBackground {...props} />, []);
 
     const handleAddAccount = useCallback(() => {
-      // Navigation is handled by the nested AccountStackNavigator
-      console.log('📝 AccountBottomSheet: Add account requested');
-    }, []);
+      // Use requestAnimationFrame instead of setTimeout to avoid memory leaks
+      const frame = requestAnimationFrame(() => {
+        try {
+          navigation.navigate('AddAccount');
+        } catch (error) {
+          console.log('Navigation error:', error);
+        }
+      });
+      // No cleanup needed - requestAnimationFrame completes immediately
+      return () => cancelAnimationFrame(frame);
+    }, [navigation]);
 
     const handleSettings = useCallback(() => {
-      // Navigation is handled by the nested AccountStackNavigator
-      console.log('📝 AccountBottomSheet: Settings requested');
+      // Nested account stack handles navigation to Settings
     }, []);
 
     // Expose present/dismiss methods
@@ -82,9 +87,6 @@ const AccountBottomSheet = forwardRef<AccountBottomSheetRef, AccountBottomSheetP
         bottomSheetRef.current?.dismiss();
       },
     }));
-
-    const currentAccountName = currentAccount?.aliasName || 'Account 1';
-    const currentAccountAddress = currentAccount?.address || '';
 
     return (
       <BottomSheetModal
@@ -100,7 +102,6 @@ const AccountBottomSheet = forwardRef<AccountBottomSheetRef, AccountBottomSheetP
           }
         }}
         style={{
-          backgroundColor: isDarkMode ? '#373B43' : '#ffffff',
           borderTopLeftRadius: 20,
           borderTopRightRadius: 20,
           overflow: 'hidden',
@@ -114,8 +115,7 @@ const AccountBottomSheet = forwardRef<AccountBottomSheetRef, AccountBottomSheetP
           onClose={onClose}
           currentAccount={currentAccount}
           onAccountSelect={onAccountSelect}
-          navigation={navigation}
-          onResetWallet={onResetWallet}
+          parentNavigation={navigation as NavigationProp<RootStackParamList>}
           onAddAccount={handleAddAccount}
           onSettings={handleSettings}
         />

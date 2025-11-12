@@ -1,84 +1,109 @@
 import { Buffer } from 'buffer';
 import Aes from 'react-native-aes-crypto';
-import {
-  ALGORITHM,
-  IV_LENGTH,
-  PBKDF2_ALGORITHM,
-  PBKDF2_ITERATIONS,
-  SALT_LENGTH,
-} from '../constants/encryption';
 
+/**
+ * Encryption Service - Password-based encryption for sensitive data
+ * Based on Rabby's encryption pattern using react-native-aes-crypto
+ */
 export class EncryptionService {
-  async encrypt(password: string, data: any): Promise<string> {
-    try {
-      console.log('🔐 EncryptionService: Starting encryption...');
-      console.time('🔍 Encryption total time');
-      console.log('🔍 Aes object:', Aes);
-      console.log('🔍 Available methods:', Object.getOwnPropertyNames(Aes));
-      console.log('🔍 Aes.randomKey:', Aes.randomKey);
-      console.time('🔑 Salt generation');
-      const salt = await Aes.randomKey(SALT_LENGTH);
-      console.timeEnd('🔑 Salt generation');
-      console.log('🔑 Salt generated');
-
-      console.time('🔐 PBKDF2 key derivation');
-      const key = await Aes.pbkdf2(password, salt, PBKDF2_ITERATIONS, 256, PBKDF2_ALGORITHM);
-      console.timeEnd('🔐 PBKDF2 key derivation');
-      console.log('🔐 Key derived successfully');
-
-      console.time('🔢 IV generation');
-      const iv = await Aes.randomKey(IV_LENGTH);
-      console.timeEnd('🔢 IV generation');
-      console.log('🔢 IV generated');
-
-      console.time('🔒 AES encryption');
-      const cipher = await Aes.encrypt(JSON.stringify(data), key, iv, ALGORITHM);
-      console.timeEnd('🔒 AES encryption');
-      console.log('🔒 Data encrypted successfully');
-
-      console.timeEnd('🔍 Encryption total time');
-      return JSON.stringify({ cipher, iv, salt });
-    } catch (error) {
-      console.error('❌ EncryptionService encrypt error:', error);
-      throw new Error(
-        `Failed to encrypt data: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      );
-    }
-  }
-
-  async decrypt(password: string, encryptedData: string): Promise<any> {
-    try {
-      const encrypted = JSON.parse(encryptedData);
-      const key = await Aes.pbkdf2(
-        password,
-        encrypted.salt,
-        PBKDF2_ITERATIONS,
-        256,
-        PBKDF2_ALGORITHM,
-      );
-      const data = await Aes.decrypt(encrypted.cipher, key, encrypted.iv, ALGORITHM);
-
-      return JSON.parse(data);
-    } catch (error) {
-      throw new Error('Failed to decrypt data - invalid password');
-    }
-  }
-
-  async deriveKey(password: string, salt: Buffer): Promise<Buffer> {
+  // Derive key from password using PBKDF2
+  public async deriveKey(
+    password: string,
+    salt: Buffer,
+    iterations: number = 5000,
+  ): Promise<Buffer> {
     const saltBase64 = salt.toString('base64');
-    const keyBase64 = await Aes.pbkdf2(
-      password,
-      saltBase64,
-      PBKDF2_ITERATIONS,
-      256,
-      PBKDF2_ALGORITHM,
-    );
+    const keyBase64 = await Aes.pbkdf2(password, saltBase64, iterations, 256, 'sha256');
     return Buffer.from(keyBase64, 'base64');
   }
 
-  async generateRandomBytes(byteCount: number): Promise<Buffer> {
-    const randomString = await Aes.randomKey(byteCount);
-    return Buffer.from(randomString, 'base64');
+  // Generate random bytes
+  public generateRandomBytes(size: number): Buffer {
+    const bytes = new Uint8Array(size);
+    crypto.getRandomValues(bytes);
+    return Buffer.from(bytes);
+  }
+
+  // Encrypt data with password
+  async encrypt(password: string, data: any): Promise<string> {
+    try {
+      // Generate salt and IV using react-native-aes-crypto
+      const salt = await Aes.randomKey(32);
+
+      const iv = await Aes.randomKey(16);
+
+      // Derive key from password
+      console.log('🔐 Deriving key with PBKDF2...');
+      const key = await Aes.pbkdf2(password, salt, 5000, 256, 'sha256');
+      console.log('🔐 Derived key length:', key.length);
+
+      // Convert data to string
+      const jsonData = JSON.stringify(data);
+      console.log('🔐 Data to encrypt size:', jsonData.length);
+
+      // Encrypt using react-native-aes-crypto
+      console.log('🔐 Encrypting data...');
+      const cipher = await Aes.encrypt(jsonData, key, iv, 'aes-256-cbc');
+      console.log('🔐 Encrypted cipher length:', cipher.length);
+
+      // Combine salt, iv, and encrypted data in the same format as Rabby
+      const result = {
+        cipher,
+        iv,
+        salt,
+      };
+
+      console.log('🔐 Encryption successful');
+      return JSON.stringify(result);
+    } catch (error) {
+      console.error('❌ Encryption failed:', error);
+      console.error('❌ Error details:', {
+        passwordProvided: !!password,
+        dataProvided: !!data,
+        dataType: typeof data,
+      });
+      throw new Error('Failed to encrypt data');
+    }
+  }
+
+  // Decrypt data with password
+  async decrypt(password: string, encryptedData: string): Promise<any> {
+    try {
+      console.log('🔐 EncryptionService.decrypt - Starting decryption...');
+      console.log('🔐 Encrypted data size:', encryptedData.length);
+
+      // Parse encrypted data
+      const encrypted = JSON.parse(encryptedData);
+      console.log('🔐 Parsed encrypted data keys:', Object.keys(encrypted));
+
+      // Get salt and IV
+      const salt = encrypted.salt;
+      const iv = encrypted.iv;
+      console.log('🔐 Salt length:', salt.length, 'IV length:', iv.length);
+
+      // Derive key from password
+      console.log('🔐 Deriving key with PBKDF2 for decryption...');
+      const key = await Aes.pbkdf2(password, salt, 5000, 256, 'sha256');
+      console.log('🔐 Derived key length:', key.length);
+
+      // Decrypt using react-native-aes-crypto
+      console.log('🔐 Decrypting cipher...');
+      const decrypted = await Aes.decrypt(encrypted.cipher, key, iv, 'aes-256-cbc');
+      console.log('🔐 Decrypted data size:', decrypted.length);
+
+      // Parse and return data
+      const result = JSON.parse(decrypted);
+      console.log('🔐 Decryption successful');
+      return result;
+    } catch (error) {
+      console.error('❌ Decryption failed:', error);
+      console.error('❌ Error details:', {
+        passwordProvided: !!password,
+        encryptedDataProvided: !!encryptedData,
+        encryptedDataLength: encryptedData?.length,
+      });
+      throw new Error('Failed to decrypt data - invalid password');
+    }
   }
 }
 

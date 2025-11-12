@@ -20,7 +20,6 @@ type UnlockFormValues = ZodFormValues<typeof unlockSchema>;
 
 type Props = NativeStackScreenProps<AccountStackParamList, 'Unlock'> & {
   onClose: () => void;
-  parentNavigation: any;
 };
 
 interface RouteParams {
@@ -30,12 +29,7 @@ interface RouteParams {
   isNewAccount?: boolean;
 }
 
-const UnlockScreen: React.FC<Props> = ({
-  navigation,
-  onClose: _onClose,
-  parentNavigation: _parentNavigation,
-  route,
-}) => {
+const UnlockScreen: React.FC<Props> = ({ navigation, onClose: _onClose, route }) => {
   const { mnemonic, isImport, isPrivateKeyImport, isNewAccount } = (route.params ||
     {}) as RouteParams;
 

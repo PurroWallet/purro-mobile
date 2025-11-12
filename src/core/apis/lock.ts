@@ -38,6 +38,8 @@ export async function verifyPassword(
     await keyringService.verifyPassword(password);
     return { success: true };
   } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.log('❌ apisLock.verifyPassword - Verification failed:', message);
     return { success: false, error: 'Invalid password' };
   }
 }

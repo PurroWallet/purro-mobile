@@ -1,5 +1,7 @@
 import { BottomSheetView } from '@gorhom/bottom-sheet';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { RouteProp } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { Alert, KeyboardAvoidingView, Platform, Text, View } from 'react-native';
@@ -17,16 +19,15 @@ const passwordVerificationSchema = z.object({
 
 type PasswordVerificationFormValues = ZodFormValues<typeof passwordVerificationSchema>;
 
-type Props = NativeStackScreenProps<AccountStackParamList, 'PasswordVerification'> & {
-  onClose: () => void;
-};
-
 interface RouteParams {
   accountAddress: string;
   onSuccess: (password: string) => void;
 }
 
-const PasswordVerificationScreen: React.FC<Props> = ({ navigation, onClose, route }) => {
+const PasswordVerificationScreen: React.FC = () => {
+  const navigation =
+    useNavigation<NativeStackNavigationProp<AccountStackParamList, 'PasswordVerification'>>();
+  const route = useRoute<RouteProp<AccountStackParamList, 'PasswordVerification'>>();
   const { accountAddress, onSuccess } = (route.params || {}) as RouteParams;
   const [isLoading, setIsLoading] = useState(false);
   const { t } = useTranslation();

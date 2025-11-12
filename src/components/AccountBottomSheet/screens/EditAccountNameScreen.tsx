@@ -1,5 +1,7 @@
 import { BottomSheetView } from '@gorhom/bottom-sheet';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { RouteProp } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { Keyboard, Text, TouchableWithoutFeedback, View } from 'react-native';
@@ -9,9 +11,10 @@ import { useTranslation } from '@/utils/i18n';
 import type { AccountStackParamList } from '../AccountStackNavigator';
 import BaseScreen from '../components/BaseScreen';
 
-type Props = NativeStackScreenProps<AccountStackParamList, 'EditAccountName'>;
-
-const EditAccountNameScreen: React.FC<Props> = ({ navigation, route }) => {
+const EditAccountNameScreen: React.FC = () => {
+  const navigation =
+    useNavigation<NativeStackNavigationProp<AccountStackParamList, 'EditAccountName'>>();
+  const route = useRoute<RouteProp<AccountStackParamList, 'EditAccountName'>>();
   const { accountAddress, currentName } = route.params;
   const { t } = useTranslation();
 

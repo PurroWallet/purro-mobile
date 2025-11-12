@@ -1,5 +1,6 @@
 import { BottomSheetView } from '@gorhom/bottom-sheet';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Wallet } from 'ethers';
 import React, { useState } from 'react';
 import { FormProvider } from 'react-hook-form';
@@ -17,12 +18,13 @@ const importPrivateKeySchema = z.object({
 
 type ImportPrivateKeyFormValues = ZodFormValues<typeof importPrivateKeySchema>;
 
-type Props = NativeStackScreenProps<AccountStackParamList, 'ImportPrivateKey'> & {
+type Props = {
   onClose: () => void;
-  parentNavigation: any;
 };
 
-const ImportPrivateKeyScreen: React.FC<Props> = ({ navigation, onClose, parentNavigation }) => {
+const ImportPrivateKeyScreen: React.FC<Props> = ({ onClose }) => {
+  const navigation =
+    useNavigation<NativeStackNavigationProp<AccountStackParamList, 'ImportPrivateKey'>>();
   const [isImporting, setIsImporting] = useState(false);
 
   const form = useZodForm(importPrivateKeySchema, {

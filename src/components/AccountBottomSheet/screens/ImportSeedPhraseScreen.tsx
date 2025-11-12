@@ -1,5 +1,6 @@
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useState } from 'react';
 import { FormProvider } from 'react-hook-form';
 import { Alert, Text, View } from 'react-native';
@@ -32,12 +33,13 @@ const importSeedPhraseSchema = z
 
 type ImportSeedPhraseFormValues = ZodFormValues<typeof importSeedPhraseSchema>;
 
-type Props = NativeStackScreenProps<AccountStackParamList, 'ImportSeedPhrase'> & {
+type Props = {
   onClose: () => void;
-  parentNavigation: any;
 };
 
-const ImportSeedPhraseScreen: React.FC<Props> = ({ navigation, onClose, parentNavigation }) => {
+const ImportSeedPhraseScreen: React.FC<Props> = ({ onClose }) => {
+  const navigation =
+    useNavigation<NativeStackNavigationProp<AccountStackParamList, 'ImportSeedPhrase'>>();
   const [isImporting, setIsImporting] = useState(false);
 
   const form = useZodForm(importSeedPhraseSchema, {
