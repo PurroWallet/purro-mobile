@@ -19,9 +19,9 @@ const SheetHeader: React.FC<SheetHeaderProps> = ({
   iconColor,
   isDarkMode = false,
 }) => {
-  // Sử dụng màu từ theme nếu không có màu được truyền
-  const defaultTextColor = textColor || (isDarkMode ? '#F9F9F9' : '#161616');
-  const defaultIconColor = iconColor || (isDarkMode ? '#F9F9F9' : '#161616');
+  // Use theme colors with proper fallbacks for visibility
+  const defaultTextColor = textColor || (isDarkMode ? '#FFFFFF' : '#161616');
+  const defaultIconColor = iconColor || (isDarkMode ? '#FFFFFF' : '#161616');
 
   return (
     <View className="flex-row items-center justify-center px-6 py-6">

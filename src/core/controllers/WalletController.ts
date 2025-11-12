@@ -127,6 +127,13 @@ export class WalletController {
   }
 
   /**
+   * Add new account to specific HD keyring by index
+   */
+  async addAccountToHDKeyring(keyringIndex: number): Promise<string> {
+    return walletService.addAccountToHDKeyring(keyringIndex);
+  }
+
+  /**
    * Remove account
    */
   async removeAccount(address: string): Promise<void> {

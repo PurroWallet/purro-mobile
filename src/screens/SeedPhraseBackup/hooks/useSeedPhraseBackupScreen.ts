@@ -1,10 +1,11 @@
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { useCallback, useMemo, useState } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import { Alert } from 'react-native';
 import { z } from 'zod';
-import { apisLock, apisWallet } from '@/core/apis';
+import { apisLock } from '@/core/apis';
 import { useZodForm, ZodFormValues } from '@/core/hooks/form/useZodForm';
+import { walletService } from '@/core/services';
 import type { NavigationProp } from '@/types/navigation';
 import { useTranslation } from '@/utils/i18n';
 
@@ -35,8 +36,12 @@ export interface UseSeedPhraseBackupScreenResult {
 
 export const useSeedPhraseBackupScreen = (): UseSeedPhraseBackupScreenResult => {
   const navigation = useNavigation<NavigationProp<'SeedPhraseBackup'>>();
+  const route = useRoute();
   const { t } = useTranslation();
   const [isUnlocking, setIsUnlocking] = useState(false);
+
+  // Get the selected keyring index from route params, default to 0 if not provided
+  const selectedKeyringIndex = (route.params as any)?.selectedKeyringIndex ?? 0;
 
   const form = useZodForm(unlockSchema, {
     defaultValues: {
@@ -51,8 +56,17 @@ export const useSeedPhraseBackupScreen = (): UseSeedPhraseBackupScreenResult => 
 
       setIsUnlocking(true);
       try {
+        console.log(
+          `🔐 Unlocking wallet for seed phrase backup (keyring ${selectedKeyringIndex})...`,
+        );
+
+        // Unlock the wallet first
         await apisLock.unlockWallet(values.password);
-        const mnemonic = await apisWallet.exportMnemonic();
+        console.log('✅ Wallet unlocked successfully');
+
+        // Export mnemonic for the specific HD keyring index
+        const mnemonic = await walletService.exportMnemonicForHDKeyring(selectedKeyringIndex);
+        console.log(`✅ Mnemonic exported for HD keyring ${selectedKeyringIndex}`);
 
         navigation.navigate('SeedPhraseDisplay', { mnemonic });
       } catch (error) {
@@ -65,7 +79,7 @@ export const useSeedPhraseBackupScreen = (): UseSeedPhraseBackupScreenResult => 
         setIsUnlocking(false);
       }
     },
-    [isUnlocking, navigation, t],
+    [isUnlocking, navigation, selectedKeyringIndex, t],
   );
 
   const onSubmit = useCallback(() => {

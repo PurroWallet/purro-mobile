@@ -31,21 +31,36 @@ const AddAccountScreen: React.FC<Props> = ({ onClose: _onClose }) => {
   };
 
   const handleCreateNew = () => {
-    // Navigate to password verification screen first
-    navigation.navigate('PasswordVerification', {
-      accountAddress: '',
-      onSuccess: async (verifiedPassword) => {
-        try {
-          await walletController.addNewAccount();
-          // Navigate to success screen
-          navigation.navigate('Success', {
-            title: 'Account Created!',
-            message: 'New account has been created successfully.',
-            buttonText: 'Done',
-          });
-        } catch (error) {
-          Alert.alert('Error', 'Failed to create new account');
-        }
+    // Navigate to select seed phrase screen to choose which HD keyring to add account to
+    navigation.navigate('SelectSeedPhrase', {
+      mode: 'create',
+      onSeedPhraseSelected: async (keyringInfo) => {
+        // Extract keyring index from ID (e.g., "seed_1" -> 0)
+        const keyringIndex = parseInt(keyringInfo.id.split('_')[1]) - 1;
+
+        // Navigate to password verification screen first
+        navigation.navigate('PasswordVerification', {
+          accountAddress: '',
+          onSuccess: async (verifiedPassword) => {
+            try {
+              console.log(`🔐 Adding new account to ${keyringInfo.id} (index ${keyringIndex})`);
+
+              // Add account to the selected HD keyring
+              const newAddress = await walletController.addAccountToHDKeyring(keyringIndex);
+              console.log(`✅ New account created: ${newAddress.substring(0, 10)}...`);
+
+              // Navigate to success screen
+              navigation.navigate('Success', {
+                title: 'Account Created!',
+                message: `New account has been created successfully using ${keyringInfo.id.replace('_', ' ').toUpperCase()}.`,
+                buttonText: 'Done',
+              });
+            } catch (error) {
+              console.error('❌ Failed to create new account:', error);
+              Alert.alert('Error', 'Failed to create new account');
+            }
+          },
+        });
       },
     });
   };

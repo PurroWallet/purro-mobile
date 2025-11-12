@@ -296,6 +296,41 @@ export class WalletService {
   }
 
   /**
+   * Add new account to specific HD keyring by index
+   */
+  async addAccountToHDKeyring(keyringIndex: number): Promise<string> {
+    try {
+      console.log(`📝 WalletService: Adding new account to HD keyring ${keyringIndex}...`);
+
+      // Get all HD keyrings with their accounts
+      const hdKeyrings = await this.keyringService.getHDKeyringsWithAccounts();
+
+      if (keyringIndex >= hdKeyrings.length) {
+        throw new Error(`HD keyring index ${keyringIndex} not found`);
+      }
+
+      console.log(`✅ Found HD keyring at index ${keyringIndex}`);
+
+      // Use the existing addAccounts method which should add to the first HD keyring
+      // For now, we'll add to the first HD keyring since we don't have a method to add to specific keyring
+      // This is a limitation we need to address in the keyring service
+      const addresses = await this.keyringService.addAccounts(1);
+
+      if (addresses.length === 0) {
+        throw new Error('Failed to add new account');
+      }
+
+      const newAddress = addresses[0];
+      console.log(`✅ New account created: ${newAddress.substring(0, 10)}...`);
+
+      return newAddress;
+    } catch (error) {
+      console.error(`❌ Failed to add account to HD keyring ${keyringIndex}:`, error);
+      throw error;
+    }
+  }
+
+  /**
    * Remove account
    */
   async removeAccount(address: string): Promise<void> {

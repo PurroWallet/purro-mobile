@@ -34,7 +34,9 @@ export type AccountStackParamList = {
     privateKey: string;
     accountAddress: string;
   };
-  SeedPhraseBackup: undefined;
+  SeedPhraseBackup: {
+    selectedKeyringIndex?: number;
+  };
   SeedPhraseDiscovery: {
     mnemonic: string;
     password: string;

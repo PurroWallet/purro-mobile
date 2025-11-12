@@ -57,8 +57,13 @@ const SelectSeedPhraseScreen: React.FC<Props> = ({ mode = 'backup', onSeedPhrase
     }
 
     if (mode === 'backup') {
-      // Navigate to seed phrase backup with selected keyring
-      navigation.navigate('SeedPhraseBackup');
+      // Extract keyring index from ID (e.g., "seed_1" -> 0)
+      const keyringIndex = parseInt(selectedKeyring.id.split('_')[1]) - 1;
+
+      // Navigate to seed phrase backup with selected keyring index
+      navigation.navigate('SeedPhraseBackup', {
+        selectedKeyringIndex: keyringIndex,
+      });
     } else if (mode === 'create' && onSeedPhraseSelected) {
       // Pass the selected keyring to the callback
       onSeedPhraseSelected(selectedKeyring);
