@@ -14,7 +14,10 @@ import EditAccountScreen from './screens/EditAccountScreen.tsx';
 import ImportPrivateKeyScreen from './screens/ImportPrivateKeyScreen.tsx';
 import ImportSeedPhraseScreen from './screens/ImportSeedPhraseScreen.tsx';
 import PasswordVerificationScreen from './screens/PasswordVerificationScreen.tsx';
+import PrivateKeyDisplayScreen from './screens/PrivateKeyDisplayScreen.tsx';
 import SeedPhraseBackupScreen from './screens/SeedPhraseBackupScreen.tsx';
+import SeedPhraseDiscoveryScreen from './screens/SeedPhraseDiscoveryScreen.tsx';
+import SelectSeedPhraseScreen from './screens/SelectSeedPhraseScreen.tsx';
 import SettingsScreen from './screens/SettingsScreen.tsx';
 import SuccessScreen from './screens/SuccessScreen.tsx';
 import UnlockScreen from './screens/UnlockScreen.tsx';
@@ -27,7 +30,20 @@ export type AccountStackParamList = {
   Settings: undefined;
   ImportSeedPhrase: undefined;
   ImportPrivateKey: undefined;
+  PrivateKeyDisplay: {
+    privateKey: string;
+    accountAddress: string;
+  };
   SeedPhraseBackup: undefined;
+  SeedPhraseDiscovery: {
+    mnemonic: string;
+    password: string;
+    onSuccess?: (account: any) => void;
+  };
+  SelectSeedPhrase: {
+    mode?: 'create' | 'backup';
+    onAccountCreated?: (account: any) => void;
+  };
   CreatePassword: { mnemonic: string; isPrivateKeyImport?: boolean; isNewAccount?: boolean };
   Success: { title: string; message: string; buttonText?: string };
   PasswordVerification: { accountAddress: string; onSuccess: (password: string) => void };
@@ -98,6 +114,31 @@ const AccountStackNavigator: React.FC<AccountStackNavigatorProps> = ({
           </Stack.Screen>
           <Stack.Screen name="SeedPhraseBackup">
             {(props) => <SeedPhraseBackupScreen {...props} onClose={onClose} />}
+          </Stack.Screen>
+          <Stack.Screen name="PrivateKeyDisplay">
+            {(props) => (
+              <PrivateKeyDisplayScreen
+                privateKey={props.route.params.privateKey}
+                accountAddress={props.route.params.accountAddress}
+              />
+            )}
+          </Stack.Screen>
+          <Stack.Screen name="SeedPhraseDiscovery">
+            {(props) => (
+              <SeedPhraseDiscoveryScreen
+                mnemonic={props.route.params.mnemonic}
+                password={props.route.params.password}
+                onSuccess={props.route.params.onSuccess}
+              />
+            )}
+          </Stack.Screen>
+          <Stack.Screen name="SelectSeedPhrase">
+            {(props) => (
+              <SelectSeedPhraseScreen
+                mode={props.route.params.mode}
+                onAccountCreated={props.route.params.onAccountCreated}
+              />
+            )}
           </Stack.Screen>
           <Stack.Screen name="CreatePassword">
             {(props) => <CreatePasswordScreen {...props} onClose={onClose} />}
