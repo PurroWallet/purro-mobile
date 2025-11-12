@@ -16,12 +16,8 @@ export async function unlockWallet(password: string): Promise<UnlockResult> {
   };
 
   try {
-    // Boot keyring service (loads keyrings to get account addresses)
     await keyringService.boot(password);
-
-    // Mark as unlocked in lock service
     lockService.markAsUnlocked();
-
     unlockResult.success = true;
   } catch (error) {
     unlockResult.error = 'Incorrect password';
@@ -38,8 +34,6 @@ export async function verifyPassword(
     await keyringService.verifyPassword(password);
     return { success: true };
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    console.log('❌ apisLock.verifyPassword - Verification failed:', message);
     return { success: false, error: 'Invalid password' };
   }
 }
@@ -52,7 +46,6 @@ export function isUnlocked() {
   return keyringService.isUnlocked();
 }
 
-// Export APIs object for convenience
 export const apisLock = {
   unlockWallet,
   verifyPassword,
