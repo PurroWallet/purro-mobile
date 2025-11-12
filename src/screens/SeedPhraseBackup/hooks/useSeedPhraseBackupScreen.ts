@@ -3,7 +3,7 @@ import { useCallback, useMemo, useState } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import { Alert } from 'react-native';
 import { z } from 'zod';
-import { apisWallet } from '@/core/apis';
+import { apisLock, apisWallet } from '@/core/apis';
 import { useZodForm, ZodFormValues } from '@/core/hooks/form/useZodForm';
 import type { NavigationProp } from '@/types/navigation';
 import { useTranslation } from '@/utils/i18n';
@@ -51,7 +51,7 @@ export const useSeedPhraseBackupScreen = (): UseSeedPhraseBackupScreenResult => 
 
       setIsUnlocking(true);
       try {
-        await apisWallet.unlockWallet(values.password);
+        await apisLock.unlockWallet(values.password);
         const mnemonic = await apisWallet.exportMnemonic();
 
         navigation.navigate('SeedPhraseDisplay', { mnemonic });

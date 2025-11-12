@@ -74,16 +74,11 @@ const ImportSeedPhraseScreen: React.FC<Props> = ({ onClose }) => {
             console.log('📝 Mnemonic:', values.mnemonic.trim().substring(0, 30) + '...');
             console.log('🔑 Password verified');
 
-            // Navigate to seed phrase discovery screen with loading animation
-            navigation.navigate('SeedPhraseDiscovery', {
+            // Navigate to create password screen for imported wallet
+            navigation.navigate('CreatePassword', {
               mnemonic: values.mnemonic.trim(),
-              password: verifiedPassword,
-              onSuccess: (account: any) => {
-                console.log(
-                  '📥 ImportSeedPhrase: Account created callback for:',
-                  account.address.substring(0, 10) + '...',
-                );
-              },
+              isPrivateKeyImport: false,
+              isNewAccount: false,
             });
           } catch (error) {
             console.error('📥 ImportSeedPhrase - Discovery failed:', error);

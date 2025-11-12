@@ -1,6 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
 import { useCallback, useMemo, useState } from 'react';
 import { Alert } from 'react-native';
+import { generateMnemonic } from '@/core/keyring';
 import { keyringService } from '@/core/services/KeyringService';
 import { web3AuthService } from '@/core/services/Web3AuthService';
 import type { NavigationProp } from '@/types/navigation';
@@ -76,7 +77,7 @@ export const useWelcomeScreen = (): UseWelcomeScreenResult => {
     }
 
     try {
-      const mnemonic = keyringService.generateMnemonic();
+      const mnemonic = generateMnemonic();
 
       if (!mnemonic || typeof mnemonic !== 'string' || mnemonic.trim() === '') {
         Alert.alert(

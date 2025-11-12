@@ -49,11 +49,12 @@ const EditAccountScreen: React.FC = () => {
         try {
           const privateKey = await walletController.exportAccount(accountAddress);
 
-          // Navigate to private key display screen
-          navigation.navigate('PrivateKeyDisplay', {
-            privateKey,
-            accountAddress,
-          });
+          // Show private key in alert (since PrivateKeyDisplay screen doesn't exist yet)
+          Alert.alert(
+            'Private Key',
+            `Your private key: ${privateKey.substring(0, 10)}...${privateKey.substring(privateKey.length - 10)}`,
+            [{ text: 'OK' }],
+          );
         } catch {
           Alert.alert(
             t('errors.generic.title'),

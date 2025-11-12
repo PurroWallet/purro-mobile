@@ -70,7 +70,7 @@ export const useCreatePasswordScreen = (): UseCreatePasswordScreenResult => {
           addresses = await walletController.importWalletWithPrivateKey(privateKey);
         } else if (isImport && mnemonic) {
           await walletController.bootForNewWallet(values.password);
-          addresses = await walletController.importWalletWithMnemonicNew(mnemonic, values.password);
+          addresses = await walletController.importWalletWithMnemonic(mnemonic, values.password);
         } else if (isImport && privateKey) {
           await walletController.bootForNewWallet(values.password);
           addresses = await walletController.importWalletWithPrivateKey(privateKey);

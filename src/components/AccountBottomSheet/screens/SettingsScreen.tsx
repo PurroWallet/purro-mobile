@@ -224,8 +224,8 @@ const SettingsScreen: React.FC<Props> = ({ parentNavigation }) => {
   );
 
   const handleBackupWallet = () => {
-    // Navigate to SelectSeedPhrase with backup mode
-    navigation.navigate('SelectSeedPhrase', { mode: 'backup' });
+    // Navigate to seed phrase backup screen
+    navigation.navigate('SeedPhraseBackup');
   };
 
   const handleResetWallet = () => {

@@ -109,26 +109,8 @@ const AccountListScreen: React.FC<Props> = ({
         'No current account',
     );
 
-    // Navigate to AddAccount screen with current account context
-    navigation.navigate('AddAccount', {
-      currentAccount,
-      onNewAccountCreated: (newAccount) => {
-        console.log('📝 AccountListScreen: New account created callback');
-        console.log(
-          '📍 New account to set as current:',
-          newAccount.address.substring(0, 10) + '...',
-        );
-
-        // Set the new account as current
-        onAccountSelect(newAccount);
-
-        // Reload accounts to show the new one with longer delay for persistence
-        setTimeout(() => {
-          console.log('📝 AccountListScreen: Reloading accounts after new account creation...');
-          loadAccounts();
-        }, 500); // Increased delay to ensure persistence is complete
-      },
-    });
+    // Navigate to AddAccount screen
+    navigation.navigate('AddAccount');
   };
 
   const handleEditAccount = (account: Account) => {
