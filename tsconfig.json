@@ -17,7 +17,8 @@
       "@/theme/*": ["src/theme/*"],
       "@/types/*": ["src/types/*"],
       "@/assets/*": ["src/assets/*"]
-    },
-    "include": ["**/*.ts", "**/*.tsx", "nativewind-env.d.ts"],
-    "exclude": ["**/node_modules", "**/Pods"]
+    }
+  },
+  "include": ["**/*.ts", "**/*.tsx", "nativewind-env.d.ts"],
+  "exclude": ["**/node_modules", "**/Pods"]
 }
