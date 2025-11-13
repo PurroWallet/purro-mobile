@@ -12,6 +12,7 @@ import React, {
 import { Text, TouchableOpacity, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { useToast } from 'react-native-toast-notifications';
+import { Button } from '@/components';
 import CustomBackground from '@/components/AccountBottomSheet/CustomBackground';
 import { useTranslation } from '@/utils/i18n';
 
@@ -53,12 +54,13 @@ const ReceiveTokenSheet = forwardRef<ReceiveTokenSheetRef, ReceiveTokenSheetProp
     // Available networks
     const networks = useMemo(
       () => [
-        { id: '1', name: 'Hyperliquid', icon: '🟢' },
-        { id: '2', name: 'Ethereum', icon: '🔷' },
-        { id: '3', name: 'Solana', icon: '🟣' },
+        { id: '1', name: 'HyperEVM' },
+        { id: '2', name: 'Ethereum' },
+        { id: '3', name: 'Base' },
+        { id: '4', name: 'Arbitrum' },
       ],
       [],
-    );
+    ) as Network[];
 
     const selectedNetworkData = useMemo(
       () => networks.find((network) => network.name === selectedNetwork) || networks[0],
@@ -129,7 +131,6 @@ const ReceiveTokenSheet = forwardRef<ReceiveTokenSheetRef, ReceiveTokenSheetProp
       },
     }));
 
-    const currentAccountName = currentAccount?.alianName || 'Account 1';
     const currentAccountAddress = currentAccount?.address || '0xe835...dE81';
 
     // Format address for display
@@ -160,17 +161,31 @@ const ReceiveTokenSheet = forwardRef<ReceiveTokenSheetRef, ReceiveTokenSheetProp
         enablePanDownToClose={true}
       >
         {/* Header */}
-        <View className="flex-row justify-between items-center p-6 bg-background-secondary absolute top-0 left-0 right-0 z-10">
-          <TouchableOpacity onPress={onClose}>
-            <Text className="text-xl font-medium text-text-primary">{t('receiveToken.title')}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={onClose}>
-            <Text className="text-2xl text-text-primary">✕</Text>
-          </TouchableOpacity>
+        <View className="px-6 pt-6 pb-4">
+          <View className="flex-row items-center justify-between">
+            {currentStep === 'selectNetwork' ? (
+              <View className="w-8" />
+            ) : (
+              <TouchableOpacity onPress={() => setCurrentStep('selectNetwork')} className="w-8">
+                <Text className="text-2xl text-text-primary">‹</Text>
+              </TouchableOpacity>
+            )}
+            <Text className="text-lg font-semibold text-text-primary">
+              {currentStep === 'selectNetwork'
+                ? t('receiveToken.selectNetwork')
+                : t('receiveToken.receiveToken')}
+            </Text>
+            <TouchableOpacity
+              onPress={() => bottomSheetRef.current?.dismiss()}
+              className="w-8 items-end"
+            >
+              <Text className="text-2xl text-text-primary">✕</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Content */}
-        <View className="flex-1 pt-[100px] pb-10 items-center gap-5">
+        <View className="flex-1 pb-10 items-center gap-5">
           {currentStep === 'selectNetwork' ? (
             <>
               <Text className="text-lg text-center px-6 text-[#6A7282]">
@@ -184,7 +199,7 @@ const ReceiveTokenSheet = forwardRef<ReceiveTokenSheetRef, ReceiveTokenSheetProp
                     className="flex-row items-center p-6 rounded-xl w-full bg-background-secondary"
                     onPress={() => setSelectedNetwork(network.name)}
                   >
-                    <Text className="text-2xl">{network.icon}</Text>
+                    {network?.icon && <Text className="text-2xl">{network?.icon}</Text>}
                     <View className="flex-1 ml-4">
                       <Text className="text-lg font-normal text-text-primary">{network.name}</Text>
                       <Text className="text-sm text-text-secondary">
@@ -197,24 +212,22 @@ const ReceiveTokenSheet = forwardRef<ReceiveTokenSheetRef, ReceiveTokenSheetProp
                   </TouchableOpacity>
                 ))}
               </View>
-
-              <TouchableOpacity
-                className="mx-5 mt-4 rounded-xl py-4 items-center justify-center bg-button-primary"
-                onPress={() => setCurrentStep('showQR')}
-              >
-                <Text className="text-base font-semibold text-button-primary-text">
-                  {t('common.continue')}
-                </Text>
-              </TouchableOpacity>
+              <View className="w-full px-6">
+                <Button
+                  type="primary"
+                  title={t('common.continue')}
+                  onPress={() => setCurrentStep('showQR')}
+                />
+              </View>
             </>
           ) : (
             <>
-              <TouchableOpacity
+              {/* <TouchableOpacity
                 className="self-start px-6"
                 onPress={() => setCurrentStep('selectNetwork')}
               >
                 <Text className="text-sm text-text-secondary">{t('common.back')}</Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
 
               <View className="items-center justify-center gap-5 px-20 w-full">
                 <View className="flex-row items-center gap-2.5">

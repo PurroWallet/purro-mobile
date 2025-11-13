@@ -20,7 +20,7 @@ import { PrivacyBlur } from '@/components/PrivacyBlur';
 import { GlobalSecurityTipStubModal } from '@/components/SecurityTipStubModal';
 import { apisWallet } from '@/core/apis';
 import { useAppPreventScreenshotOnScreen } from '@/core/hooks/native/security';
-import { screenProtection } from '@/core/services/screenProtection';
+import { screenProtection } from '@/core/services/ScreenProtection';
 import { web3AuthService } from '@/core/services/Web3AuthService';
 import { excludeFilesFromBackup } from '@/core/utils/appFS';
 import MainTabNavigator from '@/navigation/MainTabNavigator';
@@ -30,6 +30,7 @@ import {
   ImportPrivateKeyScreen,
   ImportSeedPhraseScreen,
   ImportWalletScreen,
+  SearchScreen,
   SeedPhraseBackupScreen,
   SeedPhraseDisplayScreen,
   SeedPhraseVerifyScreen,
@@ -181,6 +182,7 @@ const App: React.FC = () => {
 
                   {/* Main App Flow */}
                   <Stack.Screen name="Home" component={MainTabNavigator} />
+                  <Stack.Screen name="SearchScreen" component={SearchScreen} />
                 </Stack.Navigator>
 
                 {/* Screenshot protection components (Rabby pattern) */}

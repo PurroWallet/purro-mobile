@@ -1,6 +1,6 @@
 import { colorScheme as globalColorScheme } from 'nativewind';
 import { create } from 'zustand';
-import { preferenceService } from '@/core/services/preference';
+import { preferenceService } from '@/core/services/Preference';
 
 export type ThemeMode = 'light' | 'dark';
 

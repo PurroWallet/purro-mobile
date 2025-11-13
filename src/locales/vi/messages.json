@@ -443,5 +443,11 @@
     "actions": {
       "cta": "Bắt đầu"
     }
+  },
+  "receiveToken": {
+    "title": "Nhận Token",
+    "subtitle": "Nhận token bằng cách quét mã QR",
+    "selectNetwork": "Chọn mạng",
+    "receiveToken": "Nhận token"
   }
 }

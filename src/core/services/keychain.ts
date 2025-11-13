@@ -1,6 +1,6 @@
 import * as RNKeychain from 'react-native-keychain';
-import { encryptionService } from '../services/EncryptionService';
 import { keychainStorage } from '../storage/secureStorage';
+import { encryptionService } from './EncryptionService';
 
 export enum KEYCHAIN_AUTH_TYPES {
   APPLICATION_PASSWORD = 0,

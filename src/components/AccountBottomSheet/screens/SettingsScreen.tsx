@@ -10,7 +10,7 @@ import ThemeToggle from '@/components/ThemeToggle';
 import { apisKeychain, apisLock, apisWallet } from '@/core/apis';
 import { useBiometrics } from '@/core/hooks/biometrics';
 import { useThemeMode } from '@/core/hooks/useTheme';
-import { KEYCHAIN_AUTH_TYPES } from '@/core/services/keychain';
+import { KEYCHAIN_AUTH_TYPES } from '@/core/services/Keychain';
 import { useAppStore } from '@/stores/appStore';
 import type { ThemeMode } from '@/theme';
 import type { RootStackParamList } from '@/types/navigation';

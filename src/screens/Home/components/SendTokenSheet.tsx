@@ -9,6 +9,7 @@ import React, {
   useState,
 } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
   Platform,
@@ -20,7 +21,10 @@ import {
 } from 'react-native';
 import CustomBackground from '@/components/AccountBottomSheet/CustomBackground';
 import { Button } from '@/components/Button';
+import { useCurrentAccount } from '@/core/hooks/wallet/useCurrentAccount';
+import { transactionService } from '@/core/services';
 import { useTranslation } from '@/utils/i18n';
+import { validateEthereumAddress } from '@/utils/validation';
 
 type Destination = 'Hyperliquid DEX' | 'HyperVM';
 
@@ -46,12 +50,14 @@ export interface SentTokenSheetRef {
 const SentTokenSheet = forwardRef<SentTokenSheetRef, SentTokenSheetProps>(({ onClose }, ref) => {
   const bottomSheetRef = useRef<BottomSheetModalMethods>(null);
   const { t } = useTranslation();
+  const { currentAccount } = useCurrentAccount();
 
   const [step, setStep] = useState<Step>('destination');
   const [destination, setDestination] = useState<Destination | null>(null);
   const [selectedToken, setSelectedToken] = useState<TokenAsset | null>(null);
   const [recipient, setRecipient] = useState('');
   const [amount, setAmount] = useState('');
+  const [isSending, setIsSending] = useState(false);
 
   const tokens = useMemo<TokenAsset[]>(
     () => [
@@ -177,14 +183,50 @@ const SentTokenSheet = forwardRef<SentTokenSheetRef, SentTokenSheetProps>(({ onC
     });
   }, []);
 
-  const handleSend = useCallback(() => {
-    Alert.alert(t('sendToken.sentTitle'), t('sendToken.sentDescription'), [
-      {
-        text: t('common.ok'),
-        onPress: handleDismiss,
-      },
-    ]);
-  }, [handleDismiss, t]);
+  const handleSend = useCallback(async () => {
+    if (!currentAccount?.address || !selectedToken || !recipient || !amount) {
+      Alert.alert(t('errors.generic.title'), t('sendToken.missingFields'));
+      return;
+    }
+
+    // Validate recipient address
+    if (!validateEthereumAddress(recipient)) {
+      Alert.alert(t('errors.generic.title'), t('sendToken.invalidAddress'));
+      return;
+    }
+
+    setIsSending(true);
+    try {
+      // Send transaction (native ETH only for now)
+      const result = await transactionService.sendTransaction({
+        from: currentAccount.address,
+        to: recipient,
+        amount: amount,
+        // For ERC20 tokens, uncomment and modify:
+        // tokenAddress: selectedToken.id !== 'eth' ? selectedToken.id : undefined,
+      });
+
+      Alert.alert(
+        t('sendToken.sentTitle'),
+        t('sendToken.sentDescription', {
+          amount,
+          symbol: selectedToken.symbol,
+          hash: `${result.hash.slice(0, 10)}...`,
+        }),
+        [
+          {
+            text: t('common.ok'),
+            onPress: handleDismiss,
+          },
+        ],
+      );
+    } catch (error: any) {
+      console.error('Transaction failed:', error);
+      Alert.alert(t('errors.generic.title'), error?.message || t('sendToken.transactionFailed'));
+    } finally {
+      setIsSending(false);
+    }
+  }, [currentAccount?.address, selectedToken, recipient, amount, handleDismiss, t]);
 
   const renderTitle = useMemo(() => {
     if (step === 'destination') {
@@ -426,10 +468,24 @@ const SentTokenSheet = forwardRef<SentTokenSheetRef, SentTokenSheetProps>(({ onC
 
           <View className="mt-auto flex-row gap-3 pt-8">
             <View className="flex-1">
-              <Button type="secondary" title={t('common.cancel')} onPress={handleDismiss} />
+              <Button
+                type="secondary"
+                title={t('common.cancel')}
+                onPress={handleDismiss}
+                disabled={isSending}
+              />
             </View>
             <View className="flex-1">
-              <Button title={t('sendToken.sendButton')} onPress={handleSend} />
+              <Button
+                title={isSending ? t('sendToken.sending') : t('sendToken.sendButton')}
+                onPress={handleSend}
+                disabled={isSending}
+              />
+              {isSending && (
+                <View className="absolute inset-0 items-center justify-center">
+                  <ActivityIndicator color="#FFFFFF" />
+                </View>
+              )}
             </View>
           </View>
         </View>

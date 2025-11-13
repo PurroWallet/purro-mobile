@@ -45,14 +45,6 @@
       }
     }
   },
-  "receiveToken": {
-    "title": "Receive Address",
-    "chooseNetwork": "Choose a network to receive funds",
-    "saveQR": "Save QR",
-    "copy": "Copy",
-    "addressCopied": "Address copied to clipboard",
-    "qrSaved": "QR code saved"
-  },
   "sendToken": {
     "sheetTitle": "Send Token",
     "sheetSubtitle": "Choose where you want to send.",
@@ -467,5 +459,15 @@
     "actions": {
       "cta": "Get started"
     }
+  },
+  "receiveToken": {
+    "title": "Receive Address",
+    "chooseNetwork": "Choose a network to receive funds",
+    "saveQR": "Save QR",
+    "copy": "Copy",
+    "addressCopied": "Address copied to clipboard",
+    "qrSaved": "QR code saved",
+    "selectNetwork": "Select Network",
+    "receiveToken": "Receive Token"
   }
 }

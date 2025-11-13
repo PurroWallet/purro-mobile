@@ -1,10 +1,12 @@
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { RefObject } from 'react';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert } from 'react-native';
 import type { AccountBottomSheetRef } from '@/components/AccountBottomSheet';
 import { apisKeychain, apisLock, apisWallet } from '@/core/apis';
 import { useCurrentAccount } from '@/core/hooks/wallet/useCurrentAccount';
+import { tokenService } from '@/core/services';
+import type { TokenInfo } from '@/core/services/TokenService';
 import { useAppStore } from '@/stores/appStore';
 import type { NavigationProp, RootStackParamList } from '@/types/navigation';
 import { useTranslation } from '@/utils/i18n';
@@ -36,7 +38,6 @@ export interface Token {
 }
 
 export interface UseHomeScreenResult {
-  t: ReturnType<typeof useTranslation>['t'];
   accountBottomSheetRef: RefObject<AccountBottomSheetRef | null>;
   sentTokenSheetRef: RefObject<SentTokenSheetRef | null>;
   receiveTokenSheetRef: RefObject<ReceiveTokenSheetRef | null>;
@@ -45,11 +46,16 @@ export interface UseHomeScreenResult {
   currentAccount: Account | null;
   perpPositions: PerpPosition[];
   tokens: Token[];
+  totalBalance: string;
+  totalTokensCount: number;
+  isLoadingTokens: boolean;
   handleAccountSelect: (account: Account) => void;
   handleResetWallet: () => Promise<void>;
   openAccountSheet: () => void;
   openSendSheet: () => void;
   openReceiveSheet: () => void;
+  refreshTokens: () => Promise<void>;
+  navigateSearch: () => void;
 }
 
 export const useHomeScreen = (): UseHomeScreenResult => {
@@ -60,6 +66,8 @@ export const useHomeScreen = (): UseHomeScreenResult => {
   const receiveTokenSheetRef = useRef<ReceiveTokenSheetRef | null>(null);
   const setWalletExists = useAppStore((state) => state.setWalletExists);
   const [selectedTab, setSelectedTab] = useState<'EVM' | 'Spot' | 'Perpetuals'>('EVM');
+  const [isLoadingTokens, setIsLoadingTokens] = useState(false);
+  const [tokenBalances, setTokenBalances] = useState<TokenInfo[]>([]);
   const {
     currentAccount: currentAccountQuery,
     refetchCurrentAccount,
@@ -98,17 +106,57 @@ export const useHomeScreen = (): UseHomeScreenResult => {
   );
 
   const tokens = useMemo<Token[]>(
-    () => [
-      {
-        id: '1',
-        name: 'Hyperliquid',
-        symbol: 'HYPE',
-        balance: '0',
-        value: '$0.00',
-      },
-    ],
-    [],
+    () =>
+      tokenBalances.map((token) => ({
+        id: token.address,
+        name: token.name,
+        symbol: token.symbol,
+        balance: parseFloat(token.balance).toFixed(4),
+        value: `$${token.usdValue.toFixed(2)}`,
+      })),
+    [tokenBalances],
   );
+
+  // Calculate total balance
+  const totalBalance = useMemo(() => {
+    const total = tokenBalances.reduce((sum, token) => sum + token.usdValue, 0);
+    return `$${total.toFixed(2)}`;
+  }, [tokenBalances]);
+
+  const totalTokensCount = tokens.length;
+
+  // Fetch token balances
+  const fetchTokenBalances = useCallback(async () => {
+    if (!currentAccount?.address) return;
+
+    setIsLoadingTokens(true);
+    try {
+      const balances = await tokenService.getAllTokenBalances(currentAccount.address);
+      setTokenBalances(balances);
+    } catch (error) {
+      console.error('Failed to fetch token balances:', error);
+      // Fallback to showing native token with 0 balance
+      setTokenBalances([
+        {
+          address: 'native',
+          name: 'Ether',
+          symbol: 'ETH',
+          decimals: 18,
+          balance: '0',
+          balanceRaw: '0',
+          usdPrice: 0,
+          usdValue: 0,
+        },
+      ]);
+    } finally {
+      setIsLoadingTokens(false);
+    }
+  }, [currentAccount?.address]);
+
+  // Fetch balances when account changes
+  useEffect(() => {
+    fetchTokenBalances();
+  }, [fetchTokenBalances]);
 
   useFocusEffect(
     useCallback(() => {
@@ -154,12 +202,15 @@ export const useHomeScreen = (): UseHomeScreenResult => {
     receiveTokenSheetRef.current?.present();
   }, []);
 
+  function navigateSearch() {
+    navigation.navigate('SearchScreen');
+  }
+
   const onSelectTab = useCallback((tab: 'EVM' | 'Spot' | 'Perpetuals') => {
     setSelectedTab(tab);
   }, []);
 
   return {
-    t,
     accountBottomSheetRef,
     sentTokenSheetRef,
     receiveTokenSheetRef,
@@ -168,10 +219,15 @@ export const useHomeScreen = (): UseHomeScreenResult => {
     currentAccount,
     perpPositions,
     tokens,
+    totalBalance,
+    totalTokensCount,
+    isLoadingTokens,
     handleAccountSelect,
     handleResetWallet,
     openAccountSheet,
     openSendSheet,
     openReceiveSheet,
+    refreshTokens: fetchTokenBalances,
+    navigateSearch,
   };
 };

@@ -1,5 +1,6 @@
 // Export all screens
 export { default as CreatePasswordScreen } from './CreatePassword/CreatePasswordScreen';
+export { default as SearchScreen } from './Home/components/SearchScreen';
 export { default as HomeScreen } from './Home/HomeScreen';
 export { default as ImportMethodsScreen } from './ImportMethods/ImportMethodsScreen';
 export { default as ImportPrivateKeyScreen } from './ImportPrivateKey/ImportPrivateKeyScreen';

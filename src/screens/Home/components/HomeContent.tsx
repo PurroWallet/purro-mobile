@@ -1,4 +1,6 @@
+import { useNavigation } from '@react-navigation/native';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Image as RNImage, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import DefaultIcon from '@/assets/common/icon.png';
@@ -11,7 +13,6 @@ import SentTokenSheet from './SendTokenSheet';
 type HomeContentProps = UseHomeScreenResult;
 
 const HomeContent: React.FC<HomeContentProps> = ({
-  t,
   accountBottomSheetRef,
   sentTokenSheetRef,
   receiveTokenSheetRef,
@@ -20,12 +21,19 @@ const HomeContent: React.FC<HomeContentProps> = ({
   currentAccount,
   perpPositions,
   tokens,
+  totalBalance,
+  totalTokensCount,
+  isLoadingTokens,
   handleAccountSelect,
   handleResetWallet,
   openAccountSheet,
   openSendSheet,
   openReceiveSheet,
+  refreshTokens,
+  navigateSearch,
 }) => {
+  const { t } = useTranslation();
+  const navigation = useNavigation();
   const currentAccountDisplay = currentAccount?.address
     ? `${currentAccount.address.slice(0, 6)}...${currentAccount.address.slice(-4)}`
     : '@kycdict';
@@ -54,7 +62,7 @@ const HomeContent: React.FC<HomeContentProps> = ({
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity>
+          <TouchableOpacity onPress={navigateSearch}>
             <Icon name="search" size={24} />
           </TouchableOpacity>
         </View>
@@ -63,7 +71,7 @@ const HomeContent: React.FC<HomeContentProps> = ({
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="items-center pt-10 pb-0">
           <Text className="text-text-primary text-5xl font-semibold">
-            {t('home.balanceValue', { value: '$254.48' })}
+            {isLoadingTokens ? t('home.loading', { defaultValue: 'Loading...' }) : totalBalance}
           </Text>
         </View>
 
@@ -189,11 +197,13 @@ const HomeContent: React.FC<HomeContentProps> = ({
           <View className="flex-row gap-2 mb-2">
             <View className="flex-1 rounded-xl bg-background-secondary/60 p-5">
               <Text className="text-text-secondary text-base mb-3.5">{t('home.totalBalance')}</Text>
-              <Text className="text-text-primary text-2xl font-medium">$345.64</Text>
+              <Text className="text-text-primary text-2xl font-medium">
+                {isLoadingTokens ? '...' : totalBalance}
+              </Text>
             </View>
             <View className="flex-1 rounded-xl bg-background-secondary/60 p-5">
               <Text className="text-text-secondary text-base mb-3.5">{t('home.totalTokens')}</Text>
-              <Text className="text-text-primary text-2xl font-medium">1</Text>
+              <Text className="text-text-primary text-2xl font-medium">{totalTokensCount}</Text>
             </View>
           </View>
 
