@@ -16,9 +16,8 @@ type Props = NativeStackScreenProps<AccountStackParamList, 'CreatePassword'> & {
 };
 
 interface RouteParams {
-  mnemonic: string;
+  mnemonic?: string;
   isPrivateKeyImport?: boolean;
-  isNewAccount?: boolean;
 }
 
 const passwordSchema = z
@@ -37,7 +36,8 @@ const passwordSchema = z
 type PasswordFormData = z.infer<typeof passwordSchema>;
 
 const CreatePasswordScreen: React.FC<Props> = ({ navigation, onClose, route }) => {
-  const { mnemonic, isPrivateKeyImport, isNewAccount } = (route.params || {}) as RouteParams;
+  const { mnemonic, isPrivateKeyImport } = (route.params || {}) as RouteParams;
+
   const [isLoading, setIsLoading] = useState(false);
   const { t } = useTranslation();
 
@@ -62,27 +62,25 @@ const CreatePasswordScreen: React.FC<Props> = ({ navigation, onClose, route }) =
 
       let addresses: string[] = [];
 
-      if (isNewAccount) {
-        // Create new account
+      if (mnemonic && !isPrivateKeyImport) {
+        // Import wallet with provided mnemonic (WelcomeScreen flow or Import Seed Phrase)
+        addresses = await walletController.importWalletWithMnemonic(mnemonic, data.password);
+      } else if (mnemonic && isPrivateKeyImport) {
+        // Import wallet with provided private key
+        addresses = await walletController.importWalletWithPrivateKey(mnemonic);
+      } else {
+        // Create new wallet with fresh mnemonic (only when no mnemonic provided)
         const result = await walletController.createWallet(data.password);
         addresses = result.addresses;
-      } else if (mnemonic) {
-        // Import existing wallet
-        if (isPrivateKeyImport) {
-          // Handle private key import
-          addresses = await walletController.importWalletWithPrivateKey(mnemonic);
-        } else {
-          // Handle mnemonic import
-          addresses = await walletController.importWalletWithMnemonic(mnemonic, data.password);
-        }
       }
 
       // Navigate to success screen
+      const isAccountCreated = !mnemonic; // Account created when no mnemonic provided
       navigation.navigate('Success', {
-        title: isNewAccount
+        title: isAccountCreated
           ? t('accountBottomSheet.success.accountCreated.title')
           : t('accountBottomSheet.success.walletImported.title'),
-        message: isNewAccount
+        message: isAccountCreated
           ? t('accountBottomSheet.success.accountCreated.message')
           : t('accountBottomSheet.success.walletImported.message'),
       });

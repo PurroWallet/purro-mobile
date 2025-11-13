@@ -1,6 +1,7 @@
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from '@/components/Icon';
+import { useThemeMode } from '@/core/hooks/useTheme';
 
 interface SheetHeaderProps {
   title: string;
@@ -8,7 +9,6 @@ interface SheetHeaderProps {
   showBackButton?: boolean;
   textColor?: string;
   iconColor?: string;
-  isDarkMode?: boolean;
 }
 
 const SheetHeader: React.FC<SheetHeaderProps> = ({
@@ -17,8 +17,10 @@ const SheetHeader: React.FC<SheetHeaderProps> = ({
   showBackButton = true,
   textColor,
   iconColor,
-  isDarkMode = false,
 }) => {
+  const { themeMode } = useThemeMode();
+  const isDarkMode = themeMode === 'dark';
+
   // Use theme colors with proper fallbacks for visibility
   const defaultTextColor = textColor || (isDarkMode ? '#FFFFFF' : '#161616');
   const defaultIconColor = iconColor || (isDarkMode ? '#FFFFFF' : '#161616');
@@ -39,5 +41,7 @@ const SheetHeader: React.FC<SheetHeaderProps> = ({
     </View>
   );
 };
+
+SheetHeader.displayName = 'SheetHeader';
 
 export default SheetHeader;

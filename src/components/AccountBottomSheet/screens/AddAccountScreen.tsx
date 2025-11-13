@@ -5,6 +5,7 @@ import React from 'react';
 import { Alert, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from '@/components/Icon';
 import { walletController } from '@/core/controllers/WalletController';
+import { generateMnemonic } from '@/core/keyring';
 import { useTranslation } from '@/utils/i18n';
 import type { AccountStackParamList } from '../AccountStackNavigator';
 import BaseScreen from '../components/BaseScreen';
@@ -19,6 +20,7 @@ interface AccountOption {
   subtitle: string;
   icon: string;
   action: () => void;
+  disabled?: boolean;
 }
 
 const AddAccountScreen: React.FC<Props> = ({ onClose: _onClose }) => {
@@ -26,39 +28,60 @@ const AddAccountScreen: React.FC<Props> = ({ onClose: _onClose }) => {
     useNavigation<NativeStackNavigationProp<AccountStackParamList, 'AddAccount'>>();
   const { t } = useTranslation();
 
-  const handleBack = () => {
-    navigation.goBack();
-  };
+  const [loading, setLoading] = React.useState(false);
 
-  const handleCreateNew = () => {
-    // Navigate to select seed phrase screen to choose which HD keyring to add account to
-    navigation.navigate('SelectSeedPhrase', {
-      mode: 'create',
-      onSeedPhraseSelected: async (keyringInfo) => {
-        // Extract keyring index from ID (e.g., "seed_1" -> 0)
-        const keyringIndex = parseInt(keyringInfo.id.split('_')[1]) - 1;
+  const handleCreateNew = async () => {
+    setLoading(true);
+    try {
+      // Check if HD wallets exist
+      const hdKeyrings = await walletController.getHDKeyrings();
 
-        // Navigate to password verification screen first
-        navigation.navigate('PasswordVerification', {
-          accountAddress: '',
-          onSuccess: async (verifiedPassword) => {
-            try {
-              // Add account to the selected HD keyring
-              const newAddress = await walletController.addAccountToHDKeyring(keyringIndex);
+      if (hdKeyrings.length === 0) {
+        // No HD wallets exist, generate new seed phrase
+        const mnemonic = generateMnemonic();
 
-              // Navigate to success screen
-              navigation.navigate('Success', {
-                title: 'Account Created!',
-                message: `New account has been created successfully using ${keyringInfo.id.replace('_', ' ').toUpperCase()}.`,
-                buttonText: 'Done',
-              });
-            } catch (error) {
-              Alert.alert('Error', 'Failed to create new account');
-            }
+        // Navigate to seed phrase display
+        navigation.navigate('SeedPhraseDisplay', { mnemonic });
+      } else {
+        // HD wallets exist, show select screen
+        navigation.navigate('SelectSeedPhrase', {
+          mode: 'create',
+          onSeedPhraseSelected: async (keyringInfo) => {
+            // Extract keyring index from ID (e.g., "seed_1" -> 0)
+            const keyringIndex = parseInt(keyringInfo.id.split('_')[1]) - 1;
+
+            // Navigate to password verification screen first
+            navigation.navigate('PasswordVerification', {
+              accountAddress: '',
+              onSuccess: async (verifiedPassword) => {
+                try {
+                  // Add account to the selected HD keyring
+                  const newAddress = await walletController.addAccountToHDKeyring(keyringIndex);
+
+                  // Navigate to success screen
+                  navigation.navigate('Success', {
+                    title: 'Account Created!',
+                    message: `New account has been created successfully using ${keyringInfo.id.replace('_', ' ').toUpperCase()}.`,
+                    buttonText: 'Done',
+                  });
+                } catch (error) {
+                  Alert.alert('Error', 'Failed to create new account');
+                }
+              },
+            });
           },
         });
-      },
-    });
+      }
+    } catch (error) {
+      console.error('AddAccount: Error checking HD wallets:', error);
+      Alert.alert('Error', 'Failed to check existing wallets');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBack = () => {
+    navigation.goBack();
   };
 
   const handleImportSeedPhrase = () => {
@@ -76,6 +99,7 @@ const AddAccountScreen: React.FC<Props> = ({ onClose: _onClose }) => {
       subtitle: 'accountBottomSheet.createAccountDescription',
       icon: 'PlusCircle',
       action: handleCreateNew,
+      disabled: loading,
     },
     {
       id: 'import-seed',
@@ -115,7 +139,10 @@ const AddAccountScreen: React.FC<Props> = ({ onClose: _onClose }) => {
             <TouchableOpacity
               key={option.id}
               onPress={option.action}
-              className="flex-row items-center gap-3.5 rounded-xl bg-background-secondary/60 px-4 py-4"
+              disabled={option.disabled}
+              className={`flex-row items-center gap-3.5 rounded-xl bg-background-secondary/60 px-4 py-4 ${
+                option.disabled ? 'opacity-50' : ''
+              }`}
             >
               <View className="h-9 w-9 items-center justify-center rounded-full bg-brand-secondary">
                 <Icon name={option.icon} size={24} />
@@ -124,6 +151,11 @@ const AddAccountScreen: React.FC<Props> = ({ onClose: _onClose }) => {
                 <Text className="text-lg text-text-primary">{t(option.title)}</Text>
                 <Text className="text-sm text-text-secondary">{t(option.subtitle)}</Text>
               </View>
+              {option.disabled && (
+                <View className="h-5 w-5 items-center justify-center rounded-full bg-brand-primary">
+                  <View className="h-3 w-3 animate-spin rounded-full border-2 border-system-white border-t-transparent" />
+                </View>
+              )}
             </TouchableOpacity>
           ))}
         </View>

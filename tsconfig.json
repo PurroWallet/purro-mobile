@@ -3,6 +3,8 @@
   "compilerOptions": {
     "jsx": "react-native",
     "baseUrl": ".",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "paths": {
       "@/*": ["src/*"],
       "@/atoms/*": ["src/atoms/*"],
@@ -15,8 +17,7 @@
       "@/theme/*": ["src/theme/*"],
       "@/types/*": ["src/types/*"],
       "@/assets/*": ["src/assets/*"]
-    }
-  },
-  "include": ["**/*.ts", "**/*.tsx", "nativewind-env.d.ts"],
-  "exclude": ["**/node_modules", "**/Pods"]
+    },
+    "include": ["**/*.ts", "**/*.tsx", "nativewind-env.d.ts"],
+    "exclude": ["**/node_modules", "**/Pods"]
 }

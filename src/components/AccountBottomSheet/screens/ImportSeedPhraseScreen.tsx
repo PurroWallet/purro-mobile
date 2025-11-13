@@ -9,6 +9,7 @@ import { Button, FormInput } from '@/components';
 import { apisLock } from '@/core/apis';
 import { walletController } from '@/core/controllers/WalletController';
 import { useZodForm, ZodFormValues } from '@/core/hooks/form/useZodForm';
+import { useTranslation } from '@/utils/i18n';
 import type { AccountStackParamList } from '../AccountStackNavigator';
 import BaseScreen from '../components/BaseScreen';
 
@@ -40,6 +41,7 @@ type Props = {
 const ImportSeedPhraseScreen: React.FC<Props> = ({ onClose }) => {
   const navigation =
     useNavigation<NativeStackNavigationProp<AccountStackParamList, 'ImportSeedPhrase'>>();
+  const { t } = useTranslation();
   const [isImporting, setIsImporting] = useState(false);
 
   const form = useZodForm(importSeedPhraseSchema, {
@@ -70,19 +72,12 @@ const ImportSeedPhraseScreen: React.FC<Props> = ({ onClose }) => {
         onSuccess: async (verifiedPassword) => {
           // After password verification, navigate to discovery screen
           try {
-            console.log('📥 ImportSeedPhrase: Starting discovery with verified password...');
-            console.log('📝 Mnemonic:', values.mnemonic.trim().substring(0, 30) + '...');
-            console.log('🔑 Password verified');
-
             // Navigate to seed phrase discovery screen with loading animation
             navigation.navigate('SeedPhraseDiscovery', {
               mnemonic: values.mnemonic.trim(),
               password: verifiedPassword,
               onSuccess: (account: any) => {
-                console.log(
-                  '📥 ImportSeedPhrase: Account created callback for:',
-                  account.address.substring(0, 10) + '...',
-                );
+                // Handle successful account creation
               },
             });
           } catch (error) {
@@ -112,7 +107,11 @@ const ImportSeedPhraseScreen: React.FC<Props> = ({ onClose }) => {
     <View className="absolute bottom-10 w-full px-6">
       <Button
         type="primary"
-        title={isImporting ? 'Validating...' : 'Continue'}
+        title={
+          isImporting
+            ? t('accountBottomSheet.createPassword.actions.loading')
+            : t('common.continue')
+        }
         onPress={handleSubmit}
         disabled={!isValid || isImporting}
         className="w-full"
@@ -122,7 +121,7 @@ const ImportSeedPhraseScreen: React.FC<Props> = ({ onClose }) => {
 
   return (
     <BaseScreen
-      title="Import Seed Phrase"
+      title={t('importMethods.seed.title')}
       showBackButton={true}
       onBack={() => navigation.goBack()}
       footer={renderFooter()}
@@ -130,17 +129,17 @@ const ImportSeedPhraseScreen: React.FC<Props> = ({ onClose }) => {
     >
       <BottomSheetScrollView className="w-full px-5" contentContainerClassName="pb-10">
         <View className="py-2">
-          <Text className="text-lg text-[#F9F9F9] mb-2">Import Seed Phrase</Text>
-          <Text className="text-sm text-[#8D94A3] mb-6">
-            Enter your 12-word seed phrase to restore your wallet
+          <Text className="text-lg text-text-primary mb-2">{t('importMethods.seed.title')}</Text>
+          <Text className="text-sm text-text-secondary mb-6">
+            {t('importMethods.seed.subtitle')}
           </Text>
 
           <FormProvider {...form}>
             <View className="gap-2.5">
               <FormInput
                 name="mnemonic"
-                label="Seed Phrase"
-                placeholder="Enter your seed phrase (12 words)"
+                label={t('importMethods.seed.title')}
+                placeholder={t('importMethods.seed.placeholder')}
                 multiline
                 numberOfLines={4}
                 textAlignVertical="top"
@@ -153,14 +152,12 @@ const ImportSeedPhraseScreen: React.FC<Props> = ({ onClose }) => {
             </View>
           </FormProvider>
 
-          <View className="mt-6 rounded-xl bg-[#373B43]/60 p-4">
-            <Text className="mb-2 text-sm font-semibold text-[#F9F9F9]">
-              How to enter your seed phrase:
+          <View className="mt-6 rounded-xl bg-background-secondary p-4">
+            <Text className="mb-2 text-sm font-semibold text-text-primary">
+              {t('importMethods.seed.title')}
             </Text>
-            <Text className="text-sm leading-5 text-[#8D94A3]">
-              • Enter each word separated by a space{'\n'}• Make sure all words are spelled
-              correctly{'\n'}• Include all words in the correct order{'\n'}• Double-check before
-              importing
+            <Text className="text-sm leading-5 text-text-secondary">
+              {t('importMethods.seed.description')}
             </Text>
           </View>
         </View>

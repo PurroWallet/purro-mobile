@@ -48,6 +48,8 @@ export const useCreatePasswordScreen = (): UseCreatePasswordScreenResult => {
   const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
 
+  // Debug logging
+
   const form = useZodForm(createPasswordSchema, {
     defaultValues: {
       password: '',

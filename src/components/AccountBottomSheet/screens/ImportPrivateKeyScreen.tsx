@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { Button, FormInput } from '@/components';
 import { walletController } from '@/core/controllers/WalletController';
 import { useZodForm, ZodFormValues } from '@/core/hooks/form/useZodForm';
+import { useTranslation } from '@/utils/i18n';
 import type { AccountStackParamList } from '../AccountStackNavigator';
 import BaseScreen from '../components/BaseScreen';
 
@@ -25,6 +26,7 @@ type Props = {
 const ImportPrivateKeyScreen: React.FC<Props> = ({ onClose }) => {
   const navigation =
     useNavigation<NativeStackNavigationProp<AccountStackParamList, 'ImportPrivateKey'>>();
+  const { t } = useTranslation();
   const [isImporting, setIsImporting] = useState(false);
 
   const form = useZodForm(importPrivateKeySchema, {
@@ -69,11 +71,9 @@ const ImportPrivateKeyScreen: React.FC<Props> = ({ onClose }) => {
           onSuccess: async (verifiedPassword) => {
             // After password verification, directly import with verified password
             try {
-              console.log('🔑 ImportPrivateKey - Direct import with verified password');
               const addresses = await walletController.importWalletWithPrivateKey(
                 '0x' + privateKey,
               );
-              console.log('🔑 ImportPrivateKey - Success, addresses:', addresses);
 
               // Navigate to success screen
               navigation.navigate('Success', {
@@ -128,17 +128,19 @@ const ImportPrivateKeyScreen: React.FC<Props> = ({ onClose }) => {
     >
       <BottomSheetView className="w-full px-5">
         <View className="py-4">
-          <Text className="text-lg text-[#F9F9F9] mb-2">Import Private Key</Text>
-          <Text className="text-sm text-[#8D94A3] mb-6">
-            Enter your private key to import a single address wallet
+          <Text className="text-lg text-text-primary mb-2">
+            {t('importMethods.privateKey.title')}
+          </Text>
+          <Text className="text-sm text-text-secondary mb-6">
+            {t('importMethods.privateKey.subtitle')}
           </Text>
 
           <FormProvider {...form}>
             <View className="gap-2.5">
               <FormInput
                 name="privateKey"
-                label="Private Key"
-                placeholder="Enter your private key (64 hex characters)"
+                label={t('importMethods.privateKey.title')}
+                placeholder={t('importMethods.privateKey.placeholder')}
                 autoCapitalize="none"
                 autoCorrect={false}
                 returnKeyType="done"

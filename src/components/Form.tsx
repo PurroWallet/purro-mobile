@@ -11,6 +11,7 @@ import {
 import { TextInput as RNTextInput, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from '@/components/Icon';
 import { Colors } from '@/constants/colors';
+import { useThemeMode } from '@/core/hooks/useTheme';
 import { useTranslation } from '@/utils/i18n';
 
 export type InputSize = 'sm' | 'md' | 'lg';
@@ -55,7 +56,9 @@ export function FormInput<TFieldValues extends FieldValues = FieldValues>({
   ...rest
 }: CommonInputProps<TFieldValues> & TextInputExtraProps) {
   const { control } = useFormContext<TFieldValues>();
+  const { themeMode } = useThemeMode();
   const { t } = useTranslation();
+  const isDarkMode = themeMode === 'dark';
 
   const currentSize: InputSize = size ?? 'lg';
 
@@ -67,7 +70,9 @@ export function FormInput<TFieldValues extends FieldValues = FieldValues>({
       render={({ field, fieldState }) => (
         <View>
           {label && (
-            <Text className={`mb-2 font-medium text-gray-700 ${labelSizeClasses[currentSize]}`}>
+            <Text
+              className={`mb-2 font-medium ${isDarkMode ? 'text-text-primary' : 'text-gray-700'} ${labelSizeClasses[currentSize]}`}
+            >
               {label}
             </Text>
           )}
@@ -76,14 +81,25 @@ export function FormInput<TFieldValues extends FieldValues = FieldValues>({
             value={field.value ?? ''}
             onChangeText={field.onChange}
             onBlur={field.onBlur}
+            placeholderTextColor={isDarkMode ? '#9CA3AF' : '#6B7280'}
             className={`rounded-xl border ${sizeClasses[currentSize]} ${
-              fieldState.error ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-white'
+              fieldState.error
+                ? isDarkMode
+                  ? 'border-red-400 bg-red-900/20 text-white'
+                  : 'border-red-500 bg-red-50 text-gray-900'
+                : isDarkMode
+                  ? 'border-border bg-background-secondary text-white'
+                  : 'border-gray-200 bg-white text-gray-900'
             }`}
           />
           {fieldState.error?.message || helperText ? (
             <Text
               className={`mt-1.5 ${helperTextSizeClasses[currentSize]} ${
-                fieldState.error ? 'text-red-500' : 'text-gray-500'
+                fieldState.error
+                  ? 'text-red-500'
+                  : isDarkMode
+                    ? 'text-text-tertiary'
+                    : 'text-gray-500'
               }`}
             >
               {fieldState.error?.message
@@ -107,7 +123,9 @@ export function PasswordInputForm<TFieldValues extends FieldValues = FieldValues
 }: CommonInputProps<TFieldValues> & TextInputExtraProps) {
   const { control } = useFormContext<TFieldValues>();
   const [showPassword, setShowPassword] = React.useState(false);
+  const { themeMode } = useThemeMode();
   const { t } = useTranslation();
+  const isDarkMode = themeMode === 'dark';
 
   const currentSize: InputSize = size ?? 'lg';
   const iconSize = currentSize === 'sm' ? 18 : currentSize === 'lg' ? 22 : 20;
@@ -121,7 +139,9 @@ export function PasswordInputForm<TFieldValues extends FieldValues = FieldValues
       render={({ field, fieldState }) => (
         <View>
           {label && (
-            <Text className={`mb-2 font-medium text-gray-700 ${labelSizeClasses[currentSize]}`}>
+            <Text
+              className={`mb-2 font-medium ${isDarkMode ? 'text-text-primary' : 'text-gray-700'} ${labelSizeClasses[currentSize]}`}
+            >
               {label}
             </Text>
           )}
@@ -132,8 +152,15 @@ export function PasswordInputForm<TFieldValues extends FieldValues = FieldValues
               onChangeText={field.onChange}
               onBlur={field.onBlur}
               secureTextEntry={!showPassword}
+              placeholderTextColor={isDarkMode ? '#9CA3AF' : '#6B7280'}
               className={`rounded-xl border pr-12 ${sizeClasses[currentSize]} ${
-                fieldState.error ? 'border-red-500 bg-red-50' : 'border-gray-200 bg-white'
+                fieldState.error
+                  ? isDarkMode
+                    ? 'border-red-400 bg-red-900/20 text-white'
+                    : 'border-red-500 bg-red-50 text-gray-900'
+                  : isDarkMode
+                    ? 'border-border bg-background-secondary text-white'
+                    : 'border-gray-200 bg-white text-gray-900'
               }`}
             />
             <TouchableOpacity
@@ -143,14 +170,18 @@ export function PasswordInputForm<TFieldValues extends FieldValues = FieldValues
               <Icon
                 name={showPassword ? 'EyeOff' : 'Eye'}
                 size={iconSize}
-                color={Colors.text.secondary}
+                color={fieldState.error ? '#EF4444' : isDarkMode ? '#9CA3AF' : '#6B7280'}
               />
             </TouchableOpacity>
           </View>
           {fieldState.error?.message || helperText ? (
             <Text
               className={`mt-1.5 ${helperTextSizeClasses[currentSize]} ${
-                fieldState.error ? 'text-red-500' : 'text-gray-500'
+                fieldState.error
+                  ? 'text-red-500'
+                  : isDarkMode
+                    ? 'text-text-tertiary'
+                    : 'text-gray-500'
               }`}
             >
               {fieldState.error?.message

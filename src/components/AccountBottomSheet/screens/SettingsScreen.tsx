@@ -18,8 +18,6 @@ import { useTranslation } from '@/utils/i18n';
 import type { AccountStackParamList } from '../AccountStackNavigator';
 import BaseScreen from '../components/BaseScreen';
 
-// import { useTranslation } from '@/utils/i18n';
-
 type Props = {
   parentNavigation?: NavigationProp<RootStackParamList>;
 };
@@ -224,7 +222,7 @@ const SettingsScreen: React.FC<Props> = ({ parentNavigation }) => {
   );
 
   const handleBackupWallet = () => {
-    // Navigate to SelectSeedPhrase with backup mode
+    // Show list of seed phrases first, user will select then enter password
     navigation.navigate('SelectSeedPhrase', { mode: 'backup' });
   };
 
@@ -240,37 +238,43 @@ const SettingsScreen: React.FC<Props> = ({ parentNavigation }) => {
         {
           text: t('accountBottomSheet.settingsScreen.alerts.resetWallet.confirm'),
           style: 'destructive',
-          onPress: async () => {
-            try {
-              // Reset wallet data
-              apisWallet.resetWallet();
+          onPress: () => {
+            // Require password verification before resetting wallet
+            navigation.navigate('PasswordVerification', {
+              accountAddress: '',
+              onSuccess: async (verifiedPassword) => {
+                try {
+                  // Reset wallet data
+                  apisWallet.resetWallet();
 
-              // Lock wallet
-              await apisLock.lockWallet();
+                  // Lock wallet
+                  await apisLock.lockWallet();
 
-              // Clear keychain data
-              try {
-                await apisKeychain.resetGenericPassword();
-              } catch (error) {
-                // Handle error silently
-              }
+                  // Clear keychain data
+                  try {
+                    await apisKeychain.resetGenericPassword();
+                  } catch (error) {
+                    // Handle error silently
+                  }
 
-              // Update wallet exists state
-              setWalletExists(false);
+                  // Update wallet exists state
+                  setWalletExists(false);
 
-              // Use parent navigation to reset to Welcome screen
-              if (parentNavigation) {
-                parentNavigation.reset({
-                  index: 0,
-                  routes: [{ name: 'Welcome' }],
-                });
-              }
-            } catch (error) {
-              Alert.alert(
-                t('errors.generic.title'),
-                t('accountBottomSheet.settingsScreen.alerts.resetWallet.error'),
-              );
-            }
+                  // Use parent navigation to reset to Welcome screen
+                  if (parentNavigation) {
+                    parentNavigation.reset({
+                      index: 0,
+                      routes: [{ name: 'Welcome' }],
+                    });
+                  }
+                } catch (error) {
+                  Alert.alert(
+                    t('errors.generic.title'),
+                    t('accountBottomSheet.settingsScreen.alerts.resetWallet.error'),
+                  );
+                }
+              },
+            });
           },
         },
       ],

@@ -102,7 +102,11 @@ export const useSeedPhraseVerifyScreen = (): UseSeedPhraseVerifyScreenResult => 
         return;
       }
 
-      navigation.navigate('CreatePassword', { mnemonic });
+      try {
+        navigation.navigate('CreatePassword', { mnemonic, isImport: true });
+      } catch (error) {
+        console.error('❌ SeedPhraseVerify: Navigation failed:', error);
+      }
     },
     [mnemonic, navigation, regenerateVerification, verificationFields, words],
   );

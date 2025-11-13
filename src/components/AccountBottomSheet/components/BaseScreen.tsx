@@ -86,4 +86,6 @@ const BaseScreen: React.FC<BaseScreenProps> = ({
   );
 };
 
+BaseScreen.displayName = 'BaseScreen';
+
 export default BaseScreen;

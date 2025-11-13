@@ -48,26 +48,18 @@ const PasswordVerificationScreen: React.FC = () => {
     try {
       setIsLoading(true);
 
-      console.log('🔐 PasswordVerification - Starting verification...');
-      console.log('🔐 PasswordVerification - Password provided:', !!values.password);
-
       // Verify password
       const result = await apisLock.verifyPassword(values.password);
 
-      console.log('🔐 PasswordVerification - Result:', result);
-
       if (result.success) {
-        console.log('✅ PasswordVerification - Password correct, calling onSuccess...');
         // Password is correct, call onSuccess callback with password
         onSuccess(values.password);
       } else {
-        console.log('❌ PasswordVerification - Password incorrect');
         form.setError('password', {
           message: t('accountBottomSheet.errors.incorrectPassword'),
         });
       }
     } catch (error) {
-      console.log('💥 PasswordVerification - Error:', error);
       form.setError('password', {
         message: t('accountBottomSheet.errors.verifyPasswordFailed'),
       });
@@ -110,7 +102,7 @@ const PasswordVerificationScreen: React.FC = () => {
       >
         <View className="flex-1 px-5 justify-between">
           <View className="flex-1">
-            <Text className="text-lg text-[#F9F9F9] mb-2">
+            <Text className="text-lg text-text-primary mb-2">
               {t('accountBottomSheet.verifyPasswordSubtitle')}
             </Text>
             <Text className="mb-6 text-sm text-text-secondary">

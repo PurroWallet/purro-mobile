@@ -1,4 +1,3 @@
-import { generateMnemonic } from '../keyring';
 import { keyringService, lockService, passwordService, walletService } from '../services';
 
 export class WalletAPI {
@@ -23,10 +22,6 @@ export class WalletAPI {
     } catch {
       return false;
     }
-  }
-
-  async generateMnemonic(): Promise<string> {
-    return generateMnemonic();
   }
 
   async importWallet(mnemonic: string, password: string): Promise<void> {

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { Button } from '@/components/Button';
 import { walletService } from '@/core/services';
+import { useTranslation } from '@/utils/i18n';
 import type { AccountStackParamList } from '../AccountStackNavigator';
 import BaseScreen from '../components/BaseScreen';
 
@@ -21,6 +22,7 @@ type Props = {
 const SelectSeedPhraseScreen: React.FC<Props> = ({ mode = 'backup', onSeedPhraseSelected }) => {
   const navigation =
     useNavigation<NativeStackNavigationProp<AccountStackParamList, 'SelectSeedPhrase'>>();
+  const { t } = useTranslation();
   const [hdKeyrings, setHdKeyrings] = useState<HDKeyringInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedKeyring, setSelectedKeyring] = useState<HDKeyringInfo | null>(null);
@@ -38,7 +40,7 @@ const SelectSeedPhraseScreen: React.FC<Props> = ({ mode = 'backup', onSeedPhrase
         setSelectedKeyring(keyrings[0]);
       }
     } catch (error) {
-      Alert.alert('Error', 'Failed to load seed phrases. Please try again.');
+      Alert.alert(t('common.error'), t('accountBottomSheet.loadSeedPhraseFailed'));
     } finally {
       setLoading(false);
     }
@@ -48,9 +50,13 @@ const SelectSeedPhraseScreen: React.FC<Props> = ({ mode = 'backup', onSeedPhrase
     setSelectedKeyring(keyring);
   };
 
+  const handleBack = () => {
+    navigation.goBack();
+  };
+
   const handleNext = async () => {
     if (!selectedKeyring) {
-      Alert.alert('Required', 'Please select a seed phrase');
+      Alert.alert(t('common.required'), t('accountBottomSheet.selectSeedPhraseRequired'));
       return;
     }
 
@@ -58,9 +64,27 @@ const SelectSeedPhraseScreen: React.FC<Props> = ({ mode = 'backup', onSeedPhrase
       // Extract keyring index from ID (e.g., "seed_1" -> 0)
       const keyringIndex = parseInt(selectedKeyring.id.split('_')[1]) - 1;
 
-      // Navigate to seed phrase backup with selected keyring index
-      navigation.navigate('SeedPhraseBackup', {
-        selectedKeyringIndex: keyringIndex,
+      // Require password verification before showing seed phrase backup
+      navigation.navigate('PasswordVerification', {
+        accountAddress: '',
+        onSuccess: async (verifiedPassword) => {
+          try {
+            // Ensure keyring service is booted with verified password before export
+            const { walletService } = await import('@/core/services/WalletService');
+            await walletService.unlockWallet(verifiedPassword);
+
+            // Password verified, navigate to seed phrase backup
+            navigation.navigate('SeedPhraseBackup', {
+              selectedKeyringIndex: keyringIndex,
+            });
+          } catch (error) {
+            console.error('🔐 SelectSeedPhrase: Error during backup flow:', error);
+            Alert.alert(
+              t('common.error'),
+              t('accountBottomSheet.errors.backupWalletFailed') || 'Failed to access backup',
+            );
+          }
+        },
       });
     } else if (mode === 'create' && onSeedPhraseSelected) {
       // Pass the selected keyring to the callback
@@ -69,32 +93,63 @@ const SelectSeedPhraseScreen: React.FC<Props> = ({ mode = 'backup', onSeedPhrase
     }
   };
 
+  const renderFooter = () => (
+    <View className="absolute bottom-10 w-full px-6">
+      <Button
+        type="primary"
+        title={
+          mode === 'backup'
+            ? t('accountBottomSheet.viewSeedPhrase')
+            : t('accountBottomSheet.selectSeedPhraseButton')
+        }
+        onPress={handleNext}
+        disabled={!selectedKeyring}
+      />
+    </View>
+  );
+
   return (
-    <BaseScreen title={mode === 'backup' ? 'Backup Seed Phrase' : 'Select Seed Phrase'}>
+    <BaseScreen
+      title={
+        mode === 'backup'
+          ? t('accountBottomSheet.backupSeedPhrase')
+          : t('accountBottomSheet.selectSeedPhrase')
+      }
+      showBackButton={true}
+      onBack={handleBack}
+      footer={renderFooter()}
+      isScrollable={true}
+    >
       <View className="flex-1 gap-6">
         <View className="items-center gap-4">
           <Text className="w-[335px] text-center text-h4 text-text-primary">
-            {mode === 'backup' ? 'Select Seed Phrase to Backup' : 'Select Seed Phrase'}
+            {mode === 'backup'
+              ? t('accountBottomSheet.selectSeedPhraseToBackup')
+              : t('accountBottomSheet.selectSeedPhraseForAccount')}
           </Text>
           <Text className="w-[335px] text-center text-button text-text-secondary">
             {mode === 'backup'
-              ? 'Choose which seed phrase you want to back up'
-              : 'Select which seed phrase to add a new account to'}
+              ? t('accountBottomSheet.chooseSeedPhraseToBackup')
+              : t('accountBottomSheet.chooseSeedPhraseForAccount')}
           </Text>
         </View>
 
         {loading ? (
-          <Text className="text-center text-text-secondary">Loading seed phrases...</Text>
+          <Text className="text-center text-text-secondary">
+            {t('accountBottomSheet.loadingSeedPhrases')}
+          </Text>
         ) : hdKeyrings.length === 0 ? (
           <View className="items-center gap-4">
-            <Text className="text-center text-text-secondary">No seed phrases found</Text>
+            <Text className="text-center text-text-secondary">
+              {t('accountBottomSheet.noSeedPhrasesFound')}
+            </Text>
             <Text className="text-center text-sm text-text-tertiary">
-              Create your first seed phrase by adding a new account
+              {t('accountBottomSheet.createFirstSeedPhrase')}
             </Text>
           </View>
         ) : (
           <ScrollView className="flex-1">
-            <View className="gap-3">
+            <View className="gap-3 px-6">
               {hdKeyrings.map((keyring, index) => (
                 <TouchableOpacity
                   key={keyring.id}
@@ -105,26 +160,20 @@ const SelectSeedPhraseScreen: React.FC<Props> = ({ mode = 'backup', onSeedPhrase
                   }`}
                   onPress={() => handleSelectKeyring(keyring)}
                 >
-                  <Text className="font-medium text-text-primary">Seed Phrase {index + 1}</Text>
-                  <Text className="text-sm text-text-secondary mt-1">
-                    {keyring.accountCount} account{keyring.accountCount !== 1 ? 's' : ''}
+                  <Text className="font-medium text-text-primary">
+                    {t('accountBottomSheet.seedPhrase')} {index + 1}
                   </Text>
-                  <Text className="text-xs text-text-tertiary mt-1">
-                    {keyring.accounts[0]?.address.slice(0, 10)}...
-                    {keyring.accounts[0]?.address.slice(-8)}
+                  <Text className="text-sm text-text-secondary mt-1">
+                    {keyring.accountCount}{' '}
+                    {keyring.accountCount === 1
+                      ? t('accountBottomSheet.account')
+                      : t('accountBottomSheet.account_plural')}
                   </Text>
                 </TouchableOpacity>
               ))}
             </View>
           </ScrollView>
         )}
-
-        <Button
-          type="primary"
-          title={mode === 'backup' ? 'View Seed Phrase' : 'Select Seed Phrase'}
-          onPress={handleNext}
-          disabled={!selectedKeyring}
-        />
       </View>
     </BaseScreen>
   );

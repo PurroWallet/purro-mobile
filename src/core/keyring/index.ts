@@ -4,6 +4,16 @@ export * from './HDKeyring';
 export * from './SimpleKeyring';
 export * from './types';
 
+import { generateMnemonic as bip39GenerateMnemonic } from 'bip39';
+
+/**
+ * Generate a new 12-word BIP39 mnemonic phrase
+ * This is the centralized function for all mnemonic generation in the app
+ */
+export function generateMnemonic(): string {
+  return bip39GenerateMnemonic(128); // 128 bits = 12 words
+}
+
 import { ethers } from 'ethers';
 import { HDKeyring } from './HDKeyring';
 import { SimpleKeyring } from './SimpleKeyring';

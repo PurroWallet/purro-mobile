@@ -32,13 +32,8 @@ const SuccessScreen: React.FC<Props> = ({ navigation, onClose, route }) => {
   } = (route.params || {}) as RouteParams;
 
   const handleDone = () => {
-    console.log('✅ SuccessScreen: User clicked done');
-    console.log('📍 New account address:', newAccountAddress?.substring(0, 10) + '...');
-    console.log('🎯 Should set as current:', shouldSetAsCurrent);
-
     // Set the new account as current if needed
     if (shouldSetAsCurrent && newAccountAddress && onAccountCreated) {
-      console.log('🔄 Setting new account as current wallet...');
       const newAccount = {
         address: newAccountAddress,
         aliasName: 'New Account', // Will be updated with proper name
@@ -49,7 +44,6 @@ const SuccessScreen: React.FC<Props> = ({ navigation, onClose, route }) => {
 
     // Call onSuccess callback if provided
     if (onSuccess) {
-      console.log('🔄 Calling onSuccess callback...');
       onSuccess();
     }
 

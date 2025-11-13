@@ -17,6 +17,8 @@ import PasswordVerificationScreen from './screens/PasswordVerificationScreen.tsx
 import PrivateKeyDisplayScreen from './screens/PrivateKeyDisplayScreen.tsx';
 import SeedPhraseBackupScreen from './screens/SeedPhraseBackupScreen.tsx';
 import SeedPhraseDiscoveryScreen from './screens/SeedPhraseDiscoveryScreen.tsx';
+import SeedPhraseDisplayScreen from './screens/SeedPhraseDisplayScreen.tsx';
+import SeedPhraseVerifyScreen from './screens/SeedPhraseVerifyScreen.tsx';
 import SelectSeedPhraseScreen from './screens/SelectSeedPhraseScreen.tsx';
 import SettingsScreen from './screens/SettingsScreen.tsx';
 import SuccessScreen from './screens/SuccessScreen.tsx';
@@ -46,7 +48,9 @@ export type AccountStackParamList = {
     mode?: 'create' | 'backup';
     onSeedPhraseSelected?: (keyringInfo: any) => void;
   };
-  CreatePassword: { mnemonic: string; isPrivateKeyImport?: boolean; isNewAccount?: boolean };
+  SeedPhraseDisplay: { mnemonic: string; isBottomSheet?: boolean };
+  SeedPhraseVerify: { mnemonic: string; isBottomSheet?: boolean };
+  CreatePassword: { mnemonic?: string; isPrivateKeyImport?: boolean; isBottomSheet?: boolean };
   Success: { title: string; message: string; buttonText?: string };
   PasswordVerification: { accountAddress: string; onSuccess: (password: string) => void };
   Unlock: {
@@ -141,6 +145,12 @@ const AccountStackNavigator: React.FC<AccountStackNavigatorProps> = ({
                 onSeedPhraseSelected={props.route.params.onSeedPhraseSelected}
               />
             )}
+          </Stack.Screen>
+          <Stack.Screen name="SeedPhraseDisplay">
+            {(props) => <SeedPhraseDisplayScreen {...props} onClose={onClose} />}
+          </Stack.Screen>
+          <Stack.Screen name="SeedPhraseVerify">
+            {(props) => <SeedPhraseVerifyScreen {...props} onClose={onClose} />}
           </Stack.Screen>
           <Stack.Screen name="CreatePassword">
             {(props) => <CreatePasswordScreen {...props} onClose={onClose} />}

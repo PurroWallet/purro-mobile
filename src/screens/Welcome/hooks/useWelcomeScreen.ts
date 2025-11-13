@@ -2,7 +2,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useCallback, useMemo, useState } from 'react';
 import { Alert } from 'react-native';
 import { generateMnemonic } from '@/core/keyring';
-import { keyringService } from '@/core/services/KeyringService';
+import { keyringService, walletService } from '@/core/services';
 import { web3AuthService } from '@/core/services/Web3AuthService';
 import type { NavigationProp } from '@/types/navigation';
 import { useTranslation } from '@/utils/i18n';
@@ -77,6 +77,9 @@ export const useWelcomeScreen = (): UseWelcomeScreenResult => {
     }
 
     try {
+      // Clear all existing wallet data before creating new wallet
+      walletService.resetWallet();
+
       const mnemonic = generateMnemonic();
 
       if (!mnemonic || typeof mnemonic !== 'string' || mnemonic.trim() === '') {
@@ -90,6 +93,7 @@ export const useWelcomeScreen = (): UseWelcomeScreenResult => {
 
       navigation.navigate('SeedPhraseDisplay', { mnemonic });
     } catch (error) {
+      console.error('❌ WelcomeScreen: Error creating wallet:', error);
       Alert.alert(t('errors.generic.title'), t('errors.wallet.createFailed'), [
         { text: t('common.ok'), style: 'default' },
       ]);

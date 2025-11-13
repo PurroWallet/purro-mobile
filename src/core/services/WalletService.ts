@@ -78,12 +78,6 @@ export class WalletService {
       // Get total account count BEFORE creating the new one for proper naming
       const allAccountsBefore = await this.getAllAccounts();
       const nextAccountNumber = allAccountsBefore.length + 1;
-      console.log(
-        '📥 importWalletWithMnemonic: Current accounts:',
-        allAccountsBefore.length,
-        'Next will be Account',
-        nextAccountNumber,
-      );
 
       // Create HD keyring with mnemonic
       const addresses = await this.keyringService.createHDKeyring(mnemonic, passphrase);
@@ -98,7 +92,6 @@ export class WalletService {
         brandName: KEYRING_CLASS.MNEMONIC,
       });
 
-      console.log('✅ importWalletWithMnemonic: Created account with alias:', alias);
       return addresses;
     } catch (error) {
       throw error;
@@ -113,12 +106,6 @@ export class WalletService {
       // Get total account count BEFORE creating the new one for proper naming
       const allAccountsBefore = await this.getAllAccounts();
       const nextAccountNumber = allAccountsBefore.length + 1;
-      console.log(
-        '🔑 importWalletWithPrivateKey: Current accounts:',
-        allAccountsBefore.length,
-        'Next will be Account',
-        nextAccountNumber,
-      );
 
       // Create simple keyring with private key
       const addresses = await this.keyringService.createSimpleKeyring(privateKey);
@@ -134,7 +121,6 @@ export class WalletService {
         brandName: KEYRING_CLASS.PRIVATE_KEY,
       });
 
-      console.log('✅ importWalletWithPrivateKey: Created account with alias:', alias);
       return addresses;
     } catch (error) {
       console.error('Failed to import wallet with private key:', error);
@@ -230,46 +216,31 @@ export class WalletService {
    */
   async addNewAccount(currentAccountAddress?: string): Promise<string> {
     try {
-      console.log('📝 WalletService: Adding new account...');
-      console.log('📍 Current account address:', currentAccountAddress?.substring(0, 10) + '...');
-
       // Get total account count BEFORE adding the new one for proper naming
       const allAccountsBefore = await this.getAllAccounts();
       const nextAccountNumber = allAccountsBefore.length + 1;
-      console.log(
-        '📝 addNewAccount: Current accounts:',
-        allAccountsBefore.length,
-        'Next will be Account',
-        nextAccountNumber,
-      );
 
       let addresses: string[];
       let keyring: any;
 
       if (currentAccountAddress) {
         // Find the keyring containing the current account and add to it
-        console.log('🔍 Finding keyring for current account...');
         keyring = await this.keyringService.getKeyringForAddress(currentAccountAddress);
-        console.log('✅ Found keyring type:', keyring.type);
 
         if (keyring.type !== 'HD') {
           throw new Error('Current account is not from an HD wallet - cannot add more accounts');
         }
 
-        console.log('➕ Adding account to the same keyring as current account...');
         addresses = await keyring.addAccounts(1);
-        console.log('✅ Account added to correct keyring');
 
         // IMPORTANT: Update the KeyringService cache since we bypassed its addAccounts method
         await this.keyringService.refreshAccountsCache();
       } else {
         // Fallback: Add to first HD keyring if no current account specified
-        console.log('⚠️ No current account specified, using first HD keyring...');
         addresses = await this.keyringService.addAccounts(1);
         // Get the keyring that was used to add the account
         const hdKeyrings = this.keyringService.getKeyringsByType(KEYRING_TYPE.HD);
         keyring = hdKeyrings.length > 0 ? hdKeyrings[0] : null;
-        console.log('✅ Account added to first HD keyring (fallback)');
       }
 
       // Generate proper account name based on global sequential numbering
@@ -283,11 +254,6 @@ export class WalletService {
         brandName: KEYRING_CLASS.MNEMONIC,
       });
 
-      console.log(
-        '✅ Account created successfully with alias:',
-        alias,
-        addresses[0].substring(0, 10) + '...',
-      );
       return addresses[0];
     } catch (error) {
       console.error('❌ Failed to add new account:', error);
@@ -399,14 +365,8 @@ export class WalletService {
    */
   async exportMnemonicForAddress(address: string): Promise<string> {
     try {
-      console.log(
-        '🔐 WalletService: Exporting mnemonic for address:',
-        address.substring(0, 10) + '...',
-      );
-
       // Get the keyring that contains this address
       const keyring = await this.keyringService.getKeyringForAddress(address);
-      console.log('✅ WalletService: Found keyring type:', keyring.type);
 
       if (keyring.type !== 'HD') {
         throw new Error('Account is not from an HD wallet (seed phrase)');
@@ -414,7 +374,6 @@ export class WalletService {
 
       // Export mnemonic from the correct keyring
       const mnemonic = (keyring as any).getMnemonic();
-      console.log('✅ WalletService: Mnemonic exported successfully');
 
       return mnemonic;
     } catch (error) {
@@ -428,9 +387,7 @@ export class WalletService {
    */
   async getHDKeyringsWithAccounts() {
     try {
-      console.log('📱 WalletService: Getting HD keyrings with accounts...');
       const result = await this.keyringService.getHDKeyringsWithAccounts();
-      console.log(`✅ Found ${result.length} HD keyrings`);
       return result;
     } catch (error) {
       console.error('Failed to get HD keyrings:', error);

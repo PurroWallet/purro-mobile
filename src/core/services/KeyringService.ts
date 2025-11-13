@@ -114,7 +114,8 @@ export class KeyringService extends EventEmitter {
 
   // Create new HD keyring with mnemonic
   async createHDKeyring(mnemonic: string, passphrase?: string): Promise<string[]> {
-    console.log('📝 KeyringService: Creating HD keyring with mnemonic...');
+    console.log('🔥 KeyringService.createHDKeyring: INPUT mnemonic:', mnemonic.split(' ')[0]);
+
     if (!this.booted) {
       console.error('❌ Keyring service not booted');
       throw new Error('Keyring service not booted');
@@ -128,6 +129,10 @@ export class KeyringService extends EventEmitter {
     // Check for duplicate mnemonic before creating new keyring
     await this.checkForDuplicateMnemonic(mnemonic);
 
+    console.log(
+      '🔥 KeyringService.createHDKeyring: Creating keyring with mnemonic:',
+      mnemonic.split(' ')[0],
+    );
     const keyring = createKeyring(KEYRING_TYPE.HD, {
       mnemonic,
       passphrase,
@@ -136,8 +141,6 @@ export class KeyringService extends EventEmitter {
 
     await this.addKeyring(keyring);
     const accounts = keyring.getAccounts();
-    console.log('✅ KeyringService: HD keyring created, accounts:', accounts);
-
     return accounts;
   }
 
@@ -340,23 +343,36 @@ export class KeyringService extends EventEmitter {
 
   // Export mnemonic for specific HD keyring by index
   async exportMnemonicForHDKeyring(keyringIndex: number): Promise<string> {
+    console.log('🔐 KeyringService: Exporting mnemonic for keyring index:', keyringIndex);
+    console.log('🔐 KeyringService: Current keyrings count:', this.keyrings.length);
+
     // If keyrings not loaded, load them now
     if (this.keyrings.length === 0 && this.password) {
+      console.log('🔐 KeyringService: Loading keyrings...');
       await this.loadKeyrings(this.password);
+      console.log('🔐 KeyringService: Loaded keyrings count:', this.keyrings.length);
+    } else if (this.keyrings.length === 0 && !this.password) {
+      throw new Error('Keyring service not booted - no password available');
     }
 
     const hdKeyrings = this.getKeyringsByType(KEYRING_TYPE.HD);
+    console.log('🔐 KeyringService: HD keyrings found:', hdKeyrings.length);
 
     if (keyringIndex >= hdKeyrings.length) {
-      throw new Error(`HD keyring index ${keyringIndex} not found`);
+      throw new Error(
+        `HD keyring index ${keyringIndex} not found. Available: ${hdKeyrings.length}`,
+      );
     }
 
     const keyring = hdKeyrings[keyringIndex];
+    console.log('🔐 KeyringService: Selected keyring type:', keyring.type);
+
     if (keyring.type !== KEYRING_TYPE.HD) {
       throw new Error('Not an HD keyring');
     }
 
-    return (keyring as any).getMnemonic();
+    const mnemonic = (keyring as any).getMnemonic();
+    return mnemonic;
   }
 
   // Add new account to specific HD keyring by index
@@ -620,13 +636,23 @@ export class KeyringService extends EventEmitter {
 
   // Clear all data (dangerous!)
   clearAll(): void {
+    console.log('🧹 KeyringService.clearAll: Starting cleanup...');
+    console.log('🧹 KeyringService.clearAll: Current keyrings count:', this.keyrings.length);
+
     this.keyrings = [];
     this.cachedAccounts = [];
     this.unlocked = false;
     this.password = null;
     this.booted = false;
+
+    console.log('🧹 KeyringService.clearAll: Removing all storage items...');
+
+    // Clear all storage items that might contain wallet data
     keyringStorage.removeItem('vault');
+    keyringStorage.removeItem('currentAddress');
     walletStorage.removeItem('account_addresses');
+
+    console.log('✅ KeyringService.clearAll: Cleanup complete');
     this.emit('cleared');
   }
 
