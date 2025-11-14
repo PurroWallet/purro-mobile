@@ -1,7 +1,14 @@
 import { useNavigation } from '@react-navigation/native';
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Image as RNImage, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import {
+  RefreshControl,
+  Image as RNImage,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import DefaultIcon from '@/assets/common/icon.png';
 import AccountBottomSheet from '@/components/AccountBottomSheet';
@@ -9,6 +16,7 @@ import { Icon } from '@/components/Icon';
 import type { UseHomeScreenResult } from '../hooks/useHomeScreen';
 import ReceiveTokenSheet from './ReceiveTokenSheet';
 import SentTokenSheet from './SendTokenSheet';
+import TokenList from './TokenList';
 
 type HomeContentProps = UseHomeScreenResult;
 
@@ -31,9 +39,16 @@ const HomeContent: React.FC<HomeContentProps> = ({
   openReceiveSheet,
   refreshTokens,
   navigateSearch,
+  evmTokens,
+  isLoadingEvmTokens,
+  evmTokensError,
+  refreshEvmTokens,
+  handleTokenPress,
+  handleSendToken,
+  handleSwapToken,
 }) => {
   const { t } = useTranslation();
-  const navigation = useNavigation();
+  const [isRefreshing, setIsRefreshing] = React.useState(false);
   const currentAccountDisplay = currentAccount?.address
     ? `${currentAccount.address.slice(0, 6)}...${currentAccount.address.slice(-4)}`
     : '@kycdict';
@@ -42,6 +57,20 @@ const HomeContent: React.FC<HomeContentProps> = ({
     EVM: t('home.tabs.evm'),
     Spot: t('home.tabs.spot'),
     Perpetuals: t('home.tabs.perpetuals'),
+  };
+
+  // Handle pull-to-refresh
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      if (selectedTab === 'EVM') {
+        await refreshEvmTokens();
+      } else {
+        await refreshTokens();
+      }
+    } finally {
+      setIsRefreshing(false);
+    }
   };
 
   return (
@@ -68,7 +97,11 @@ const HomeContent: React.FC<HomeContentProps> = ({
         </View>
       </View>
 
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+      <ScrollView
+        className="flex-1"
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />}
+      >
         <View className="items-center pt-10 pb-0">
           <Text className="text-text-primary text-5xl font-semibold">
             {isLoadingTokens ? t('home.loading', { defaultValue: 'Loading...' }) : totalBalance}
@@ -194,44 +227,67 @@ const HomeContent: React.FC<HomeContentProps> = ({
             <Icon name="chevron-down" size={20} />
           </View>
 
-          <View className="flex-row gap-2 mb-2">
-            <View className="flex-1 rounded-xl bg-background-secondary/60 p-5">
-              <Text className="text-text-secondary text-base mb-3.5">{t('home.totalBalance')}</Text>
-              <Text className="text-text-primary text-2xl font-medium">
-                {isLoadingTokens ? '...' : totalBalance}
-              </Text>
-            </View>
-            <View className="flex-1 rounded-xl bg-background-secondary/60 p-5">
-              <Text className="text-text-secondary text-base mb-3.5">{t('home.totalTokens')}</Text>
-              <Text className="text-text-primary text-2xl font-medium">{totalTokensCount}</Text>
-            </View>
-          </View>
+          {/* Show new TokenList for EVM tab */}
+          {selectedTab === 'EVM' ? (
+            <TokenList
+              tokens={evmTokens}
+              isLoading={isLoadingEvmTokens}
+              error={evmTokensError}
+              onRefresh={refreshEvmTokens}
+              onTokenPress={handleTokenPress}
+              onSendToken={handleSendToken}
+              onSwapToken={handleSwapToken}
+            />
+          ) : (
+            <>
+              <View className="flex-row gap-2 mb-2">
+                <View className="flex-1 rounded-xl bg-background-secondary/60 p-5">
+                  <Text className="text-text-secondary text-base mb-3.5">
+                    {t('home.totalBalance')}
+                  </Text>
+                  <Text className="text-text-primary text-2xl font-medium">
+                    {isLoadingTokens ? '...' : totalBalance}
+                  </Text>
+                </View>
+                <View className="flex-1 rounded-xl bg-background-secondary/60 p-5">
+                  <Text className="text-text-secondary text-base mb-3.5">
+                    {t('home.totalTokens')}
+                  </Text>
+                  <Text className="text-text-primary text-2xl font-medium">{totalTokensCount}</Text>
+                </View>
+              </View>
 
-          {tokens.map((token) => (
-            <View
-              key={token.id}
-              className="rounded-xl bg-background-secondary px-4 py-5 flex-row items-center gap-5 mb-2"
-            >
-              <RNImage source={DefaultIcon} className="w-12 h-12 rounded-full" resizeMode="cover" />
-              <View className="flex-1 flex-row justify-between items-center py-5">
-                <View className="gap-3">
-                  <Text className="text-text-primary text-xl font-medium">{token.name}</Text>
-                  <View className="flex-row gap-1.5">
-                    <Text className="text-text-primary text-sm">{token.balance}</Text>
-                    <Text className="text-text-secondary text-sm">{token.symbol}</Text>
+              {tokens.map((token) => (
+                <View
+                  key={token.id}
+                  className="rounded-xl bg-background-secondary px-4 py-5 flex-row items-center gap-5 mb-2"
+                >
+                  <RNImage
+                    source={DefaultIcon}
+                    className="w-12 h-12 rounded-full"
+                    resizeMode="cover"
+                  />
+                  <View className="flex-1 flex-row justify-between items-center py-5">
+                    <View className="gap-3">
+                      <Text className="text-text-primary text-xl font-medium">{token.name}</Text>
+                      <View className="flex-row gap-1.5">
+                        <Text className="text-text-primary text-sm">{token.balance}</Text>
+                        <Text className="text-text-secondary text-sm">{token.symbol}</Text>
+                      </View>
+                    </View>
+                    <Text className="text-text-primary text-xl font-medium">{token.value}</Text>
                   </View>
                 </View>
-                <Text className="text-text-primary text-xl font-medium">{token.value}</Text>
-              </View>
-            </View>
-          ))}
+              ))}
 
-          <TouchableOpacity className="rounded-xl bg-background-secondary px-4 py-6 flex-row items-center justify-center gap-2">
-            <Icon name="plus" size={16} />
-            <Text className="text-text-primary text-base text-right">
-              {t('home.addTestnetToken')}
-            </Text>
-          </TouchableOpacity>
+              <TouchableOpacity className="rounded-xl bg-background-secondary px-4 py-6 flex-row items-center justify-center gap-2">
+                <Icon name="plus" size={16} />
+                <Text className="text-text-primary text-base text-right">
+                  {t('home.addTestnetToken')}
+                </Text>
+              </TouchableOpacity>
+            </>
+          )}
         </View>
       </ScrollView>
 

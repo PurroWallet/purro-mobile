@@ -4,7 +4,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert } from 'react-native';
 import type { AccountBottomSheetRef } from '@/components/AccountBottomSheet';
 import { apisKeychain, apisLock, apisWallet } from '@/core/apis';
+import type { ChainTokenData, TokenWithMetadata } from '@/core/apis/alchemy/types';
 import { useCurrentAccount } from '@/core/hooks/wallet/useCurrentAccount';
+import { useTokens } from '@/core/hooks/wallet/useTokens';
 import { tokenService } from '@/core/services';
 import type { TokenInfo } from '@/core/services/TokenService';
 import { useAppStore } from '@/stores/appStore';
@@ -56,6 +58,14 @@ export interface UseHomeScreenResult {
   openReceiveSheet: () => void;
   refreshTokens: () => Promise<void>;
   navigateSearch: () => void;
+  // New EVM token list properties
+  evmTokens: ChainTokenData[];
+  isLoadingEvmTokens: boolean;
+  evmTokensError: Error | null;
+  refreshEvmTokens: () => Promise<void>;
+  handleTokenPress: (token: TokenWithMetadata, chain: ChainTokenData['chain']) => void;
+  handleSendToken: (token: TokenWithMetadata, chain: ChainTokenData['chain']) => void;
+  handleSwapToken: (token: TokenWithMetadata, chain: ChainTokenData['chain']) => void;
 }
 
 export const useHomeScreen = (): UseHomeScreenResult => {
@@ -74,6 +84,14 @@ export const useHomeScreen = (): UseHomeScreenResult => {
     setCurrentAccount: setCurrentAccountQuery,
   } = useCurrentAccount();
   const currentAccount = (currentAccountQuery as Account | null) ?? null;
+
+  // Use the new useTokens hook for EVM tokens
+  const {
+    tokens: evmTokens,
+    isLoading: isLoadingEvmTokens,
+    error: evmTokensError,
+    refetch: refetchEvmTokens,
+  } = useTokens(currentAccount?.address || '', false);
 
   const perpPositions = useMemo<PerpPosition[]>(
     () => [
@@ -210,6 +228,40 @@ export const useHomeScreen = (): UseHomeScreenResult => {
     setSelectedTab(tab);
   }, []);
 
+  // Handle EVM token press
+  const handleTokenPress = useCallback(
+    (token: TokenWithMetadata, chain: ChainTokenData['chain']) => {
+      console.log('Token pressed:', token.metadata.symbol, 'on', chain);
+      // TODO: Navigate to token details screen
+    },
+    [],
+  );
+
+  // Handle send token
+  const handleSendToken = useCallback(
+    (token: TokenWithMetadata, chain: ChainTokenData['chain']) => {
+      console.log('Send token:', token.metadata.symbol, 'on', chain);
+      // TODO: Open send sheet with pre-selected token
+      openSendSheet();
+    },
+    [openSendSheet],
+  );
+
+  // Handle swap token
+  const handleSwapToken = useCallback(
+    (token: TokenWithMetadata, chain: ChainTokenData['chain']) => {
+      console.log('Swap token:', token.metadata.symbol, 'on', chain);
+      // TODO: Navigate to swap screen with pre-selected token
+      navigation.navigate('Swap');
+    },
+    [navigation],
+  );
+
+  // Refresh EVM tokens
+  const refreshEvmTokens = useCallback(async () => {
+    await refetchEvmTokens();
+  }, [refetchEvmTokens]);
+
   return {
     accountBottomSheetRef,
     sentTokenSheetRef,
@@ -229,5 +281,13 @@ export const useHomeScreen = (): UseHomeScreenResult => {
     openReceiveSheet,
     refreshTokens: fetchTokenBalances,
     navigateSearch,
+    // New EVM token list properties
+    evmTokens,
+    isLoadingEvmTokens,
+    evmTokensError,
+    refreshEvmTokens,
+    handleTokenPress,
+    handleSendToken,
+    handleSwapToken,
   };
 };

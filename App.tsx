@@ -1,4 +1,5 @@
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import type { LinkingOptions } from '@react-navigation/native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -42,6 +43,36 @@ import { useAppStore } from '@/stores/appStore';
 import type { RootStackParamList } from '@/types/navigation';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
+
+// Configure deep linking
+const linking: LinkingOptions<RootStackParamList> = {
+  prefixes: ['purrowallet://', 'https://purrowallet.com'],
+  config: {
+    screens: {
+      Welcome: 'welcome',
+      Unlock: 'unlock',
+      Home: {
+        path: 'home',
+        screens: {
+          HomeMain: 'wallet',
+          Swap: 'swap',
+          Nft: 'nft',
+          History: 'history',
+        },
+      },
+      SearchScreen: 'search',
+      SeedPhraseDisplay: 'seed-phrase-display',
+      SeedPhraseVerify: 'seed-phrase-verify',
+      SeedPhraseBackup: 'seed-phrase-backup',
+      CreatePassword: 'create-password',
+      WalletSuccess: 'wallet-success',
+      ImportWallet: 'import-wallet',
+      ImportMethods: 'import-methods',
+      ImportSeedPhrase: 'import-seed-phrase',
+      ImportPrivateKey: 'import-private-key',
+    },
+  },
+};
 
 // Configure QueryClient with memory-efficient defaults
 const queryClient = new QueryClient({
@@ -122,7 +153,7 @@ const App: React.FC = () => {
         <BottomSheetModalProvider>
           <PrivacyBlur>
             <QueryClientProvider client={queryClient}>
-              <NavigationContainer>
+              <NavigationContainer linking={linking}>
                 <StatusBar barStyle="light-content" backgroundColor="#161616" />
                 <Stack.Navigator
                   initialRouteName={initialRoute as keyof RootStackParamList}

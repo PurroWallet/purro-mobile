@@ -6,6 +6,7 @@ export { default as ImportMethodsScreen } from './ImportMethods/ImportMethodsScr
 export { default as ImportPrivateKeyScreen } from './ImportPrivateKey/ImportPrivateKeyScreen';
 export { default as ImportSeedPhraseScreen } from './ImportSeedPhrase/ImportSeedPhraseScreen';
 export { default as ImportWalletScreen } from './ImportWallet/ImportWalletScreen';
+export { default as NFTScreen } from './NFT/NFTScreen';
 export { default as SeedPhraseBackupScreen } from './SeedPhraseBackup/SeedPhraseBackupScreen';
 export { default as SeedPhraseDisplayScreen } from './SeedPhraseDisplay/SeedPhraseDisplayScreen';
 export { default as SeedPhraseVerifyScreen } from './SeedPhraseVerify/SeedPhraseVerifyScreen';

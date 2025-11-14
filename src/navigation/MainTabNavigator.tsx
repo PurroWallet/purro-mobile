@@ -1,31 +1,15 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ArrowLeftRight, Compass, Home as HomeIcon, Image as ImageIcon } from 'lucide-react-native';
 import React from 'react';
-import { Text, View } from 'react-native';
+import { Text } from 'react-native';
 import { useThemeMode } from '@/core/hooks/useTheme';
-import { HomeScreen } from '@/screens';
+import { HomeScreen, NFTScreen } from '@/screens';
 import HistoryScreen from '@/screens/History/HistoryScreen';
 import SwapScreen from '@/screens/Swap/SwapScreen';
 import type { MainTabParamList } from '@/types/navigation';
 import { useTranslation } from '@/utils/i18n';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
-
-const PlaceholderScreen: React.FC<{ label: string }> = ({ label }) => (
-  <View className="flex-1 items-center justify-center bg-primary">
-    <Text className="text-text-primary text-lg font-medium">{label}</Text>
-  </View>
-);
-
-const createPlaceholderScreen = (key: string) => {
-  const Screen: React.FC = () => {
-    const { t } = useTranslation();
-    return <PlaceholderScreen label={t(key)} />;
-  };
-  return Screen;
-};
-
-const NftScreen = createPlaceholderScreen('home.nav.nft');
 
 const MainTabNavigator: React.FC = () => {
   const { t } = useTranslation();
@@ -86,7 +70,7 @@ const MainTabNavigator: React.FC = () => {
     >
       <Tab.Screen name="HomeMain" component={HomeScreen} />
       <Tab.Screen name="Swap" component={SwapScreen} />
-      <Tab.Screen name="Nft" component={NftScreen} />
+      <Tab.Screen name="Nft" component={NFTScreen} />
       <Tab.Screen name="History" component={HistoryScreen} />
     </Tab.Navigator>
   );
