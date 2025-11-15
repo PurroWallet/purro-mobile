@@ -24,18 +24,47 @@ const SeedPhraseBackupScreen: React.FC<Props> = ({ navigation, route, onClose })
 
   useEffect(() => {
     const loadSeedPhrase = async () => {
+      const totalStartTime = performance.now();
+      console.log('\n\n🚀🚀🚀 ===== SEED PHRASE EXPORT STARTED =====');
+      console.log('📍 [SeedPhraseBackupScreen] User clicked to view seed phrase');
+      console.log('📊 [SeedPhraseBackupScreen] Selected keyring index:', selectedKeyringIndex);
       try {
         setIsLoading(true);
+
+        const accountsStartTime = performance.now();
         const accounts = await walletController.getAllAccounts();
+        console.log(
+          `⏱️  [SeedPhraseBackupScreen] getAllAccounts took ${(performance.now() - accountsStartTime).toFixed(2)}ms`,
+        );
+
         if (accounts.length === 0) {
           Alert.alert(t('errors.generic.title'), t('accountBottomSheet.errors.noAccountsFound'));
           onClose();
           return;
         }
 
+        const exportStartTime = performance.now();
+        console.log('🔥 [SeedPhraseBackupScreen] Calling exportMnemonicForHDKeyring...\n');
         const mnemonic = await walletController.exportMnemonicForHDKeyring(selectedKeyringIndex);
+        const exportEndTime = performance.now();
+        console.log(
+          `\n✅ [SeedPhraseBackupScreen] exportMnemonicForHDKeyring completed in ${(exportEndTime - exportStartTime).toFixed(2)}ms`,
+        );
+
         setSeedPhrase(mnemonic || '');
+
+        const totalTime = performance.now() - totalStartTime;
+        console.log(
+          `\n✅✅✅ [SeedPhraseBackupScreen] TOTAL SEED PHRASE EXPORT TIME: ${totalTime.toFixed(2)}ms`,
+        );
+        console.log('🏁🏁🏁 ===== SEED PHRASE EXPORT COMPLETED =====\n\n');
       } catch (error) {
+        const totalTime = performance.now() - totalStartTime;
+        console.error(
+          `\n❌❌❌ [SeedPhraseBackupScreen] FAILED after ${totalTime.toFixed(2)}ms:`,
+          error,
+        );
+        console.log('🛑🛑🛑 ===== SEED PHRASE EXPORT FAILED =====\n\n');
         Alert.alert(t('errors.generic.title'), t('accountBottomSheet.errors.loadSeedPhraseFailed'));
         onClose();
       } finally {
@@ -44,7 +73,7 @@ const SeedPhraseBackupScreen: React.FC<Props> = ({ navigation, route, onClose })
     };
 
     loadSeedPhrase();
-  }, [onClose, t]);
+  }, [onClose, t, selectedKeyringIndex]);
 
   const handleCopyToClipboard = () => {
     Clipboard.setString(seedPhrase);

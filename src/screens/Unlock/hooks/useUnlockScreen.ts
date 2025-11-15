@@ -28,11 +28,14 @@ export const useUnlockScreen = (
   const [biometricAttempted, setBiometricAttempted] = useState(false);
   const { computed, fetchBiometrics } = useBiometrics({ autoFetch: true });
   const { form, handleSubmit, isUnlocking, setIsUnlocking } = useUnlockForm({
-    onSuccess: () =>
+    onSuccess: async () => {
+      console.log('🔓 UnlockScreen: Unlock successful - keyrings will load on-demand when needed');
+
       navigation.reset({
         index: 0,
         routes: [{ name: 'Home' }],
-      }),
+      });
+    },
   });
 
   const { clearErrors, reset, setError, watch } = form;
@@ -54,6 +57,12 @@ export const useUnlockScreen = (
             if (passwordFromKeychain) {
               apisLock.markAsUnlocked();
               reset({ password: '' });
+
+              // Biometric unlock successful - keyrings will load on-demand when needed
+              console.log(
+                '🔓 UnlockScreen: Biometric unlock successful - keyrings will load on-demand',
+              );
+
               navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
               return;
             }

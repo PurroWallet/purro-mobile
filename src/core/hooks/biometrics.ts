@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { Platform } from 'react-native';
 import { BIOMETRY_TYPE } from 'react-native-keychain';
 import { apisKeychain } from '@/core/apis';
-import { isAuthenticatedByBiometrics, KEYCHAIN_AUTH_TYPES } from '@/core/services/Keychain';
+import { isAuthenticatedByBiometrics, KEYCHAIN_AUTH_TYPES } from '@/core/services/keychain';
 import { useBiometricsStore } from '@/stores/biometricsStore';
 
 const IS_IOS = Platform.OS === 'ios';

@@ -1,6 +1,6 @@
 import { BIOMETRY_TYPE } from 'react-native-keychain';
 import { create } from 'zustand';
-import { isAuthenticatedByBiometrics } from '@/core/services/Keychain';
+import { isAuthenticatedByBiometrics } from '@/core/services/keychain';
 
 interface BiometricsInfo {
   authEnabled: boolean;

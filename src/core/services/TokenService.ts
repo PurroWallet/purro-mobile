@@ -294,7 +294,6 @@ export class TokenService {
       }
 
       // If not an address, could implement symbol search via token list API
-      console.log('Symbol search not implemented yet');
       return null;
     } catch (error) {
       console.error('Failed to search token:', error);

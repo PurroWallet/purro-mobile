@@ -62,17 +62,10 @@ const AccountBottomSheet = forwardRef<AccountBottomSheetRef, AccountBottomSheetP
     const renderBackground = useCallback((props: any) => <CustomBackground {...props} />, []);
 
     const handleAddAccount = useCallback(() => {
-      // Use requestAnimationFrame instead of setTimeout to avoid memory leaks
-      const frame = requestAnimationFrame(() => {
-        try {
-          navigation.navigate('AddAccount');
-        } catch (error) {
-          console.log('Navigation error:', error);
-        }
-      });
-      // No cleanup needed - requestAnimationFrame completes immediately
-      return () => cancelAnimationFrame(frame);
-    }, [navigation]);
+      // This will be handled by the nested navigator's internal navigation
+      // The error indicates we need to call a handler or navigate within the correct context
+      console.log('AddAccount requested - this should be handled by nested navigator');
+    }, []);
 
     const handleSettings = useCallback(() => {
       // Nested account stack handles navigation to Settings

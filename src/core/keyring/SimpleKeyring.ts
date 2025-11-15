@@ -98,7 +98,17 @@ export class SimpleKeyring extends AbstractKeyring<SimpleKeyringData> {
   }
 
   async exportAccount(address: string): Promise<string> {
-    return this._signWithWallet(address, (wallet) => wallet.privateKey);
+    const startTime = performance.now();
+    console.log('      🔐 [SimpleKeyring.exportAccount] START - Finding wallet');
+    const result = this._signWithWallet(address, (wallet) => wallet.privateKey);
+    const endTime = performance.now();
+    console.log(
+      `      ⏱️  [SimpleKeyring.exportAccount] Find wallet took ${(endTime - startTime).toFixed(2)}ms`,
+    );
+    console.log(
+      `      ✅ [SimpleKeyring.exportAccount] COMPLETE in ${(endTime - startTime).toFixed(2)}ms`,
+    );
+    return result;
   }
 
   protected async getWalletByAddress(address: string): Promise<Wallet | undefined> {

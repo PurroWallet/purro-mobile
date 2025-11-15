@@ -45,8 +45,6 @@ export class TransactionHistoryService {
       if (!response.ok) {
         throw new Error(`Failed to save transaction: ${response.status}`);
       }
-
-      console.log('✅ Transaction saved to backend:', transaction.hash);
     } catch (error) {
       console.error('Failed to save transaction to backend:', error);
       // Don't throw - transaction still succeeded even if history save fails
@@ -69,8 +67,6 @@ export class TransactionHistoryService {
       if (!response.ok) {
         throw new Error(`Failed to update transaction: ${response.status}`);
       }
-
-      console.log('✅ Transaction updated:', txHash);
     } catch (error) {
       console.error('Failed to update transaction:', error);
     }
@@ -152,8 +148,6 @@ export class TransactionHistoryService {
       if (!response.ok) {
         throw new Error(`Failed to delete transaction: ${response.status}`);
       }
-
-      console.log('✅ Transaction deleted:', txHash);
     } catch (error) {
       console.error('Failed to delete transaction:', error);
       throw error;
@@ -172,8 +166,6 @@ export class TransactionHistoryService {
       if (!response.ok) {
         throw new Error(`Failed to clear history: ${response.status}`);
       }
-
-      console.log('✅ Transaction history cleared for:', address);
     } catch (error) {
       console.error('Failed to clear history:', error);
       throw error;

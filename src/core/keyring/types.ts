@@ -57,8 +57,8 @@ export interface IKeyring<TData = any> {
 export interface HDKeyringData {
   mnemonic: string;
   passphrase?: string;
-  numberOfAccounts: number;
-  activeIndexes: number[];
+  hdPath: string;
+  addresses: string[]; // index i ↔ account i
 }
 
 // Simple Keyring data structure

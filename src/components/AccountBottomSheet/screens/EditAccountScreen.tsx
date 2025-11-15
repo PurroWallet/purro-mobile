@@ -46,15 +46,37 @@ const EditAccountScreen: React.FC = () => {
     navigation.navigate('PasswordVerification', {
       accountAddress,
       onSuccess: async () => {
+        const totalStartTime = performance.now();
+        console.log('\n\n🚀🚀🚀 ===== PRIVATE KEY EXPORT STARTED =====');
+        console.log('📍 [EditAccountScreen] User clicked to view private key');
+        console.log('📊 [EditAccountScreen] Account address:', accountAddress.slice(0, 10) + '...');
         try {
+          const exportStartTime = performance.now();
+          console.log('🔥 [EditAccountScreen] Calling exportAccount...\n');
           const privateKey = await walletController.exportAccount(accountAddress);
+          const exportEndTime = performance.now();
+          console.log(
+            `\n✅ [EditAccountScreen] exportAccount completed in ${(exportEndTime - exportStartTime).toFixed(2)}ms`,
+          );
+
+          const totalTime = performance.now() - totalStartTime;
+          console.log(
+            `\n✅✅✅ [EditAccountScreen] TOTAL PRIVATE KEY EXPORT TIME: ${totalTime.toFixed(2)}ms`,
+          );
+          console.log('🏁🏁🏁 ===== PRIVATE KEY EXPORT COMPLETED =====\n\n');
 
           // Navigate to private key display screen
           navigation.navigate('PrivateKeyDisplay', {
             privateKey,
             accountAddress,
           });
-        } catch {
+        } catch (error) {
+          const totalTime = performance.now() - totalStartTime;
+          console.error(
+            `\n❌❌❌ [EditAccountScreen] FAILED after ${totalTime.toFixed(2)}ms:`,
+            error,
+          );
+          console.log('🛑🛑🛑 ===== PRIVATE KEY EXPORT FAILED =====\n\n');
           Alert.alert(
             t('errors.generic.title'),
             t('accountBottomSheet.errors.exportPrivateKeyFailed'),

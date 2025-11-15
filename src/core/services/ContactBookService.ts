@@ -8,10 +8,6 @@ export interface Contact {
   brandName?: string;
 }
 
-/**
- * Contact Book Service - Manages wallet contacts and aliases
- * Following Rabby's architecture but optimized for mobile
- */
 export class ContactBookService extends EventEmitter {
   private contacts: Contact[] = [];
 
@@ -40,17 +36,25 @@ export class ContactBookService extends EventEmitter {
 
   // Get contact by address
   getContactByAddress(address: string): Contact | null {
+    if (!address) return null;
     return (
-      this.contacts.find((contact) => contact.address.toLowerCase() === address.toLowerCase()) ||
-      null
+      this.contacts.find(
+        (contact) => contact.address && contact.address.toLowerCase() === address.toLowerCase(),
+      ) || null
     );
   }
 
   // Add contact
   addContact(contact: Contact): void {
+    // Validate contact address
+    if (!contact.address) {
+      console.warn('Cannot add contact without address');
+      return;
+    }
+
     // Check if contact already exists
     const existingIndex = this.contacts.findIndex(
-      (c) => c.address.toLowerCase() === contact.address.toLowerCase(),
+      (c) => c.address && c.address.toLowerCase() === contact.address.toLowerCase(),
     );
 
     if (existingIndex >= 0) {

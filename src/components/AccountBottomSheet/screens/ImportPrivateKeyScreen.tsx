@@ -69,8 +69,11 @@ const ImportPrivateKeyScreen: React.FC<Props> = ({ onClose }) => {
         navigation.navigate('PasswordVerification', {
           accountAddress: '',
           onSuccess: async (verifiedPassword) => {
-            // After password verification, directly import with verified password
+            // After password verification, unlock wallet and import
             try {
+              // Unlock wallet (verifyPassword already confirmed password is correct)
+              await walletController.unlock(verifiedPassword);
+
               const addresses = await walletController.importWalletWithPrivateKey(
                 '0x' + privateKey,
               );

@@ -38,9 +38,7 @@ export class WalletController {
    * Boot keyring for new wallet creation (no vault verification)
    */
   async bootForNewWallet(password: string): Promise<void> {
-    console.log('🔑 WalletController: Booting for new wallet...');
     const result = await keyringService.bootForNewWallet(password);
-    console.log('✅ WalletController: Boot complete');
     return result;
   }
 
@@ -55,9 +53,7 @@ export class WalletController {
    * Import wallet with mnemonic
    */
   async importWalletWithMnemonic(mnemonic: string, password: string): Promise<string[]> {
-    console.log('📝 WalletController: Importing wallet with mnemonic...');
     const result = await walletService.importWalletWithMnemonic(mnemonic, password);
-    console.log('✅ WalletController: Mnemonic import successful, addresses:', result);
     return result;
   }
 
@@ -65,9 +61,7 @@ export class WalletController {
    * Import wallet from private key
    */
   async importWalletWithPrivateKey(privateKey: string): Promise<string[]> {
-    console.log('🔐 WalletController: Importing wallet with private key...');
     const result = await walletService.importWalletWithPrivateKey(privateKey);
-    console.log('✅ WalletController: Private key import successful, addresses:', result);
     return result;
   }
 
@@ -277,7 +271,6 @@ export class WalletController {
       // Fallback - count accounts and add 1 for new account
       return `Account ${allAccounts.length + 1}`;
     } catch (error) {
-      console.error('Error generating account name:', error);
       return 'Account 1';
     }
   }

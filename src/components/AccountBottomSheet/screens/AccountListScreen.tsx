@@ -110,7 +110,13 @@ const AccountListScreen: React.FC<Props> = ({
     );
 
     // Navigate to AddAccount screen
-    navigation.navigate('AddAccount');
+    try {
+      navigation.navigate('AddAccount');
+    } catch (error) {
+      console.log('Navigation to AddAccount failed:', error);
+      // Fallback: call onAddAccount if provided
+      onAddAccount?.();
+    }
   };
 
   const handleEditAccount = (account: Account) => {

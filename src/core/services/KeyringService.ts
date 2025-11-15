@@ -12,10 +12,6 @@ import {
 import { keyringStorage, walletStorage } from '../storage/secureStorage';
 import { encryptionService } from './EncryptionService';
 
-/**
- * Keyring Service - Main service for managing HD wallets
- * Following Rabby's architecture but optimized for mobile with MMKV storage
- */
 export class KeyringService extends EventEmitter {
   private keyrings: IKeyring[] = [];
   private cachedAccounts: Account[] = [];
@@ -27,7 +23,6 @@ export class KeyringService extends EventEmitter {
     super();
   }
 
-  // Load account addresses from fast storage (no decryption needed)
   private async loadAccountAddresses(): Promise<void> {
     try {
       const storedAccounts = walletStorage.getItem<Account[]>('account_addresses');
@@ -39,7 +34,6 @@ export class KeyringService extends EventEmitter {
     }
   }
 
-  // Save account addresses to fast storage
   private async saveAccountAddresses(): Promise<void> {
     try {
       walletStorage.setItem('account_addresses', this.cachedAccounts);
@@ -49,49 +43,28 @@ export class KeyringService extends EventEmitter {
   }
 
   private async _performBoot(password: string, verifyPassword: boolean): Promise<void> {
-    console.log('🔧 _performBoot called with verifyPassword:', verifyPassword);
-    console.log('🔧 Current state:', {
-      booted: this.booted,
-      unlocked: this.unlocked,
-      hasPassword: !!this.password,
-    });
-
     if (this.booted && this.unlocked && this.password === password) {
-      console.log('🔧 Already booted with same password, returning');
       return;
     }
 
-    console.log('🔧 Setting password...');
     this.password = password;
-    console.log('✅ Password set');
 
     if (verifyPassword) {
-      console.log('🔧 Verifying password...');
       await this.verifyPassword(password);
-      console.log('✅ Password verified');
     }
 
-    console.log('🔧 Loading account addresses...');
     await this.loadAccountAddresses();
-    console.log('✅ Account addresses loaded');
 
     this.unlocked = true;
     this.booted = true;
-    console.log('✅ Boot complete:', { booted: this.booted, unlocked: this.unlocked });
   }
 
   async boot(password: string): Promise<void> {
-    console.log('🔑 KeyringService: Booting with password verification...');
-    const result = await this._performBoot(password, true);
-    console.log('✅ KeyringService: Boot complete');
-    return result;
+    return await this._performBoot(password, true);
   }
 
   async bootForNewWallet(password: string): Promise<void> {
-    console.log('🔑 KeyringService: Booting for new wallet (no verification)...');
-    const result = await this._performBoot(password, false);
-    console.log('✅ KeyringService: Boot for new wallet complete');
-    return result;
+    return await this._performBoot(password, false);
   }
 
   // Check if keyring is booted
@@ -112,27 +85,20 @@ export class KeyringService extends EventEmitter {
     return this.password;
   }
 
-  // Create new HD keyring with mnemonic
   async createHDKeyring(mnemonic: string, passphrase?: string): Promise<string[]> {
-    console.log('🔥 KeyringService.createHDKeyring: INPUT mnemonic:', mnemonic.split(' ')[0]);
-
     if (!this.booted) {
-      console.error('❌ Keyring service not booted');
+      console.error('Keyring service not booted');
       throw new Error('Keyring service not booted');
     }
 
     if (!validateMnemonic(mnemonic)) {
-      console.error('❌ Invalid mnemonic phrase');
+      console.error('Invalid mnemonic phrase');
       throw new Error('Invalid mnemonic phrase');
     }
 
     // Check for duplicate mnemonic before creating new keyring
     await this.checkForDuplicateMnemonic(mnemonic);
 
-    console.log(
-      '🔥 KeyringService.createHDKeyring: Creating keyring with mnemonic:',
-      mnemonic.split(' ')[0],
-    );
     const keyring = createKeyring(KEYRING_TYPE.HD, {
       mnemonic,
       passphrase,
@@ -144,11 +110,9 @@ export class KeyringService extends EventEmitter {
     return accounts;
   }
 
-  // Create new Simple keyring with private key
   async createSimpleKeyring(privateKey: string): Promise<string[]> {
-    console.log('🔐 KeyringService: Creating simple keyring with private key...');
     if (!this.booted) {
-      console.error('❌ Keyring service not booted');
+      console.error('Keyring service not booted');
       throw new Error('Keyring service not booted');
     }
 
@@ -158,12 +122,10 @@ export class KeyringService extends EventEmitter {
 
     await this.addKeyring(keyring);
     const accounts = keyring.getAccounts();
-    console.log('✅ KeyringService: Simple keyring created, accounts:', accounts);
 
     return accounts;
   }
 
-  // Add keyring to the service
   async addKeyring(keyring: IKeyring): Promise<void> {
     // Check for duplicate accounts
     const accounts = await keyring.getAccounts();
@@ -185,7 +147,6 @@ export class KeyringService extends EventEmitter {
     this.emit('keyringAdded', { type: keyring.type, accounts });
   }
 
-  // Get all accounts from cache (fast) or keyrings (slow, when needed)
   async getAllAccounts(): Promise<Account[]> {
     // Return cached accounts if available (fast path)
     if (this.cachedAccounts.length > 0) {
@@ -216,8 +177,6 @@ export class KeyringService extends EventEmitter {
 
   // Refresh accounts cache - call this after adding accounts directly to keyrings
   async refreshAccountsCache(): Promise<void> {
-    console.log('🔄 Refreshing accounts cache...');
-
     // Clear cache to force reload from keyrings
     this.cachedAccounts = [];
 
@@ -236,7 +195,6 @@ export class KeyringService extends EventEmitter {
 
     this.cachedAccounts = allAccounts;
     await this.saveAccountAddresses();
-    console.log(`✅ Cache refreshed with ${allAccounts.length} accounts`);
   }
 
   // Get keyring for a specific address (loads keyrings on-demand if needed)
@@ -343,20 +301,14 @@ export class KeyringService extends EventEmitter {
 
   // Export mnemonic for specific HD keyring by index
   async exportMnemonicForHDKeyring(keyringIndex: number): Promise<string> {
-    console.log('🔐 KeyringService: Exporting mnemonic for keyring index:', keyringIndex);
-    console.log('🔐 KeyringService: Current keyrings count:', this.keyrings.length);
-
     // If keyrings not loaded, load them now
     if (this.keyrings.length === 0 && this.password) {
-      console.log('🔐 KeyringService: Loading keyrings...');
       await this.loadKeyrings(this.password);
-      console.log('🔐 KeyringService: Loaded keyrings count:', this.keyrings.length);
     } else if (this.keyrings.length === 0 && !this.password) {
       throw new Error('Keyring service not booted - no password available');
     }
 
     const hdKeyrings = this.getKeyringsByType(KEYRING_TYPE.HD);
-    console.log('🔐 KeyringService: HD keyrings found:', hdKeyrings.length);
 
     if (keyringIndex >= hdKeyrings.length) {
       throw new Error(
@@ -365,7 +317,6 @@ export class KeyringService extends EventEmitter {
     }
 
     const keyring = hdKeyrings[keyringIndex];
-    console.log('🔐 KeyringService: Selected keyring type:', keyring.type);
 
     if (keyring.type !== KEYRING_TYPE.HD) {
       throw new Error('Not an HD keyring');
@@ -463,7 +414,6 @@ export class KeyringService extends EventEmitter {
     this.emit('accountRemoved', { address });
   }
 
-  // Persist all keyrings to encrypted storage
   async persistKeyrings(): Promise<void> {
     if (!this.password) {
       throw new Error('No password set');
@@ -480,15 +430,10 @@ export class KeyringService extends EventEmitter {
     }
 
     // Encrypt and save to MMKV
-    console.log('💾 KeyringService: Saving keyrings to encrypted storage...');
-    console.log('🔑 Password available:', !!this.password);
-    console.log('📊 Keyrings to save:', serializedKeyrings);
     const encrypted = await encryptionService.encrypt(this.password, serializedKeyrings);
     keyringStorage.setItem('vault', encrypted);
-    console.log('✅ KeyringService: Keyrings saved successfully');
   }
 
-  // Load keyrings from encrypted storage
   private async loadKeyrings(password: string): Promise<void> {
     const encryptedVault = keyringStorage.getItem<string>('vault');
 
@@ -506,7 +451,6 @@ export class KeyringService extends EventEmitter {
     }
   }
 
-  // Verify password against stored vault
   public async verifyPassword(password: string): Promise<void> {
     const encryptedVault = keyringStorage.getItem<string>('vault');
 
@@ -593,24 +537,18 @@ export class KeyringService extends EventEmitter {
 
   // Check for duplicate mnemonics to prevent multiple keyrings with same seed phrase
   private async checkForDuplicateMnemonic(newMnemonic: string): Promise<void> {
-    console.log('🔍 Checking for duplicate mnemonic...');
-
     for (const keyring of this.keyrings) {
       if (keyring.type === KEYRING_TYPE.HD) {
         try {
           const existingMnemonic = (keyring as any).getMnemonic();
           if (existingMnemonic === newMnemonic) {
-            console.log('❌ Duplicate mnemonic detected');
             throw new Error('This seed phrase is already imported');
           }
         } catch (error) {
           // Keyring might be locked or inaccessible, skip
-          console.log('⚠️ Could not access mnemonic for duplicate check');
         }
       }
     }
-
-    console.log('✅ No duplicate mnemonic found');
   }
 
   // Get brand name for keyring type
@@ -636,23 +574,17 @@ export class KeyringService extends EventEmitter {
 
   // Clear all data (dangerous!)
   clearAll(): void {
-    console.log('🧹 KeyringService.clearAll: Starting cleanup...');
-    console.log('🧹 KeyringService.clearAll: Current keyrings count:', this.keyrings.length);
-
     this.keyrings = [];
     this.cachedAccounts = [];
     this.unlocked = false;
     this.password = null;
     this.booted = false;
 
-    console.log('🧹 KeyringService.clearAll: Removing all storage items...');
-
     // Clear all storage items that might contain wallet data
     keyringStorage.removeItem('vault');
     keyringStorage.removeItem('currentAddress');
     walletStorage.removeItem('account_addresses');
 
-    console.log('✅ KeyringService.clearAll: Cleanup complete');
     this.emit('cleared');
   }
 

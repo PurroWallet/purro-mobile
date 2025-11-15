@@ -1,10 +1,5 @@
 import { ethers } from 'ethers';
-import {
-  GAS_MULTIPLIERS,
-  GAS_STRATEGY,
-  type GasStrategy,
-  type NetworkType,
-} from '@/constants/networks';
+import { GAS_MULTIPLIERS, GAS_STRATEGY, GasStrategy, type NetworkType } from '@/constants/networks';
 import { keyringService } from './KeyringService';
 import { networkProviderService } from './NetworkProviderService';
 import { tokenService } from './TokenService';
@@ -57,14 +52,6 @@ export class TransactionService {
    */
   async sendTransaction(params: TransactionParams): Promise<TransactionResult> {
     try {
-      console.log('🚀 TransactionService.sendTransaction - Starting transaction...');
-      console.log('📝 Params:', {
-        from: params.from,
-        to: params.to,
-        amount: params.amount,
-        tokenAddress: params.tokenAddress || 'native',
-      });
-
       // Validate addresses
       if (!ethers.utils.isAddress(params.from)) {
         throw new Error('Invalid sender address');
@@ -78,8 +65,6 @@ export class TransactionService {
         ? await this.buildERC20Transaction(params)
         : await this.buildNativeTransaction(params);
 
-      console.log('📦 Transaction built:', transaction);
-
       // Estimate gas
       const provider = networkProviderService.getProvider(params.networkType);
       const gasLimit = await provider.estimateGas(transaction);
@@ -91,20 +76,11 @@ export class TransactionService {
       transaction.gasLimit = gasLimit;
       transaction.gasPrice = gasPrice;
 
-      console.log('⛽ Gas estimated:', {
-        gasLimit: gasLimit.toString(),
-        gasPrice: ethers.utils.formatUnits(gasPrice, 'gwei'),
-      });
-
       // Sign transaction
-      console.log('✍️ Signing transaction...');
       const signedTx = await keyringService.signTransaction(params.from, transaction);
-      console.log('✅ Transaction signed');
 
       // Broadcast transaction
-      console.log('📡 Broadcasting transaction...');
       const txResponse = await provider.sendTransaction(signedTx);
-      console.log('✅ Transaction broadcasted:', txResponse.hash);
 
       // Save to history
       const txResult: TransactionResult = {
@@ -126,7 +102,7 @@ export class TransactionService {
 
       return txResult;
     } catch (error) {
-      console.error('❌ Transaction failed:', error);
+      console.error('Transaction failed:', error);
       throw error;
     }
   }
@@ -262,14 +238,10 @@ export class TransactionService {
    */
   private async waitForConfirmation(txHash: string, networkType?: NetworkType): Promise<void> {
     try {
-      console.log(`⏳ Waiting for confirmation: ${txHash}`);
-
       const provider = networkProviderService.getProvider(networkType);
       const receipt = await provider.waitForTransaction(txHash, 1);
 
       const status = receipt.status === 1 ? 'confirmed' : 'failed';
-
-      console.log(`✅ Transaction ${status}: ${txHash}`);
 
       // Update transaction history
       await transactionHistoryService.updateTransaction(txHash, {

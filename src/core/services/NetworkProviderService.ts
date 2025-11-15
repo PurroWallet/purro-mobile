@@ -55,7 +55,6 @@ export class NetworkProviderService {
       });
 
       this.providers.set(networkType, provider);
-      console.log(`✅ Provider initialized for ${config.name}`);
     } catch (error) {
       console.error(`Failed to initialize provider for ${networkType}:`, error);
     }
@@ -81,8 +80,6 @@ export class NetworkProviderService {
    * Handle provider errors with fallback
    */
   private handleProviderError(networkType: NetworkType, config: NetworkConfig): void {
-    console.log(`Attempting to reconnect provider for ${networkType}...`);
-
     // Try next RPC URL
     const rpcUrls = config.rpcUrls.filter(
       (url) => !url.includes('YOUR_INFURA_KEY') && !url.includes('YOUR_ALCHEMY_KEY'),
@@ -95,7 +92,6 @@ export class NetworkProviderService {
         chainId: config.chainId,
       });
       this.providers.set(networkType, provider);
-      console.log(`✅ Reconnected to ${networkType} using fallback RPC`);
     }
   }
 
@@ -134,7 +130,6 @@ export class NetworkProviderService {
     }
 
     this.currentNetwork = networkType;
-    console.log(`✅ Switched to network: ${config.name}`);
   }
 
   /**
@@ -243,7 +238,6 @@ export class NetworkProviderService {
   cleanup(): void {
     for (const [networkType, provider] of this.providers.entries()) {
       provider.removeAllListeners();
-      console.log(`🧹 Cleaned up provider for ${networkType}`);
     }
     this.providers.clear();
   }

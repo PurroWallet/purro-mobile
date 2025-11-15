@@ -4,10 +4,6 @@ import { ContactBookService } from './ContactBookService';
 import { KeyringService } from './KeyringService';
 import { LockService } from './LockService';
 
-/**
- * Wallet Service - High-level wallet operations
- * Based on Rabby's wallet service but optimized for mobile
- */
 export class WalletService {
   private keyringService: KeyringService;
   private lockService: LockService;
@@ -65,6 +61,7 @@ export class WalletService {
 
   /**
    * Import wallet with mnemonic
+   * NOTE: Assumes keyring service is already booted (call bootForNewWallet first)
    */
   async importWalletWithMnemonic(
     mnemonic: string,
@@ -72,8 +69,10 @@ export class WalletService {
     passphrase?: string,
   ): Promise<string[]> {
     try {
-      // Boot keyring service with password
-      await this.keyringService.boot(password);
+      // Verify keyring service is booted
+      if (!this.keyringService.isBooted()) {
+        throw new Error('Keyring service not booted. Call bootForNewWallet or unlockWallet first.');
+      }
 
       // Get total account count BEFORE creating the new one for proper naming
       const allAccountsBefore = await this.getAllAccounts();
@@ -100,9 +99,15 @@ export class WalletService {
 
   /**
    * Import wallet with private key
+   * NOTE: Assumes keyring service is already booted (call bootForNewWallet first)
    */
   async importWalletWithPrivateKey(privateKey: string): Promise<string[]> {
     try {
+      // Verify keyring service is booted
+      if (!this.keyringService.isBooted()) {
+        throw new Error('Keyring service not booted. Call bootForNewWallet or unlockWallet first.');
+      }
+
       // Get total account count BEFORE creating the new one for proper naming
       const allAccountsBefore = await this.getAllAccounts();
       const nextAccountNumber = allAccountsBefore.length + 1;
@@ -256,7 +261,7 @@ export class WalletService {
 
       return addresses[0];
     } catch (error) {
-      console.error('❌ Failed to add new account:', error);
+      console.error('Failed to add new account:', error);
       throw error;
     }
   }
@@ -377,7 +382,7 @@ export class WalletService {
 
       return mnemonic;
     } catch (error) {
-      console.error('❌ Failed to export mnemonic for address:', error);
+      console.error('Failed to export mnemonic for address:', error);
       throw error;
     }
   }
@@ -400,9 +405,9 @@ export class WalletService {
    */
   async exportMnemonicForHDKeyring(keyringIndex: number): Promise<string> {
     try {
-      const mnemonic = await this.keyringService.exportMnemonicForHDKeyring(keyringIndex);
-      return mnemonic;
+      return await this.keyringService.exportMnemonicForHDKeyring(keyringIndex);
     } catch (error) {
+      console.error('Failed to export mnemonic for HD keyring:', error);
       throw error;
     }
   }

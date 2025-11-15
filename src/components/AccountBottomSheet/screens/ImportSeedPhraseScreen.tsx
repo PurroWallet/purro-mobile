@@ -70,8 +70,11 @@ const ImportSeedPhraseScreen: React.FC<Props> = ({ onClose }) => {
       navigation.navigate('PasswordVerification', {
         accountAddress: '',
         onSuccess: async (verifiedPassword) => {
-          // After password verification, navigate to discovery screen
+          // After password verification, ensure wallet is unlocked and navigate to discovery
           try {
+            // Unlock wallet (verifyPassword already confirmed password is correct)
+            await walletController.unlock(verifiedPassword);
+
             // Navigate to seed phrase discovery screen with loading animation
             navigation.navigate('SeedPhraseDiscovery', {
               mnemonic: values.mnemonic.trim(),
