@@ -3,9 +3,7 @@ import HomeContent from './components/HomeContent';
 import { useHomeScreen } from './hooks/useHomeScreen';
 
 const HomeScreen: React.FC = () => {
-  const screenProps = useHomeScreen();
-
-  return <HomeContent {...screenProps} />;
+  return <HomeContent />;
 };
 
 export default HomeScreen;

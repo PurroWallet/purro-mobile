@@ -3,8 +3,6 @@
  * Central export point for storage adapters
  */
 
-export type { CachedNFTData } from './nftCollectionCache';
-export { NFTCollectionCache, nftCollectionCache } from './nftCollectionCache';
 export {
   keychainStorage,
   keyringStorage,

@@ -51,7 +51,6 @@ export class ApiError extends Error {
  * Create an API error from an axios error or generic error
  */
 export function createApiError(error: any): ApiError {
-  // Handle axios errors
   if (error.response) {
     const { status, data } = error.response;
     const message = data?.message || data?.error || 'API request failed';
@@ -205,7 +204,6 @@ export function classifyError(error: any): ErrorType {
     return error.type;
   }
 
-  // Check for axios errors
   if (error.response) {
     const status = error.response.status;
     if (status === 429) return ErrorType.RATE_LIMIT_ERROR;

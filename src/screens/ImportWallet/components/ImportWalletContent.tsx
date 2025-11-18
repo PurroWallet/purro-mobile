@@ -1,26 +1,12 @@
 import React from 'react';
-import type { UseFormReturn } from 'react-hook-form';
 import { FormProvider } from 'react-hook-form';
 import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, FormInput } from '@/components';
-import type { ImportWalletFormValues, ImportWalletStrings } from '../hooks/useImportWalletScreen';
+import { useImportWalletScreen } from '../hooks/useImportWalletScreen';
 
-interface ImportWalletContentProps {
-  form: UseFormReturn<ImportWalletFormValues>;
-  strings: ImportWalletStrings;
-  isImporting: boolean;
-  isSubmitDisabled: boolean;
-  onSubmit: () => void;
-}
-
-export const ImportWalletContent: React.FC<ImportWalletContentProps> = ({
-  form,
-  strings,
-  isImporting,
-  isSubmitDisabled,
-  onSubmit,
-}) => {
+export const ImportWalletContent: React.FC = () => {
+  const { form, strings, isImporting, isSubmitDisabled, onSubmit } = useImportWalletScreen();
   const { setFocus } = form;
 
   return (

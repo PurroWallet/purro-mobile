@@ -3,6 +3,7 @@
  * Custom hook for managing token swap operations with LiquidSwap integration
  */
 
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ApiError } from '@/core/apis/errors';
 import { liquidswapService } from '@/core/apis/liquidswap/liquidswapService';
@@ -44,7 +45,7 @@ export interface UseSwapReturn {
   // Route state
   route: SwapRoute | null;
   isLoadingRoute: boolean;
-  routeError: ApiError | null;
+  routeError: Error | null;
 
   // Token selection
   tokenSelection: TokenSelection;
@@ -57,13 +58,13 @@ export interface UseSwapReturn {
   setSlippage: (slippage: number) => void;
 
   // Route finding
-  findRoute: (params: SwapRouteParams) => Promise<void>;
+  findRoute: (params: SwapRouteParams) => void;
   clearRoute: () => void;
 
   // Swap execution
-  executeSwap: (fromAddress: string) => Promise<void>;
+  executeSwap: (fromAddress: string) => void;
   isExecuting: boolean;
-  executionError: ApiError | null;
+  executionError: Error | null;
   executionSuccess: boolean;
   clearExecutionState: () => void;
 }
@@ -73,14 +74,13 @@ export interface UseSwapReturn {
  */
 const ROUTE_DEBOUNCE_DELAY = 500;
 
+const SWAP_ROUTE_QUERY_KEY = 'swap_route';
+
 /**
  * Custom hook for swap operations
  */
 export const useSwap = (): UseSwapReturn => {
-  // Route state
-  const [route, setRoute] = useState<SwapRoute | null>(null);
-  const [isLoadingRoute, setIsLoadingRoute] = useState(false);
-  const [routeError, setRouteError] = useState<ApiError | null>(null);
+  const queryClient = useQueryClient();
 
   // Token selection state
   const [tokenSelection, setTokenSelection] = useState<TokenSelection>({
@@ -90,17 +90,57 @@ export const useSwap = (): UseSwapReturn => {
 
   // Slippage state
   const [slippage, setSlippage] = useState<number>(DEFAULT_SLIPPAGE);
-
-  // Execution state
-  const [isExecuting, setIsExecuting] = useState(false);
-  const [executionError, setExecutionError] = useState<ApiError | null>(null);
-  const [executionSuccess, setExecutionSuccess] = useState(false);
+  const [routeParams, setRouteParams] = useState<SwapRouteParams | null>(null);
 
   // Debounce timer ref
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Abort controller for cancelling requests
-  const abortControllerRef = useRef<AbortController | null>(null);
+  // React Query for route finding
+  const routeQuery = useQuery({
+    queryKey: [SWAP_ROUTE_QUERY_KEY, routeParams, slippage],
+    queryFn: async () => {
+      if (!routeParams) return null;
+
+      const request: SwapRouteRequest = {
+        ...routeParams,
+        slippage,
+      };
+
+      const response = await liquidswapService.findSwapRoute(request);
+
+      if (response.success && response.data) {
+        return response.data;
+      }
+
+      throw new Error(response.error || 'Failed to find swap route');
+    },
+    enabled: !!routeParams,
+    staleTime: 10000, // 10 seconds - routes change frequently
+    gcTime: 30000, // 30 seconds
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000),
+  });
+
+  // React Query mutation for swap execution
+  const swapMutation = useMutation({
+    mutationFn: async ({ fromAddress, route }: { fromAddress: string; route: SwapRoute }) => {
+      const txResult = await transactionService.sendTransaction({
+        from: fromAddress,
+        to: route.transaction.to,
+        amount: '0',
+        data: route.transaction.data,
+      });
+
+      console.log('✅ Swap transaction sent:', txResult.hash);
+      return txResult;
+    },
+    onSuccess: () => {
+      console.log('✅ Swap executed successfully');
+    },
+    onError: (error) => {
+      console.error('❌ Swap execution failed:', error);
+    },
+  });
 
   /**
    * Set token in
@@ -125,167 +165,77 @@ export const useSwap = (): UseSwapReturn => {
       tokenOut: prev.tokenIn,
     }));
     // Clear route when swapping tokens
-    setRoute(null);
-    setRouteError(null);
-  }, []);
+    setRouteParams(null);
+    queryClient.removeQueries({ queryKey: [SWAP_ROUTE_QUERY_KEY] });
+  }, [queryClient]);
 
   /**
    * Find swap route with debouncing
    */
-  const findRoute = useCallback(
-    async (params: SwapRouteParams): Promise<void> => {
-      // Clear existing debounce timer
-      if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current);
-      }
+  const findRoute = useCallback((params: SwapRouteParams): void => {
+    // Clear existing debounce timer
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
 
-      // Cancel any pending request
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
+    // Validate required parameters
+    if (!params.tokenIn || !params.tokenOut) {
+      console.error('Both tokenIn and tokenOut are required');
+      return;
+    }
 
-      // Validate required parameters
-      if (!params.tokenIn || !params.tokenOut) {
-        setRouteError({
-          type: 'VALIDATION_ERROR',
-          message: 'Both tokenIn and tokenOut are required',
-        } as ApiError);
-        return;
-      }
+    if (!params.amountIn && !params.amountOut) {
+      console.error('Either amountIn or amountOut must be provided');
+      return;
+    }
 
-      if (!params.amountIn && !params.amountOut) {
-        setRouteError({
-          type: 'VALIDATION_ERROR',
-          message: 'Either amountIn or amountOut must be provided',
-        } as ApiError);
-        return;
-      }
-
-      // Set loading state immediately
-      setIsLoadingRoute(true);
-      setRouteError(null);
-
-      // Debounce the actual API call
-      debounceTimerRef.current = setTimeout(async () => {
-        try {
-          // Create new abort controller
-          abortControllerRef.current = new AbortController();
-
-          // Build request with slippage
-          const request: SwapRouteRequest = {
-            ...params,
-            slippage,
-          };
-
-          // Call API
-          const response = await liquidswapService.findSwapRoute(request);
-
-          // Check if request was aborted
-          if (abortControllerRef.current?.signal.aborted) {
-            return;
-          }
-
-          if (response.success && response.data) {
-            setRoute(response.data);
-            setRouteError(null);
-          } else {
-            setRoute(null);
-            setRouteError({
-              type: 'API_ERROR',
-              message: response.error || 'Failed to find swap route',
-            } as ApiError);
-          }
-        } catch (error) {
-          // Check if request was aborted
-          if (abortControllerRef.current?.signal.aborted) {
-            return;
-          }
-
-          setRoute(null);
-          setRouteError(error as ApiError);
-        } finally {
-          setIsLoadingRoute(false);
-        }
-      }, ROUTE_DEBOUNCE_DELAY);
-    },
-    [slippage],
-  );
+    // Debounce the route params update
+    debounceTimerRef.current = setTimeout(() => {
+      setRouteParams(params);
+    }, ROUTE_DEBOUNCE_DELAY);
+  }, []);
 
   /**
    * Clear route state
    */
   const clearRoute = useCallback(() => {
-    setRoute(null);
-    setRouteError(null);
-    setIsLoadingRoute(false);
+    setRouteParams(null);
+    queryClient.removeQueries({ queryKey: [SWAP_ROUTE_QUERY_KEY] });
 
     // Clear debounce timer
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current);
     }
-
-    // Cancel pending request
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-  }, []);
+  }, [queryClient]);
 
   /**
    * Execute swap transaction
    */
   const executeSwap = useCallback(
-    async (fromAddress: string): Promise<void> => {
+    (fromAddress: string): void => {
+      const route = routeQuery.data;
+
       if (!route) {
-        setExecutionError({
-          type: 'VALIDATION_ERROR',
-          message: 'No route available for swap',
-        } as ApiError);
+        console.error('No route available for swap');
         return;
       }
 
       if (!fromAddress) {
-        setExecutionError({
-          type: 'VALIDATION_ERROR',
-          message: 'Wallet address is required',
-        } as ApiError);
+        console.error('Wallet address is required');
         return;
       }
 
-      setIsExecuting(true);
-      setExecutionError(null);
-      setExecutionSuccess(false);
-
-      try {
-        // Execute the swap transaction using the route data
-        const txResult = await transactionService.sendTransaction({
-          from: fromAddress,
-          to: route.transaction.to,
-          amount: '0', // Amount is encoded in data
-          data: route.transaction.data,
-        });
-
-        console.log('✅ Swap transaction sent:', txResult.hash);
-
-        setExecutionSuccess(true);
-        setExecutionError(null);
-      } catch (error) {
-        console.error('❌ Swap execution failed:', error);
-        setExecutionSuccess(false);
-        setExecutionError(error as ApiError);
-      } finally {
-        setIsExecuting(false);
-      }
+      swapMutation.mutate({ fromAddress, route });
     },
-    [route],
+    [routeQuery.data, swapMutation],
   );
 
   /**
    * Clear execution state
    */
   const clearExecutionState = useCallback(() => {
-    setExecutionError(null);
-    setExecutionSuccess(false);
-  }, []);
+    swapMutation.reset();
+  }, [swapMutation]);
 
   /**
    * Cleanup on unmount
@@ -296,19 +246,14 @@ export const useSwap = (): UseSwapReturn => {
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);
       }
-
-      // Cancel pending request
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
     };
   }, []);
 
   return {
     // Route state
-    route,
-    isLoadingRoute,
-    routeError,
+    route: routeQuery.data ?? null,
+    isLoadingRoute: routeQuery.isLoading,
+    routeError: routeQuery.error instanceof Error ? routeQuery.error : null,
 
     // Token selection
     tokenSelection,
@@ -326,9 +271,9 @@ export const useSwap = (): UseSwapReturn => {
 
     // Swap execution
     executeSwap,
-    isExecuting,
-    executionError,
-    executionSuccess,
+    isExecuting: swapMutation.isPending,
+    executionError: swapMutation.error instanceof Error ? swapMutation.error : null,
+    executionSuccess: swapMutation.isSuccess,
     clearExecutionState,
   };
 };

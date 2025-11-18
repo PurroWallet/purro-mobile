@@ -3,9 +3,10 @@
  * Service for fetching NFT collections, instances, and transaction history from HyperScan API
  */
 
-import axios, { type AxiosError } from 'axios';
+import { type AxiosError } from 'axios';
 import { API_TIMEOUTS, getEndpoints } from '../endpoints';
 import { ApiError, ErrorType } from '../errors';
+import { httpClient } from '../httpClient';
 import {
   isValidAddress,
   type NextPageParams,
@@ -71,7 +72,7 @@ class HyperScanService {
         }
       }
 
-      const response = await axios.get<NFTCollectionsResponse>(url, {
+      const response = await httpClient.get<NFTCollectionsResponse>(url, {
         params,
         timeout: API_TIMEOUTS.DEFAULT,
       });
@@ -126,7 +127,7 @@ class HyperScanService {
         }
       }
 
-      const response = await axios.get<NFTInstancesResponse>(url, {
+      const response = await httpClient.get<NFTInstancesResponse>(url, {
         params,
         timeout: API_TIMEOUTS.DEFAULT,
       });
@@ -162,7 +163,7 @@ class HyperScanService {
         start_timestamp: String(timestamp),
       };
 
-      const response = await axios.get<TransactionsResponse>(url, {
+      const response = await httpClient.get<TransactionsResponse>(url, {
         params,
         timeout: API_TIMEOUTS.DEFAULT,
       });
@@ -188,7 +189,7 @@ class HyperScanService {
       const endpoint = this.getEndpoint();
       const url = `${endpoint}/transactions/${txHash}`;
 
-      const response = await axios.get<Transaction>(url, {
+      const response = await httpClient.get<Transaction>(url, {
         timeout: API_TIMEOUTS.DEFAULT,
       });
 
@@ -241,7 +242,7 @@ class HyperScanService {
         }
       }
 
-      const response = await axios.get<TokenTransfersResponse>(url, {
+      const response = await httpClient.get<TokenTransfersResponse>(url, {
         params,
         timeout: API_TIMEOUTS.DEFAULT,
       });

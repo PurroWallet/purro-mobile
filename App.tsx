@@ -2,7 +2,7 @@ import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import type { LinkingOptions } from '@react-navigation/native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Platform, StatusBar, View } from 'react-native';
 import BootSplash from 'react-native-bootsplash';
@@ -10,17 +10,12 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import './global.css';
 
-// Disable DevTools to prevent crypto polyfill issues
-if (__DEV__) {
-  // @ts-ignore
-  globalThis.__REACT_DEVTOOLS_GLOBAL_HOOK__?.shutdown?.();
-}
-
 import { BackgroundSecureBlurView } from '@/components/customized/BlurViews';
 import { PrivacyBlur } from '@/components/PrivacyBlur';
 import { GlobalSecurityTipStubModal } from '@/components/SecurityTipStubModal';
 import { apisWallet } from '@/core/apis';
 import { useAppPreventScreenshotOnScreen } from '@/core/hooks/native/security';
+import { queryClient } from '@/core/query/queryClient';
 import { screenProtection } from '@/core/services/screenProtection';
 import { web3AuthService } from '@/core/services/Web3AuthService';
 import { excludeFilesFromBackup } from '@/core/utils/appFS';
@@ -73,24 +68,6 @@ const linking: LinkingOptions<RootStackParamList> = {
     },
   },
 };
-
-// Configure QueryClient with memory-efficient defaults
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      // Automatically remove inactive queries after 5 minutes
-      gcTime: 1000 * 60 * 5,
-      // Data becomes stale after 1 minute
-      staleTime: 1000 * 60,
-      // Don't retry failed requests automatically (mobile networks are unstable)
-      retry: false,
-      // Don't refetch on window focus (not applicable on mobile)
-      refetchOnWindowFocus: false,
-      // Don't refetch on reconnect by default
-      refetchOnReconnect: false,
-    },
-  },
-});
 
 const App: React.FC = () => {
   const { setRoute, setWalletExists, setWalletUnlocked } = useAppStore();

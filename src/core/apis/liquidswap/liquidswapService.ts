@@ -3,11 +3,11 @@
  * Service for token swap route finding, token list fetching, and balance queries
  */
 
-import axios, { type AxiosError } from 'axios';
+import { type AxiosError } from 'axios';
 import { API_TIMEOUTS, getEndpoints } from '../endpoints';
 import { ApiError, ErrorType } from '../errors';
+import { httpClient } from '../httpClient';
 import {
-  type BalancesRequest,
   type BalancesResponse,
   type FetchTokensRequest,
   type SwapRouteRequest,
@@ -97,7 +97,7 @@ class LiquidSwapService {
         params.feeRecipient = request.feeRecipient;
       }
 
-      const response = await axios.get<SwapRouteResponse>(url, {
+      const response = await httpClient.get<SwapRouteResponse>(url, {
         params,
         timeout: API_TIMEOUTS.SWAP_ROUTE,
       });
@@ -131,7 +131,7 @@ class LiquidSwapService {
         params.offset = String(request.offset);
       }
 
-      const response = await axios.get<TokensResponse>(url, {
+      const response = await httpClient.get<TokensResponse>(url, {
         params,
         timeout: API_TIMEOUTS.DEFAULT,
       });
@@ -171,7 +171,7 @@ class LiquidSwapService {
         params.limit = String(limit);
       }
 
-      const response = await axios.get<BalancesResponse>(url, {
+      const response = await httpClient.get<BalancesResponse>(url, {
         params,
         timeout: API_TIMEOUTS.DEFAULT,
       });

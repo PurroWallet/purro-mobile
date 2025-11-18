@@ -37,11 +37,7 @@ async function fetchTransactionsPage(
   pageParam?: NextPageParams,
 ) {
   console.log('🔍 useTransactions - Fetching transactions for address:', address);
-
-  // Set testnet mode
   hyperscanService.setTestnetMode(isTestnet);
-
-  // Fetch token transfers with pagination
   const response = await hyperscanService.fetchTokenTransfers(address, filter, pageParam);
 
   console.log(`✅ useTransactions - Fetched ${response.items.length} transactions`);
@@ -63,16 +59,11 @@ function groupTransactionsByDate(transactions: TokenTransfer[]): TokenTransferGr
 
     let dateKey: string;
 
-    // Check if today
     if (date.toDateString() === today.toDateString()) {
       dateKey = 'Today';
-    }
-    // Check if yesterday
-    else if (date.toDateString() === yesterday.toDateString()) {
+    } else if (date.toDateString() === yesterday.toDateString()) {
       dateKey = 'Yesterday';
-    }
-    // Otherwise use formatted date
-    else {
+    } else {
       dateKey = date.toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
@@ -123,30 +114,6 @@ export interface UseTransactionsReturn {
  * @param filter - Transaction filter ('from', 'to', or 'both')
  * @param isTestnet - Whether to use testnet endpoints (default: false)
  * @returns Transaction data, loading states, error state, and utility functions
- *
- * @example
- * ```tsx
- * const {
- *   transactionGroups,
- *   transactions,
- *   isLoading,
- *   error,
- *   hasNextPage,
- *   fetchNextPage,
- *   refetch
- * } = useTransactions(address, 'both');
- *
- * if (isLoading) return <LoadingSpinner />;
- * if (error) return <ErrorMessage error={error} onRetry={refetch} />;
- *
- * return (
- *   <TransactionList
- *     groups={transactionGroups}
- *     onLoadMore={hasNextPage ? fetchNextPage : undefined}
- *     onRefresh={refetch}
- *   />
- * );
- * ```
  */
 export function useTransactions(
   address: string,
@@ -162,9 +129,9 @@ export function useTransactions(
     enabled: !!address && address.length > 0,
     initialPageParam: undefined as NextPageParams | undefined,
     getNextPageParam: (lastPage) => lastPage.next_page_params ?? undefined,
-    staleTime: 10000, // 10 seconds - transactions change frequently
-    gcTime: 60000, // 1 minute - don't keep stale transaction data too long
-    retry: 2, // Retry failed requests twice
+    staleTime: 10000,
+    gcTime: 60000,
+    retry: 2,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000), // Exponential backoff
   });
 
@@ -197,7 +164,6 @@ export function useTransactions(
    * Refetch transactions from beginning
    */
   const refetch = useCallback(async () => {
-    console.log('🔄 useTransactions - Refetching transactions');
     await queryClient.invalidateQueries({ queryKey });
   }, [queryClient, queryKey]);
 
@@ -234,26 +200,6 @@ export interface UseTransactionDetailsReturn {
  * @param txHash - Transaction hash to fetch details for
  * @param isTestnet - Whether to use testnet endpoints (default: false)
  * @returns Transaction details, loading state, error state, and refetch function
- *
- * @example
- * ```tsx
- * const { transaction, isLoading, error, refetch } = useTransactionDetails(txHash);
- *
- * if (isLoading) return <LoadingSpinner />;
- * if (error) return <ErrorMessage error={error} onRetry={refetch} />;
- * if (!transaction) return null;
- *
- * return (
- *   <TransactionDetails
- *     hash={transaction.hash}
- *     from={transaction.from.hash}
- *     to={transaction.to.hash}
- *     value={transaction.value}
- *     status={transaction.status}
- *     method={transaction.method}
- *     fee={transaction.fee?.value}
- *     timestamp={transaction.timestamp}
- *   />
  * );
  * ```
  */
@@ -267,12 +213,7 @@ export function useTransactionDetails(
   const query = useQuery({
     queryKey,
     queryFn: async () => {
-      console.log('🔍 useTransactionDetails - Fetching transaction details for:', txHash);
-
-      // Set testnet mode
       hyperscanService.setTestnetMode(isTestnet);
-
-      // Fetch transaction details
       const transaction = await hyperscanService.fetchTransactionDetails(txHash);
 
       console.log('✅ useTransactionDetails - Fetched transaction details');

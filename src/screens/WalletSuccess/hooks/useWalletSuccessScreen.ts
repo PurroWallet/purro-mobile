@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/native';
 import { useCallback, useMemo } from 'react';
 import type { WalletSuccessScreenProps } from '@/types/navigation';
 import { useTranslation } from '@/utils/i18n';
@@ -13,9 +14,8 @@ export interface UseWalletSuccessScreenResult {
   onGetStarted: () => void;
 }
 
-export const useWalletSuccessScreen = (
-  navigation: WalletSuccessScreenProps['navigation'],
-): UseWalletSuccessScreenResult => {
+export const useWalletSuccessScreen = (): UseWalletSuccessScreenResult => {
+  const navigation = useNavigation<WalletSuccessScreenProps['navigation']>();
   const { t } = useTranslation();
 
   const onGetStarted = useCallback(() => {

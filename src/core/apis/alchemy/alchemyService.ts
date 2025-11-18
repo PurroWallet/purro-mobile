@@ -3,10 +3,9 @@
  * Handles EVM token balance and metadata fetching for Ethereum, Base, and Arbitrum
  */
 
-import axios from 'axios';
 import { API_TIMEOUTS, getEndpoints, RETRY_CONFIG } from '../endpoints';
 import { ApiError, calculateRetryDelay, createApiError, ErrorType, sleep } from '../errors';
-import { CircuitBreaker, executeWithCircuitBreaker } from './circuitBreaker';
+import { httpClient } from '../httpClient';
 import {
   type AlchemyTokenBalancesRequest,
   type AlchemyTokenBalancesResponse,
@@ -14,15 +13,6 @@ import {
   type TokenBalance,
   type TokenMetadata,
 } from './types';
-
-/**
- * Circuit breakers for each chain
- */
-const circuitBreakers = {
-  ethereum: new CircuitBreaker(),
-  base: new CircuitBreaker(),
-  arbitrum: new CircuitBreaker(),
-};
 
 /**
  * Fetch token balances with retry logic
@@ -42,7 +32,7 @@ export async function fetchTokenBalances(
 
   for (let attempt = 0; attempt < RETRY_CONFIG.MAX_RETRIES; attempt++) {
     try {
-      const response = await axios.post<AlchemyTokenBalancesResponse>(endpoint, request, {
+      const response = await httpClient.post<AlchemyTokenBalancesResponse>(endpoint, request, {
         timeout: API_TIMEOUTS.DEFAULT,
         headers: {
           'Content-Type': 'application/json',
@@ -103,7 +93,7 @@ export async function fetchTokenMetadata(
   };
 
   try {
-    const response = await axios.post(endpoint, request, {
+    const response = await httpClient.post(endpoint, request, {
       timeout: API_TIMEOUTS.METADATA,
       headers: {
         'Content-Type': 'application/json',
@@ -163,10 +153,8 @@ export async function fetchEthereumTokens(
   const endpoint = endpoints.alchemy.ethereum;
 
   try {
-    // Fetch token balances with circuit breaker protection
-    const balances = await executeWithCircuitBreaker(circuitBreakers.ethereum, () =>
-      fetchTokenBalances(endpoint, address),
-    );
+    // Fetch token balances
+    const balances = await fetchTokenBalances(endpoint, address);
 
     // Filter out tokens with zero balance or errors
     const nonZeroBalances = balances.filter(
@@ -209,10 +197,8 @@ export async function fetchBaseTokens(
   const endpoint = endpoints.alchemy.base;
 
   try {
-    // Fetch token balances with circuit breaker protection
-    const balances = await executeWithCircuitBreaker(circuitBreakers.base, () =>
-      fetchTokenBalances(endpoint, address),
-    );
+    // Fetch token balances
+    const balances = await fetchTokenBalances(endpoint, address);
 
     // Filter out tokens with zero balance or errors
     const nonZeroBalances = balances.filter(
@@ -255,10 +241,8 @@ export async function fetchArbitrumTokens(
   const endpoint = endpoints.alchemy.arbitrum;
 
   try {
-    // Fetch token balances with circuit breaker protection
-    const balances = await executeWithCircuitBreaker(circuitBreakers.arbitrum, () =>
-      fetchTokenBalances(endpoint, address),
-    );
+    // Fetch token balances
+    const balances = await fetchTokenBalances(endpoint, address);
 
     // Filter out tokens with zero balance or errors
     const nonZeroBalances = balances.filter(

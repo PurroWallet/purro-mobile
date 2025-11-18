@@ -18,13 +18,12 @@ import type { Token } from '@/core/apis/liquidswap/types';
 import { useThemeMode } from '@/core/hooks/useTheme';
 import { useSwap } from '@/core/hooks/wallet/useSwap';
 import { walletService } from '@/core/services/WalletService';
-import type { UseSwapScreenResult } from '../hooks/useSwapScreen';
+import { useSwapScreen } from '../hooks/useSwapScreen';
 import { SwapRouteInfo } from './SwapRouteInfo';
 import { TokenSelector } from './TokenSelector';
 
-type SwapContentProps = UseSwapScreenResult;
-
-export const SwapContent: React.FC<SwapContentProps> = ({ containerClassName }) => {
+export const SwapContent: React.FC = () => {
+  const { containerClassName } = useSwapScreen();
   const { t } = useTranslation();
   const { themeMode } = useThemeMode();
   const isDarkMode = themeMode === 'dark';

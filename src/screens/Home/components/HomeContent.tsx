@@ -1,4 +1,3 @@
-import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -13,40 +12,40 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import DefaultIcon from '@/assets/common/icon.png';
 import AccountBottomSheet from '@/components/AccountBottomSheet';
 import { Icon } from '@/components/Icon';
-import type { UseHomeScreenResult } from '../hooks/useHomeScreen';
+import { useHomeScreen } from '../hooks/useHomeScreen';
 import ReceiveTokenSheet from './ReceiveTokenSheet';
 import SentTokenSheet from './SendTokenSheet';
 import TokenList from './TokenList';
 
-type HomeContentProps = UseHomeScreenResult;
+const HomeContent = () => {
+  const {
+    accountBottomSheetRef,
+    sentTokenSheetRef,
+    receiveTokenSheetRef,
+    selectedTab,
+    onSelectTab,
+    currentAccount,
+    perpPositions,
+    tokens,
+    totalBalance,
+    totalTokensCount,
+    isLoadingTokens,
+    handleAccountSelect,
+    handleResetWallet,
+    openAccountSheet,
+    openSendSheet,
+    openReceiveSheet,
+    refreshTokens,
+    navigateSearch,
+    evmTokens,
+    isLoadingEvmTokens,
+    evmTokensError,
+    refreshEvmTokens,
+    handleTokenPress,
+    handleSendToken,
+    handleSwapToken,
+  } = useHomeScreen();
 
-const HomeContent: React.FC<HomeContentProps> = ({
-  accountBottomSheetRef,
-  sentTokenSheetRef,
-  receiveTokenSheetRef,
-  selectedTab,
-  onSelectTab,
-  currentAccount,
-  perpPositions,
-  tokens,
-  totalBalance,
-  totalTokensCount,
-  isLoadingTokens,
-  handleAccountSelect,
-  handleResetWallet,
-  openAccountSheet,
-  openSendSheet,
-  openReceiveSheet,
-  refreshTokens,
-  navigateSearch,
-  evmTokens,
-  isLoadingEvmTokens,
-  evmTokensError,
-  refreshEvmTokens,
-  handleTokenPress,
-  handleSendToken,
-  handleSwapToken,
-}) => {
   const { t } = useTranslation();
   const [isRefreshing, setIsRefreshing] = React.useState(false);
   const currentAccountDisplay = currentAccount?.address
@@ -59,7 +58,6 @@ const HomeContent: React.FC<HomeContentProps> = ({
     Perpetuals: t('home.tabs.perpetuals'),
   };
 
-  // Handle pull-to-refresh
   const handleRefresh = async () => {
     setIsRefreshing(true);
     try {

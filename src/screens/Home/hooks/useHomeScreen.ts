@@ -252,6 +252,7 @@ export const useHomeScreen = (): UseHomeScreenResult => {
     (token: TokenWithMetadata, chain: ChainTokenData['chain']) => {
       console.log('Swap token:', token.metadata.symbol, 'on', chain);
       // TODO: Navigate to swap screen with pre-selected token
+      // @ts-ignore
       navigation.navigate('Swap');
     },
     [navigation],

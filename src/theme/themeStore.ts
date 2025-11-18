@@ -17,10 +17,8 @@ interface ThemeState {
 let persistTimeout: NodeJS.Timeout | null = null;
 
 const applyTheme = (mode: ThemeMode, persist: boolean) => {
-  // Apply theme immediately for responsive UI
   globalColorScheme.set(mode);
 
-  // Clear any pending timeout to prevent memory leak
   if (persistTimeout) {
     clearTimeout(persistTimeout);
     persistTimeout = null;

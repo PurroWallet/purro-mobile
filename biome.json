@@ -50,5 +50,12 @@
   },
   "vcs": {
     "useIgnoreFile": true
+  },
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
   }
 }

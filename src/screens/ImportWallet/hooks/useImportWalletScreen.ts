@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/native';
 import { useCallback, useMemo, useState } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import { Alert } from 'react-native';
@@ -46,9 +47,8 @@ export interface UseImportWalletScreenResult {
   onSubmit: () => void;
 }
 
-export const useImportWalletScreen = (
-  navigation: ImportWalletScreenProps['navigation'],
-): UseImportWalletScreenResult => {
+export const useImportWalletScreen = (): UseImportWalletScreenResult => {
+  const navigation = useNavigation<ImportWalletScreenProps['navigation']>();
   const { t } = useTranslation();
   const [isImporting, setIsImporting] = useState(false);
 

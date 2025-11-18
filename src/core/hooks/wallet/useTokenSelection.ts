@@ -3,8 +3,8 @@
  * Custom hook for managing token selection in swap operations
  */
 
-import { useCallback, useEffect, useState } from 'react';
-import type { ApiError } from '@/core/apis/errors';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { liquidswapService } from '@/core/apis/liquidswap/liquidswapService';
 import type { Token, TokenBalance } from '@/core/apis/liquidswap/types';
 
@@ -15,153 +15,137 @@ export interface UseTokenSelectionReturn {
   // Token list state
   tokens: Token[];
   isLoadingTokens: boolean;
-  tokensError: ApiError | null;
+  tokensError: Error | null;
 
   // Token balances state
   balances: TokenBalance[];
   isLoadingBalances: boolean;
-  balancesError: ApiError | null;
+  balancesError: Error | null;
 
   // Search state
   searchQuery: string;
   setSearchQuery: (query: string) => void;
 
   // Actions
-  fetchTokens: (search?: string, limit?: number) => Promise<void>;
-  fetchBalances: (wallet: string, limit?: number) => Promise<void>;
-  refetchTokens: () => Promise<void>;
-  refetchBalances: () => Promise<void>;
+  refetchTokens: () => void;
+  refetchBalances: () => void;
 }
+
+/**
+ * Hook parameters
+ */
+export interface UseTokenSelectionParams {
+  wallet?: string;
+  limit?: number;
+  enableBalances?: boolean;
+}
+
+const TOKEN_SELECTION_QUERY_KEY = 'token_selection';
+const TOKEN_BALANCES_QUERY_KEY = 'token_balances';
 
 /**
  * Custom hook for token selection
  */
-export const useTokenSelection = (): UseTokenSelectionReturn => {
-  // Token list state
-  const [tokens, setTokens] = useState<Token[]>([]);
-  const [isLoadingTokens, setIsLoadingTokens] = useState(false);
-  const [tokensError, setTokensError] = useState<ApiError | null>(null);
+export const useTokenSelection = (
+  params: UseTokenSelectionParams = {},
+): UseTokenSelectionReturn => {
+  const { wallet, limit = 100, enableBalances = false } = params;
+  const queryClient = useQueryClient();
 
-  // Token balances state
-  const [balances, setBalances] = useState<TokenBalance[]>([]);
-  const [isLoadingBalances, setIsLoadingBalances] = useState(false);
-  const [balancesError, setBalancesError] = useState<ApiError | null>(null);
-
-  // Search state
+  // Search state with debouncing
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Last fetch params for refetch
-  const [lastTokenFetchParams, setLastTokenFetchParams] = useState<{
-    search?: string;
-    limit?: number;
-  }>({});
-  const [lastBalanceFetchParams, setLastBalanceFetchParams] = useState<{
-    wallet?: string;
-    limit?: number;
-  }>({});
+  // Debounce search query
+  useEffect(() => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
 
-  /**
-   * Fetch available tokens for swapping
-   */
-  const fetchTokens = useCallback(async (search?: string, limit?: number): Promise<void> => {
-    setIsLoadingTokens(true);
-    setTokensError(null);
+    debounceTimerRef.current = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 300);
 
-    // Store params for refetch
-    setLastTokenFetchParams({ search, limit });
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, [searchQuery]);
 
-    try {
+  // React Query for tokens list
+  const tokensQuery = useQuery({
+    queryKey: [TOKEN_SELECTION_QUERY_KEY, debouncedSearch, limit],
+    queryFn: async () => {
+      console.log('Fetching tokens - search:', debouncedSearch, 'limit:', limit);
+
       const response = await liquidswapService.fetchTokens({
-        search,
+        search: debouncedSearch || undefined,
         limit,
       });
 
-      setTokens(response.tokens);
-      setTokensError(null);
-    } catch (error) {
-      console.error('Failed to fetch tokens:', error);
-      setTokens([]);
-      setTokensError(error as ApiError);
-    } finally {
-      setIsLoadingTokens(false);
-    }
-  }, []);
+      console.log('Fetched tokens:', response.tokens.length);
+      return response.tokens;
+    },
+    staleTime: 60000, // 1 minute - token list is relatively stable
+    gcTime: 300000, // 5 minutes
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000),
+  });
 
-  /**
-   * Fetch token balances for a wallet
-   */
-  const fetchBalances = useCallback(async (wallet: string, limit?: number): Promise<void> => {
-    if (!wallet || wallet.trim() === '') {
-      setBalancesError({
-        type: 'VALIDATION_ERROR',
-        message: 'Wallet address is required',
-      } as ApiError);
-      return;
-    }
+  // React Query for token balances
+  const balancesQuery = useQuery({
+    queryKey: [TOKEN_BALANCES_QUERY_KEY, wallet, limit],
+    queryFn: async () => {
+      if (!wallet || wallet.trim() === '') {
+        throw new Error('Wallet address is required');
+      }
 
-    setIsLoadingBalances(true);
-    setBalancesError(null);
+      console.log('Fetching balances for wallet:', wallet);
 
-    // Store params for refetch
-    setLastBalanceFetchParams({ wallet, limit });
-
-    try {
       const response = await liquidswapService.fetchBalances(wallet, limit);
 
-      setBalances(response.balances);
-      setBalancesError(null);
-    } catch (error) {
-      console.error('Failed to fetch balances:', error);
-      setBalances([]);
-      setBalancesError(error as ApiError);
-    } finally {
-      setIsLoadingBalances(false);
-    }
-  }, []);
+      console.log('Fetched balances:', response.balances.length);
+      return response.balances;
+    },
+    enabled: enableBalances && !!wallet && wallet.trim() !== '',
+    staleTime: 30000, // 30 seconds - balances change more frequently
+    gcTime: 120000, // 2 minutes
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000),
+  });
 
   /**
-   * Refetch tokens with last used parameters
+   * Refetch tokens
    */
-  const refetchTokens = useCallback(async (): Promise<void> => {
-    await fetchTokens(lastTokenFetchParams.search, lastTokenFetchParams.limit);
-  }, [fetchTokens, lastTokenFetchParams]);
+  const refetchTokens = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: [TOKEN_SELECTION_QUERY_KEY] });
+  }, [queryClient]);
 
   /**
-   * Refetch balances with last used parameters
+   * Refetch balances
    */
-  const refetchBalances = useCallback(async (): Promise<void> => {
-    if (lastBalanceFetchParams.wallet) {
-      await fetchBalances(lastBalanceFetchParams.wallet, lastBalanceFetchParams.limit);
-    }
-  }, [fetchBalances, lastBalanceFetchParams]);
-
-  /**
-   * Fetch tokens when search query changes (with debouncing handled by caller)
-   */
-  useEffect(() => {
-    if (searchQuery) {
-      fetchTokens(searchQuery);
-    }
-  }, [searchQuery, fetchTokens]);
+  const refetchBalances = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: [TOKEN_BALANCES_QUERY_KEY] });
+  }, [queryClient]);
 
   return {
     // Token list state
-    tokens,
-    isLoadingTokens,
-    tokensError,
+    tokens: tokensQuery.data ?? [],
+    isLoadingTokens: tokensQuery.isLoading,
+    tokensError: tokensQuery.error instanceof Error ? tokensQuery.error : null,
 
     // Token balances state
-    balances,
-    isLoadingBalances,
-    balancesError,
+    balances: balancesQuery.data ?? [],
+    isLoadingBalances: balancesQuery.isLoading,
+    balancesError: balancesQuery.error instanceof Error ? balancesQuery.error : null,
 
     // Search state
     searchQuery,
     setSearchQuery,
 
     // Actions
-    fetchTokens,
-    fetchBalances,
     refetchTokens,
     refetchBalances,
   };

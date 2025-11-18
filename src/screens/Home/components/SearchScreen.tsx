@@ -1,5 +1,5 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
   ActivityIndicator,
   Image as RNImage,
@@ -12,78 +12,21 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import DefaultIcon from '@/assets/common/icon.png';
 import { Icon } from '@/components/Icon';
-import { type TokenData, tokenService } from '@/core/services/TokenService';
+import { useSearchScreen } from '../hooks/useSearchScreen';
 
 const SearchScreen = () => {
   const navigation = useNavigation();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [tokens, setTokens] = useState<TokenData[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(false);
-
-  useEffect(() => {
-    loadTokens();
-  }, []);
-
-  useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      loadTokens(true);
-    }, 500);
-
-    return () => clearTimeout(delayDebounceFn);
-  }, [searchQuery]);
-
-  const loadTokens = async (resetPage = false) => {
-    try {
-      setLoading(true);
-      const currentPage = resetPage ? 1 : page;
-
-      const response = await tokenService.fetchTokens({
-        network: 'hyperliquid',
-        search: searchQuery,
-        page: currentPage,
-        limit: 20,
-      });
-
-      console.log('response', response);
-
-      if (resetPage) {
-        // setTokens(response.tokens);
-        setPage(1);
-      } else {
-        // setTokens((prev) => [...prev, ...response.tokens]);
-      }
-
-      // setHasMore(response.hasMore);
-    } catch (error) {
-      console.error('Failed to load tokens:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleRefresh = () => {
-    setPage(1);
-    loadTokens(true);
-  };
-
-  const formatNumber = (num: number): string => {
-    if (num >= 1000000) {
-      return `${(num / 1000000).toFixed(1)}M`;
-    }
-    if (num >= 1000) {
-      return `${(num / 1000).toFixed(1)}k`;
-    }
-    return num.toString();
-  };
-
-  const handleLoadMore = () => {
-    if (!loading && hasMore) {
-      setPage((prev) => prev + 1);
-      loadTokens();
-    }
-  };
+  const {
+    searchQuery,
+    setSearchQuery,
+    tokens,
+    isLoading,
+    isFetchingNextPage,
+    hasNextPage,
+    handleRefresh,
+    handleLoadMore,
+    formatNumber,
+  } = useSearchScreen();
 
   return (
     <SafeAreaView className="flex-1 bg-primary dark:bg-primary">
@@ -105,7 +48,7 @@ const SearchScreen = () => {
           <TouchableOpacity
             onPress={handleRefresh}
             className="w-10 h-10 items-center justify-center"
-            disabled={loading}
+            disabled={isLoading}
           >
             <Icon name="refresh-cw" size={20} />
           </TouchableOpacity>
@@ -123,7 +66,7 @@ const SearchScreen = () => {
         </View>
       </View>
 
-      {loading && tokens.length === 0 ? (
+      {isLoading && tokens.length === 0 ? (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color="#3B82F6" />
           <Text className="text-text-secondary text-sm mt-4">Loading tokens...</Text>
@@ -176,13 +119,13 @@ const SearchScreen = () => {
             </TouchableOpacity>
           ))}
 
-          {tokens.length === 0 && !loading && (
+          {tokens.length === 0 && !isLoading && (
             <View className="items-center justify-center py-20">
               <Text className="text-text-secondary text-base">No tokens found</Text>
             </View>
           )}
 
-          {loading && tokens.length > 0 && (
+          {isFetchingNextPage && (
             <View className="items-center justify-center py-4">
               <ActivityIndicator size="small" color="#3B82F6" />
             </View>

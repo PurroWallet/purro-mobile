@@ -1,14 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import type { UseFormReturn } from 'react-hook-form';
 import { FormProvider } from 'react-hook-form';
 import { Alert, ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, PasswordInputForm } from '@/components';
 import { walletService } from '@/core/services';
-import type {
-  SeedPhraseBackupFormValues,
-  SeedPhraseBackupStrings,
-} from '../hooks/useSeedPhraseBackupScreen';
+import { useSeedPhraseBackupScreen } from '../hooks/useSeedPhraseBackupScreen';
 
 interface HDKeyringInfo {
   id: string;
@@ -16,21 +12,8 @@ interface HDKeyringInfo {
   accounts: Array<{ address: string; index: number }>;
 }
 
-interface SeedPhraseBackupContentProps {
-  form: UseFormReturn<SeedPhraseBackupFormValues>;
-  strings: SeedPhraseBackupStrings;
-  isUnlocking: boolean;
-  isSubmitDisabled: boolean;
-  onSubmit: () => void;
-}
-
-export const SeedPhraseBackupContent: React.FC<SeedPhraseBackupContentProps> = ({
-  form,
-  strings,
-  isUnlocking,
-  isSubmitDisabled,
-  onSubmit,
-}) => {
+export const SeedPhraseBackupContent: React.FC = () => {
+  const { form, strings, isUnlocking, isSubmitDisabled, onSubmit } = useSeedPhraseBackupScreen();
   const [hdKeyrings, setHdKeyrings] = useState<HDKeyringInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedKeyring, setSelectedKeyring] = useState<HDKeyringInfo | null>(null);

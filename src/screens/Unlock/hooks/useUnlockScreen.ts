@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import { apisKeychain, apisLock } from '@/core/apis';
@@ -21,9 +22,8 @@ export interface UseUnlockScreenResult {
   onSubmit: () => void;
 }
 
-export const useUnlockScreen = (
-  navigation: UnlockScreenProps['navigation'],
-): UseUnlockScreenResult => {
+export const useUnlockScreen = (): UseUnlockScreenResult => {
+  const navigation = useNavigation<UnlockScreenProps['navigation']>();
   const { t } = useTranslation();
   const [biometricAttempted, setBiometricAttempted] = useState(false);
   const { computed, fetchBiometrics } = useBiometrics({ autoFetch: true });
