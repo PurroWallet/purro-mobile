@@ -3,10 +3,13 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useEffect, useState } from 'react';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
+import { NetworkLogos } from '@/assets';
 import DefaultIcon from '@/assets/common/icon.png';
 import { Button } from '@/components';
 import { Icon } from '@/components/Icon';
 import { walletController } from '@/core/controllers/WalletController';
+import type { NetworkId } from '@/stores/networkStore';
+import { useNetworkStore } from '@/stores/networkStore';
 import { formatAddress } from '@/utils/address';
 import type { AccountStackParamList } from '../AccountStackNavigator';
 import BaseScreen from '../components/BaseScreen';
@@ -27,10 +30,10 @@ interface Account {
 }
 
 interface Network {
-  id: string;
+  id: NetworkId;
   name: string;
   address: string;
-  icon: string;
+  logo: any;
 }
 
 const AccountListScreen: React.FC<Props> = ({
@@ -43,32 +46,33 @@ const AccountListScreen: React.FC<Props> = ({
   const navigation =
     useNavigation<NativeStackNavigationProp<AccountStackParamList, 'AccountList'>>();
   const [accounts, setAccounts] = useState<Account[]>([]);
+  const { selectedNetworks, toggleNetwork, isNetworkSelected, isAllSelected, selectAllNetworks } =
+    useNetworkStore();
 
-  // Mock networks data based on Figma design
   const networks: Network[] = [
     {
       id: 'hyperliquid',
       name: 'Hyperliquid',
       address: '0xe835...dE81',
-      icon: 'network',
+      logo: NetworkLogos.hyperliquid,
     },
     {
       id: 'ethereum',
       name: 'Ethereum',
       address: '0xe835...dE81',
-      icon: 'network',
+      logo: NetworkLogos.ethereum,
     },
     {
       id: 'arbitrum',
       name: 'Arbitrum',
       address: '0xe835...dE81',
-      icon: 'network',
+      logo: NetworkLogos.arbitrum,
     },
     {
       id: 'base',
       name: 'Base',
       address: '0xe835...dE81',
-      icon: 'network',
+      logo: NetworkLogos.base,
     },
   ];
 
@@ -77,10 +81,6 @@ const AccountListScreen: React.FC<Props> = ({
       loadAccounts();
     }, []),
   );
-
-  useEffect(() => {
-    // Reload when currentAccount changes
-  }, [currentAccount]);
 
   const loadAccounts = async () => {
     try {
@@ -99,22 +99,11 @@ const AccountListScreen: React.FC<Props> = ({
   };
 
   const handleAddAccount = () => {
-    // Call the callback if provided
     onAddAccount?.();
-    console.log('📝 AccountListScreen: Navigating to AddAccount with current account...');
-    console.log(
-      '📍 Current account:',
-      currentAccount?.aliasName ||
-        currentAccount?.address?.substring(0, 10) + '...' ||
-        'No current account',
-    );
-
-    // Navigate to AddAccount screen
     try {
       navigation.navigate('AddAccount');
     } catch (error) {
       console.log('Navigation to AddAccount failed:', error);
-      // Fallback: call onAddAccount if provided
       onAddAccount?.();
     }
   };
@@ -154,30 +143,59 @@ const AccountListScreen: React.FC<Props> = ({
       <BottomSheetScrollView className="w-full" contentContainerClassName="pb-5">
         {/* Networks Section */}
         <View className="rounded-2xl bg-background-secondary/60 px-5 py-4">
-          {networks.map((network, index) => (
-            <View key={network.id}>
-              <TouchableOpacity
-                className={`flex-row items-center justify-between py-4 ${
-                  index < networks.length - 1 ? 'border-b border-gray-700' : ''
+          {/* Select All Option */}
+          <TouchableOpacity
+            className="flex-row items-center justify-between py-4 border-b border-gray-700"
+            onPress={selectAllNetworks}
+          >
+            <View className="flex-1 flex-row items-center gap-4">
+              <View className="w-6 h-6 items-center justify-center">
+                <Icon name="Globe" size={16} />
+              </View>
+              <View className="flex-1 flex-row items-center gap-2.5 px-3">
+                <Text className="text-base font-semibold text-text-primary">All Networks</Text>
+              </View>
+              <View
+                className={`h-5 w-5 items-center justify-center rounded ${
+                  isAllSelected() ? 'bg-brand-primary' : 'border-2 border-gray-600'
                 }`}
               >
-                <View className="flex-1 flex-row items-center gap-4">
-                  <View className="h-4 w-4 items-center justify-center rounded-full bg-brand-light">
-                    <View className="h-2 w-2 rounded-full bg-brand-primary" />
-                  </View>
-                  <View className="flex-1 flex-row items-center gap-2.5 px-3">
-                    <Text className="text-base text-text-primary">{network.name}</Text>
-                    <Text className="flex-1 text-right text-base text-text-secondary">
-                      {network.address}
-                    </Text>
-                  </View>
-                  <View className="h-4 w-4 items-center justify-center">
-                    <Icon name="ChevronRight" size={16} />
-                  </View>
-                </View>
-              </TouchableOpacity>
+                {isAllSelected() && <Icon name="Check" size={14} color="#fff" />}
+              </View>
             </View>
-          ))}
+          </TouchableOpacity>
+
+          {/* Individual Networks */}
+          {networks.map((network, index) => {
+            const isSelected = isNetworkSelected(network.id);
+            return (
+              <View key={network.id}>
+                <TouchableOpacity
+                  className={`flex-row items-center justify-between py-4 ${
+                    index < networks.length - 1 ? 'border-b border-gray-700' : ''
+                  }`}
+                  onPress={() => toggleNetwork(network.id)}
+                >
+                  <View className="flex-1 flex-row items-center gap-4">
+                    <Image source={network.logo} className="w-6 h-6" resizeMode="contain" />
+                    <View className="flex-1 flex-row items-center gap-2.5 px-3">
+                      <Text className="text-base text-text-primary">{network.name}</Text>
+                      <Text className="flex-1 text-right text-base text-text-secondary">
+                        {network.address}
+                      </Text>
+                    </View>
+                    <View
+                      className={`h-5 w-5 items-center justify-center rounded ${
+                        isSelected ? 'bg-brand-primary' : 'border-2 border-gray-600'
+                      }`}
+                    >
+                      {isSelected && <Icon name="Check" size={14} color="#fff" />}
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            );
+          })}
         </View>
 
         {/* Your Accounts Section */}
@@ -220,7 +238,7 @@ const AccountListScreen: React.FC<Props> = ({
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                     className="h-8 w-8 items-center justify-center"
                   >
-                    <Icon name="Edit2" size={20} />
+                    <Icon name="Edit2" size={16} />
                   </TouchableOpacity>
                 </TouchableOpacity>
               );

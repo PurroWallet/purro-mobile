@@ -64,7 +64,7 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ transaction, onPress 
       activeOpacity={0.7}
     >
       <View className="w-10 h-10 rounded-full justify-center items-center bg-background-secondary">
-        <Icon size={20} color={iconColor} />
+        <Icon size={16} color={iconColor} />
       </View>
 
       <View className="ml-3 flex-1">

@@ -18,7 +18,7 @@ const Header: React.FC<HeaderProps> = ({ onFilterPress }) => {
         className="w-10 h-10 items-center justify-center rounded-lg bg-background-secondary"
         activeOpacity={0.7}
       >
-        <Filter size={20} color="#059288" />
+        <Filter size={16} color="#059288" />
       </TouchableOpacity>
     </View>
   );

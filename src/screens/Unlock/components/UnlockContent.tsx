@@ -17,7 +17,7 @@ export const UnlockContent: React.FC = () => {
         <Text className="text-center text-h4 text-primary">{strings.title}</Text>
       </View>
 
-      <View className="px-5 pb-10">
+      <View className="px-5 pb-2">
         <FormProvider {...form}>
           <View className="gap-4">
             <PasswordInputForm

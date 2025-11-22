@@ -12,7 +12,7 @@ class HttpClient {
       baseURL,
       timeout: DEFAULT_TIMEOUT,
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json, text/plain, */*',
       },
     });
 

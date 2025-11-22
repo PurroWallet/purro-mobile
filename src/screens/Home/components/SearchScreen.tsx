@@ -50,14 +50,14 @@ const SearchScreen = () => {
             className="w-10 h-10 items-center justify-center"
             disabled={isLoading}
           >
-            <Icon name="refresh-cw" size={20} />
+            <Icon name="refresh-cw" size={16} />
           </TouchableOpacity>
         </View>
 
         <View className="flex-row items-center bg-background-secondary rounded-xl px-4 py-3">
-          <Icon name="search" size={20} className="mr-2" />
+          <Icon name="search" size={16} className="mr-2" />
           <TextInput
-            className="flex-1 text-text-primary text-base"
+            className="flex-1 text-text-primary"
             placeholder="Search tokens…"
             placeholderTextColor="#9CA3AF"
             value={searchQuery}

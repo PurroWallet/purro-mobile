@@ -5,6 +5,7 @@ import {
   ENDPOINTS_TOKEN,
   type NetworkType,
 } from '@/constants/networks';
+import { httpClient } from '@/core/apis/httpClient';
 import { networkProviderService } from './NetworkProviderService';
 
 /**
@@ -182,15 +183,11 @@ export class TokenService {
         return cached.price;
       }
 
-      const response = await fetch(
+      const response = await httpClient.get(
         `${API_ENDPOINTS.COINGECKO_API}/simple/price?ids=${tokenId}&vs_currencies=usd`,
       );
 
-      if (!response.ok) {
-        throw new Error(`CoinGecko API error: ${response.status}`);
-      }
-
-      const data = await response.json();
+      const data = response.data;
       const price = data[tokenId]?.usd || 0;
 
       // Cache the price
@@ -214,15 +211,11 @@ export class TokenService {
         return cached.price;
       }
 
-      const response = await fetch(
+      const response = await httpClient.get(
         `${API_ENDPOINTS.COINGECKO_API}/simple/token_price/ethereum?contract_addresses=${tokenAddress}&vs_currencies=usd`,
       );
 
-      if (!response.ok) {
-        throw new Error(`CoinGecko API error: ${response.status}`);
-      }
-
-      const data = await response.json();
+      const data = response.data;
       const price = data[tokenAddress.toLowerCase()]?.usd || 0;
 
       // Cache the price
@@ -240,15 +233,11 @@ export class TokenService {
    */
   async getMultipleTokenPrices(tokenIds: string[]): Promise<TokenPriceData> {
     try {
-      const response = await fetch(
+      const response = await httpClient.get(
         `${API_ENDPOINTS.COINGECKO_API}/simple/price?ids=${tokenIds.join(',')}&vs_currencies=usd&include_24hr_change=true`,
       );
 
-      if (!response.ok) {
-        throw new Error(`CoinGecko API error: ${response.status}`);
-      }
-
-      const data = await response.json();
+      const data = response.data;
 
       // Cache all prices
       for (const [tokenId, priceData] of Object.entries(data)) {
@@ -369,15 +358,10 @@ export class TokenService {
     try {
       const { network, search = '', page = 1, limit = 20 } = request;
 
-      const response = await fetch(
+      const response = await httpClient.get(
         `${ENDPOINTS_TOKEN.LIQUID_SWAP}/tokens?network=${network}&search=${encodeURIComponent(search)}&page=${page}&limit=${limit}`,
       );
-
-      if (!response.ok) {
-        throw new Error(`Hyperliquid API error: ${response.status}`);
-      }
-
-      const data = await response.json();
+      const data = response.data.data;
 
       return {
         tokens: data.tokens || [],

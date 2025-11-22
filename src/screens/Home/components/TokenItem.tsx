@@ -87,7 +87,7 @@ const TokenItem: React.FC<TokenItemProps> = ({ token, chain, onPress, onSend, on
           style={{ width: ACTION_WIDTH }}
           onPress={() => handleActionPress('send')}
         >
-          <Icon name="send" size={20} color="white" />
+          <Icon name="send" size={16} color="white" />
           <Text className="text-white text-xs mt-1">
             {t('home.send', { defaultValue: 'Send' })}
           </Text>
@@ -97,7 +97,7 @@ const TokenItem: React.FC<TokenItemProps> = ({ token, chain, onPress, onSend, on
           style={{ width: ACTION_WIDTH }}
           onPress={() => handleActionPress('swap')}
         >
-          <Icon name="repeat" size={20} color="white" />
+          <Icon name="repeat" size={16} color="white" />
           <Text className="text-white text-xs mt-1">
             {t('home.swap', { defaultValue: 'Swap' })}
           </Text>

@@ -129,7 +129,7 @@ const EditAccountScreen: React.FC = () => {
         onPress={handleDeleteAccount}
         className="flex-row items-center justify-center gap-2 rounded-xl bg-background-secondary py-4"
       >
-        <Icon name="Trash2" size={20} color="rgb(var(--color-system-error))" />
+        <Icon name="Trash2" size={16} color="rgb(var(--color-system-error))" />
         <Text className="text-base font-medium text-system-error">
           {t('accountBottomSheet.delete')}
         </Text>
@@ -170,7 +170,7 @@ const EditAccountScreen: React.FC = () => {
                 {account.aliasName || 'Unnamed'}
               </Text>
             </View>
-            <Icon name="ChevronRight" size={20} />
+            <Icon name="ChevronRight" size={16} />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -182,7 +182,7 @@ const EditAccountScreen: React.FC = () => {
                 {t('accountBottomSheet.showPrivateKey')}
               </Text>
             </View>
-            <Icon name="ChevronRight" size={20} />
+            <Icon name="ChevronRight" size={16} />
           </TouchableOpacity>
         </View>
       </BottomSheetScrollView>

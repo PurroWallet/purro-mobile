@@ -121,7 +121,7 @@ export const SwapRouteInfo: React.FC<SwapRouteInfoProps> = ({
         }`}
       >
         <View className="flex-row items-center mb-3">
-          <Icon name="AlertCircle" size={20} color="#EF4444" />
+          <Icon name="AlertCircle" size={16} color="#EF4444" />
           <Text className="ml-2 text-sm text-system-error flex-1">{error}</Text>
         </View>
         {onRetry && (

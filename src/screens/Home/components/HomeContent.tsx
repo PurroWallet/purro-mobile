@@ -222,7 +222,7 @@ const HomeContent = () => {
               ))}
             </View>
 
-            <Icon name="chevron-down" size={20} />
+            <Icon name="chevron-down" size={16} />
           </View>
 
           {/* Show new TokenList for EVM tab */}

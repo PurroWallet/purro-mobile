@@ -5,6 +5,7 @@
 
 import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
+import { etherscanService } from '@/core/apis/etherscan/etherscanService';
 import { hyperscanService } from '@/core/apis/hyperscan/hyperscanService';
 import type {
   NextPageParams,
@@ -17,14 +18,26 @@ import type {
 const TRANSACTIONS_QUERY_KEY_PREFIX = 'wallet_transactions';
 
 /**
+ * Transaction data source type
+ */
+export type TransactionDataSource = 'hyperscan' | 'etherscan';
+
+/**
  * Generate query key for transactions
  */
 function getTransactionsQueryKey(
   address: string,
   filter: TransactionFilter,
   isTestnet: boolean = false,
+  dataSource: TransactionDataSource = 'hyperscan',
 ): string[] {
-  return [TRANSACTIONS_QUERY_KEY_PREFIX, address, filter, isTestnet ? 'testnet' : 'mainnet'];
+  return [
+    TRANSACTIONS_QUERY_KEY_PREFIX,
+    address,
+    filter,
+    isTestnet ? 'testnet' : 'mainnet',
+    dataSource,
+  ];
 }
 
 /**
@@ -34,13 +47,25 @@ async function fetchTransactionsPage(
   address: string,
   filter: TransactionFilter,
   isTestnet: boolean,
+  dataSource: TransactionDataSource,
   pageParam?: NextPageParams,
 ) {
-  console.log('🔍 useTransactions - Fetching transactions for address:', address);
-  hyperscanService.setTestnetMode(isTestnet);
-  const response = await hyperscanService.fetchTokenTransfers(address, filter, pageParam);
+  console.log(
+    `🔍 useTransactions - Fetching transactions from ${dataSource} for address:`,
+    address,
+  );
 
-  console.log(`✅ useTransactions - Fetched ${response.items.length} transactions`);
+  let response;
+  if (dataSource === 'etherscan') {
+    response = await etherscanService.fetchTokenTransfers(address, filter, pageParam);
+  } else {
+    hyperscanService.setTestnetMode(isTestnet);
+    response = await hyperscanService.fetchTokenTransfers(address, filter, pageParam);
+  }
+
+  console.log(
+    `✅ useTransactions - Fetched ${response.items.length} transactions from ${dataSource}`,
+  );
 
   return response;
 }
@@ -113,19 +138,22 @@ export interface UseTransactionsReturn {
  * @param address - Wallet address to fetch transactions for
  * @param filter - Transaction filter ('from', 'to', or 'both')
  * @param isTestnet - Whether to use testnet endpoints (default: false)
+ * @param dataSource - Data source to use ('hyperscan' or 'etherscan', default: 'hyperscan')
  * @returns Transaction data, loading states, error state, and utility functions
  */
 export function useTransactions(
   address: string,
   filter: TransactionFilter = 'both',
   isTestnet: boolean = false,
+  dataSource: TransactionDataSource = 'hyperscan',
 ): UseTransactionsReturn {
   const queryClient = useQueryClient();
-  const queryKey = getTransactionsQueryKey(address, filter, isTestnet);
+  const queryKey = getTransactionsQueryKey(address, filter, isTestnet, dataSource);
 
   const query = useInfiniteQuery({
     queryKey,
-    queryFn: ({ pageParam }) => fetchTransactionsPage(address, filter, isTestnet, pageParam),
+    queryFn: ({ pageParam }) =>
+      fetchTransactionsPage(address, filter, isTestnet, dataSource, pageParam),
     enabled: !!address && address.length > 0,
     initialPageParam: undefined as NextPageParams | undefined,
     getNextPageParam: (lastPage) => lastPage.next_page_params ?? undefined,

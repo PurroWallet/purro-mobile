@@ -23,6 +23,6 @@ export const ImportOption: React.FC<ImportOptionProps> = ({ icon, title, subtitl
       <Text className="text-[16px] font-semibold text-text-primary">{title}</Text>
       <Text className="mt-1 text-[14px] text-text-secondary">{subtitle}</Text>
     </View>
-    <Icon name="ArrowRight" size={20} color={Colors.brand.primary} />
+    <Icon name="ArrowRight" size={16} color={Colors.brand.primary} />
   </TouchableOpacity>
 );

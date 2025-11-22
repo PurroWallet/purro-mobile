@@ -6,8 +6,6 @@ import { useThemeMode } from '@/core/hooks/useTheme';
 const CustomBackground: React.FC<BottomSheetBackgroundProps> = ({ style }) => {
   const { themeMode } = useThemeMode();
 
-  console.log(themeMode);
-
   return (
     <Animated.View
       pointerEvents="none"

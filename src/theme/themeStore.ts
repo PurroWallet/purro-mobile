@@ -24,7 +24,6 @@ const applyTheme = (mode: ThemeMode, persist: boolean) => {
     persistTimeout = null;
   }
 
-  // Debounce disk writes to reduce I/O
   if (persist) {
     persistTimeout = setTimeout(() => {
       preferenceService.setPreference('themeMode', mode);

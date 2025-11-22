@@ -11,6 +11,9 @@ export interface NextPageParams {
   token_type?: string;
   items_count?: number;
   token_id?: string;
+  // Etherscan pagination
+  page?: number;
+  offset?: number;
 }
 
 /**

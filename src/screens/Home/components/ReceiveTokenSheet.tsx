@@ -9,9 +9,10 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Image, Text, TouchableOpacity, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import { useToast } from 'react-native-toast-notifications';
+import { NetworkLogos } from '@/assets';
 import { Button } from '@/components';
 import CustomBackground from '@/components/AccountBottomSheet/CustomBackground';
 import { useTranslation } from '@/utils/i18n';
@@ -26,7 +27,7 @@ interface Account {
 interface Network {
   id: string;
   name: string;
-  icon: React.ReactNode;
+  logo: any;
 }
 
 interface ReceiveTokenSheetProps {
@@ -54,10 +55,10 @@ const ReceiveTokenSheet = forwardRef<ReceiveTokenSheetRef, ReceiveTokenSheetProp
     // Available networks
     const networks = useMemo(
       () => [
-        { id: '1', name: 'HyperEVM' },
-        { id: '2', name: 'Ethereum' },
-        { id: '3', name: 'Base' },
-        { id: '4', name: 'Arbitrum' },
+        { id: '1', name: 'HyperEVM', logo: NetworkLogos.hyperliquid },
+        { id: '2', name: 'Ethereum', logo: NetworkLogos.ethereum },
+        { id: '3', name: 'Base', logo: NetworkLogos.base },
+        { id: '4', name: 'Arbitrum', logo: NetworkLogos.arbitrum },
       ],
       [],
     ) as Network[];
@@ -95,7 +96,6 @@ const ReceiveTokenSheet = forwardRef<ReceiveTokenSheetRef, ReceiveTokenSheetProp
       [],
     );
 
-    // Custom background
     const renderBackground = useCallback((props: any) => <CustomBackground {...props} />, []);
 
     // Handle copy address to clipboard
@@ -199,7 +199,9 @@ const ReceiveTokenSheet = forwardRef<ReceiveTokenSheetRef, ReceiveTokenSheetProp
                     className="flex-row items-center p-6 rounded-xl w-full bg-background-secondary"
                     onPress={() => setSelectedNetwork(network.name)}
                   >
-                    {network?.icon && <Text className="text-2xl">{network?.icon}</Text>}
+                    {network?.logo && (
+                      <Image source={network.logo} className="w-8 h-8" resizeMode="contain" />
+                    )}
                     <View className="flex-1 ml-4">
                       <Text className="text-lg font-normal text-text-primary">{network.name}</Text>
                       <Text className="text-sm text-text-secondary">
@@ -231,7 +233,13 @@ const ReceiveTokenSheet = forwardRef<ReceiveTokenSheetRef, ReceiveTokenSheetProp
 
               <View className="items-center justify-center gap-5 px-20 w-full">
                 <View className="flex-row items-center gap-2.5">
-                  <Text className="text-2xl">{selectedNetworkData?.icon}</Text>
+                  {selectedNetworkData?.logo && (
+                    <Image
+                      source={selectedNetworkData.logo}
+                      className="w-8 h-8"
+                      resizeMode="contain"
+                    />
+                  )}
                   <Text className="text-2xl font-medium text-text-primary">
                     {selectedNetworkData?.name}
                   </Text>
@@ -242,24 +250,28 @@ const ReceiveTokenSheet = forwardRef<ReceiveTokenSheetRef, ReceiveTokenSheetProp
                 <View className="mt-5 p-2.5 bg-white rounded-[20px]">
                   <QRCode
                     value={currentAccountAddress}
-                    size={200}
+                    size={300}
                     backgroundColor="#FFFFFF"
                     color="#000000"
                   />
                 </View>
-                <View className="flex-row justify-center gap-7 mt-5">
-                  <TouchableOpacity
-                    className="flex-row items-center gap-2.5"
-                    onPress={handleSaveQR}
-                  >
-                    <Text className="text-sm text-text-primary">{t('receiveToken.saveQR')}</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    className="flex-row items-center gap-2.5"
-                    onPress={handleCopyAddress}
-                  >
-                    <Text className="text-sm text-text-primary">{t('receiveToken.copy')}</Text>
-                  </TouchableOpacity>
+                <View className="flex-row justify-center gap-3 mt-5 w-full px-6">
+                  <View className="flex-1">
+                    <Button
+                      type="secondary"
+                      size="md"
+                      title={t('receiveToken.saveQR')}
+                      onPress={handleSaveQR}
+                    />
+                  </View>
+                  <View className="flex-1">
+                    <Button
+                      type="secondary"
+                      size="md"
+                      title={t('receiveToken.copy')}
+                      onPress={handleCopyAddress}
+                    />
+                  </View>
                 </View>
               </View>
             </>

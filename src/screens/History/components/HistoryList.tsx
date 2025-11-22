@@ -81,13 +81,13 @@ const HistoryList = () => {
     const iconColor = '#059288';
     switch (iconType) {
       case 'sent':
-        return <ArrowUpRight size={20} color={iconColor} />;
+        return <ArrowUpRight size={16} color={iconColor} />;
       case 'received':
-        return <ArrowDownLeft size={20} color={iconColor} />;
+        return <ArrowDownLeft size={16} color={iconColor} />;
       case 'swap':
-        return <ArrowLeftRight size={20} color={iconColor} />;
+        return <ArrowLeftRight size={16} color={iconColor} />;
       default:
-        return <ArrowUpRight size={20} color={iconColor} />;
+        return <ArrowUpRight size={16} color={iconColor} />;
     }
   };
 

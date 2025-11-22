@@ -157,7 +157,7 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
         </View>
 
         {/* Selected Indicator */}
-        {isSelected && <Icon name="Check" size={20} color={isDarkMode ? '#3B82F6' : '#2563EB'} />}
+        {isSelected && <Icon name="Check" size={16} color={isDarkMode ? '#3B82F6' : '#2563EB'} />}
       </TouchableOpacity>
     );
   };
@@ -227,7 +227,7 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
               isDarkMode ? 'border-border bg-background-secondary' : 'border-gray-200 bg-gray-50'
             }`}
           >
-            <Icon name="Search" size={20} color={isDarkMode ? '#9CA3AF' : '#6B7280'} />
+            <Icon name="Search" size={16} color={isDarkMode ? '#9CA3AF' : '#6B7280'} />
             <TextInput
               className={`flex-1 ml-2 text-base ${
                 isDarkMode ? 'text-text-primary' : 'text-gray-900'

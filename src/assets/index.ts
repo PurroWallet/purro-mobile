@@ -230,12 +230,23 @@ export const Icons = {
 };
 
 export const Images = {
-  logo: require('./common/logo.png'),
-  splash: require('./common/splash.png'),
+  icon: require('./common/icon.png'),
+  adaptiveIcon: require('./common/adaptive-icon.png'),
+  favicon: require('./common/favicon.png'),
+  splashIcon: require('./common/splash-icon.png'),
+  splashIconDark: require('./common/splash-icon-dark.png'),
   inviteBg: require('./images/invite-bg.png'),
   phoneEntryBg: require('./images/phone-entry-bg.png'),
+};
+
+export const NetworkLogos = {
+  hyperliquid: require('./logo/hl-mint-logo.png'),
+  ethereum: require('./logo/ethereum-eth-logo.png'),
+  base: require('./logo/base-logo-in-blue.png'),
+  arbitrum: require('./logo/arbitrum-arb-logo.png'),
 };
 
 // Asset helper functions
 export const getIcon = (name: keyof typeof Icons) => Icons[name];
 export const getImage = (name: keyof typeof Images) => Images[name];
+export const getNetworkLogo = (name: keyof typeof NetworkLogos) => NetworkLogos[name];

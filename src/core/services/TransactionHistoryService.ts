@@ -1,4 +1,5 @@
 import { API_ENDPOINTS, type NetworkType } from '@/constants/networks';
+import { httpClient } from '@/core/apis/httpClient';
 import type { TransactionResult } from './TransactionService';
 
 export interface TransactionHistory extends TransactionResult {
@@ -34,17 +35,7 @@ export class TransactionHistoryService {
         networkType: networkType || ('ethereum' as NetworkType),
       };
 
-      const response = await fetch(`${this.apiUrl}/transactions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to save transaction: ${response.status}`);
-      }
+      await httpClient.post(`${this.apiUrl}/transactions`, payload);
     } catch (error) {
       console.error('Failed to save transaction to backend:', error);
       // Don't throw - transaction still succeeded even if history save fails
@@ -56,17 +47,7 @@ export class TransactionHistoryService {
    */
   async updateTransaction(txHash: string, updates: Partial<TransactionResult>): Promise<void> {
     try {
-      const response = await fetch(`${this.apiUrl}/transactions/${txHash}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updates),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to update transaction: ${response.status}`);
-      }
+      await httpClient.patch(`${this.apiUrl}/transactions/${txHash}`, updates);
     } catch (error) {
       console.error('Failed to update transaction:', error);
     }
@@ -86,13 +67,11 @@ export class TransactionHistoryService {
       if (filter.limit) params.append('limit', filter.limit.toString());
       if (filter.offset) params.append('offset', filter.offset.toString());
 
-      const response = await fetch(`${this.apiUrl}/transactions?${params.toString()}`);
+      const response = await httpClient.get<TransactionHistory[]>(
+        `${this.apiUrl}/transactions?${params.toString()}`,
+      );
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch transaction history: ${response.status}`);
-      }
-
-      const transactions: TransactionHistory[] = await response.json();
+      const transactions = response.data;
       return transactions;
     } catch (error) {
       console.error('Failed to get transaction history:', error);
@@ -105,16 +84,11 @@ export class TransactionHistoryService {
    */
   async getTransaction(txHash: string): Promise<TransactionHistory | null> {
     try {
-      const response = await fetch(`${this.apiUrl}/transactions/${txHash}`);
+      const response = await httpClient.get<TransactionHistory>(
+        `${this.apiUrl}/transactions/${txHash}`,
+      );
 
-      if (!response.ok) {
-        if (response.status === 404) {
-          return null;
-        }
-        throw new Error(`Failed to fetch transaction: ${response.status}`);
-      }
-
-      const transaction: TransactionHistory = await response.json();
+      const transaction = response.data;
       return transaction;
     } catch (error) {
       console.error('Failed to get transaction:', error);
@@ -141,13 +115,7 @@ export class TransactionHistoryService {
    */
   async deleteTransaction(txHash: string): Promise<void> {
     try {
-      const response = await fetch(`${this.apiUrl}/transactions/${txHash}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to delete transaction: ${response.status}`);
-      }
+      await httpClient.delete(`${this.apiUrl}/transactions/${txHash}`);
     } catch (error) {
       console.error('Failed to delete transaction:', error);
       throw error;
@@ -159,13 +127,7 @@ export class TransactionHistoryService {
    */
   async clearHistory(address: string): Promise<void> {
     try {
-      const response = await fetch(`${this.apiUrl}/transactions/clear/${address}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to clear history: ${response.status}`);
-      }
+      await httpClient.delete(`${this.apiUrl}/transactions/clear/${address}`);
     } catch (error) {
       console.error('Failed to clear history:', error);
       throw error;
@@ -202,13 +164,16 @@ export class TransactionHistoryService {
       const params = new URLSearchParams({ address });
       if (networkType) params.append('networkType', networkType);
 
-      const response = await fetch(`${this.apiUrl}/transactions/stats?${params.toString()}`);
+      const response = await httpClient.get<{
+        totalTransactions: number;
+        pendingCount: number;
+        confirmedCount: number;
+        failedCount: number;
+        totalVolume: number;
+        totalFees: number;
+      }>(`${this.apiUrl}/transactions/stats?${params.toString()}`);
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch transaction stats: ${response.status}`);
-      }
-
-      return await response.json();
+      return response.data;
     } catch (error) {
       console.error('Failed to get transaction stats:', error);
       return {

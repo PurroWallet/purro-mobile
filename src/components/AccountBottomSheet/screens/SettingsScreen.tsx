@@ -50,7 +50,7 @@ const SettingItem: React.FC<SettingsOption> = memo(
         </Text>
         {subtitle && <Text className="mt-1 text-sm text-text-secondary">{subtitle}</Text>}
       </View>
-      {rightComponent || (showArrow && <Icon name="ChevronRight" size={20} />)}
+      {rightComponent || (showArrow && <Icon name="ChevronRight" size={16} />)}
     </TouchableOpacity>
   ),
 );

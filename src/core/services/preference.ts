@@ -28,6 +28,7 @@ export interface PreferenceData {
   language?: string;
   currency?: string;
   themeMode?: 'light' | 'dark';
+  selectedNetworks?: string[];
 }
 
 class PreferenceService {

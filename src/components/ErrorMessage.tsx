@@ -54,7 +54,7 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
         className={`px-4 py-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-500/50 rounded-lg ${className}`}
       >
         <View className="flex-row items-start gap-3">
-          {showIcon && <Icon name="alert-circle" size={20} color="#EF4444" />}
+          {showIcon && <Icon name="alert-circle" size={16} color="#EF4444" />}
           <View className="flex-1">
             {title && <Text className="text-system-error text-sm font-semibold mb-1">{title}</Text>}
             <Text className="text-system-error text-sm">{message}</Text>

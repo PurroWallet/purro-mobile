@@ -170,7 +170,7 @@ export const SwapContent: React.FC = () => {
             {t('swap.slippage.title', { defaultValue: 'Slippage Tolerance' })}
           </Text>
           <TouchableOpacity onPress={() => setShowSlippageSettings(false)}>
-            <Icon name="X" size={20} color={isDarkMode ? '#9CA3AF' : '#6B7280'} />
+            <Icon name="X" size={16} color={isDarkMode ? '#9CA3AF' : '#6B7280'} />
           </TouchableOpacity>
         </View>
 
@@ -315,7 +315,7 @@ export const SwapContent: React.FC = () => {
               }`}
               onPress={handleSwapDirection}
             >
-              <Icon name="ArrowDownUp" size={20} color={isDarkMode ? '#9CA3AF' : '#6B7280'} />
+              <Icon name="ArrowDownUp" size={16} color={isDarkMode ? '#9CA3AF' : '#6B7280'} />
             </TouchableOpacity>
           </View>
 
@@ -432,7 +432,7 @@ export const SwapContent: React.FC = () => {
               }`}
             >
               <View className="flex-row items-center">
-                <Icon name="CheckCircle" size={20} color="#10B981" />
+                <Icon name="CheckCircle" size={16} color="#10B981" />
                 <Text className="ml-2 text-sm text-green-600 flex-1">
                   {t('swap.success', {
                     defaultValue: 'Swap executed successfully!',
@@ -450,7 +450,7 @@ export const SwapContent: React.FC = () => {
               }`}
             >
               <View className="flex-row items-center">
-                <Icon name="AlertCircle" size={20} color="#EF4444" />
+                <Icon name="AlertCircle" size={16} color="#EF4444" />
                 <Text className="ml-2 text-sm text-system-error flex-1">
                   {executionError.message}
                 </Text>
@@ -553,7 +553,7 @@ export const SwapContent: React.FC = () => {
 
               {/* Arrow */}
               <View className="items-center my-2">
-                <Icon name="ArrowDown" size={20} color={isDarkMode ? '#9CA3AF' : '#6B7280'} />
+                <Icon name="ArrowDown" size={16} color={isDarkMode ? '#9CA3AF' : '#6B7280'} />
               </View>
 
               {/* To */}
