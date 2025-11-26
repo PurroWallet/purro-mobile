@@ -102,11 +102,25 @@ export class LockService {
   }
 
   getCurrentAddress(): string | undefined {
-    return this.currentAddress;
+    // Try to get from memory first
+    if (this.currentAddress) {
+      return this.currentAddress;
+    }
+
+    // Fallback to storage
+    const stored = secureWalletStorage.getItem('current_address');
+    if (stored && typeof stored === 'string') {
+      this.currentAddress = stored;
+      return stored;
+    }
+
+    return undefined;
   }
 
   setCurrentAddress(address: string): void {
     this.currentAddress = address;
+    // Persist to storage so it survives app restarts
+    secureWalletStorage.setItem('current_address', address);
   }
 
   getAutoLockTime(): number {

@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Icon } from '@/components/Icon';
 import type { ChainTokenData } from '@/core/apis/alchemy/types';
 import TokenItem from './TokenItem';
 
@@ -85,9 +86,15 @@ const TokenList: React.FC<TokenListProps> = ({
 
   // Render empty state
   const renderEmptyState = () => (
-    <View className="items-center justify-center py-20">
-      <Text className="text-text-secondary text-base">
-        {t('home.noTokens', { defaultValue: 'No tokens found' })}
+    <View className="items-center justify-center py-20 px-4">
+      <View className="w-24 h-24 rounded-full bg-background-secondary items-center justify-center mb-4">
+        <Icon name="coins" size={48} color="#6B7280" />
+      </View>
+      <Text className="text-lg font-semibold text-text-primary mb-2">
+        {t('home.noTokensTitle', { defaultValue: 'No Tokens Yet' })}
+      </Text>
+      <Text className="text-sm text-text-secondary text-center">
+        {t('home.noTokens', { defaultValue: 'Your tokens will appear here once you receive them' })}
       </Text>
     </View>
   );

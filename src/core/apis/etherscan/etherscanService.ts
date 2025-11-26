@@ -4,6 +4,7 @@
  */
 
 import { type AxiosError } from 'axios';
+import { getEtherscanApiKey } from '@/config/env';
 import { API_TIMEOUTS, getEndpoints } from '../endpoints';
 import { ApiError, ErrorType } from '../errors';
 import { httpClient } from '../httpClient';
@@ -20,8 +21,6 @@ import type { EtherscanApiResponse, EtherscanPageParams, EtherscanTransaction } 
  * Etherscan configuration constants
  */
 const ETHERSCAN_CONFIG = {
-  API_KEY: 'XE2CRX7TH65UUNW4GNSUGWRD6I4EBJUZSN',
-  CHAIN_ID: 999, // Hyperliquid
   DEFAULT_PAGE: 1,
   DEFAULT_OFFSET: 100,
   MODULE: 'account',
@@ -29,6 +28,21 @@ const ETHERSCAN_CONFIG = {
   SORT: 'desc',
   START_BLOCK: 0,
   END_BLOCK: 'latest',
+};
+
+/**
+ * Supported chain IDs
+ */
+export type SupportedChainId = 1 | 42161 | 8453 | 999;
+
+/**
+ * Chain ID to name mapping
+ */
+export const CHAIN_NAMES: Record<SupportedChainId, string> = {
+  1: 'Ethereum',
+  42161: 'Arbitrum',
+  8453: 'Base',
+  999: 'Hyperliquid',
 };
 
 /**
@@ -43,14 +57,16 @@ class EtherscanService {
   }
 
   /**
-   * Fetch token transfers (transactions) for an address
+   * Fetch token transfers (transactions) for an address on a specific chain
    * @param address - Wallet address
+   * @param chainId - Chain ID (1: Ethereum, 42161: Arbitrum, 8453: Base, 999: Hyperliquid)
    * @param filter - Transaction filter ('from', 'to', or 'both')
    * @param nextPageParams - Pagination parameters
    * @returns Token transfers response with pagination
    */
   async fetchTokenTransfers(
     address: string,
+    chainId: SupportedChainId = 999,
     filter: TransactionFilter = 'both',
     nextPageParams?: NextPageParams,
   ): Promise<TokenTransfersResponse> {
@@ -69,14 +85,14 @@ class EtherscanService {
       const params = {
         module: ETHERSCAN_CONFIG.MODULE,
         action: ETHERSCAN_CONFIG.ACTION,
-        chainid: ETHERSCAN_CONFIG.CHAIN_ID,
+        chainid: chainId,
         address,
         startblock: ETHERSCAN_CONFIG.START_BLOCK,
         endblock: ETHERSCAN_CONFIG.END_BLOCK,
         sort: ETHERSCAN_CONFIG.SORT,
         page,
         offset,
-        apikey: ETHERSCAN_CONFIG.API_KEY,
+        apikey: getEtherscanApiKey(),
       };
 
       const response = await httpClient.get<EtherscanApiResponse>(endpoint, {
@@ -96,7 +112,9 @@ class EtherscanService {
       const filteredTransactions = this.applyFilter(transactions, filter, address);
 
       // Transform to TokenTransfer format
-      const items = filteredTransactions.map((tx) => this.transformTransaction(tx, address));
+      const items = filteredTransactions.map((tx) =>
+        this.transformTransaction(tx, address, chainId),
+      );
 
       // Calculate next page params
       const nextPage = this.calculateNextPageParams(page, offset, transactions.length);
@@ -111,9 +129,58 @@ class EtherscanService {
   }
 
   /**
+   * Fetch transactions from all supported chains
+   * @param address - Wallet address
+   * @param filter - Transaction filter ('from', 'to', or 'both')
+   * @returns Combined token transfers from all chains
+   */
+  async fetchAllChainTransfers(
+    address: string,
+    filter: TransactionFilter = 'both',
+  ): Promise<TokenTransfersResponse> {
+    const chains: SupportedChainId[] = [1, 42161, 8453, 999];
+
+    try {
+      // Fetch from all chains in parallel
+      const results = await Promise.allSettled(
+        chains.map((chainId) => this.fetchTokenTransfers(address, chainId, filter)),
+      );
+
+      // Combine successful results
+      const allTransactions: TokenTransfer[] = [];
+
+      results.forEach((result, index) => {
+        if (result.status === 'fulfilled') {
+          allTransactions.push(...result.value.items);
+        } else {
+          console.warn(`Failed to fetch transactions from chain ${chains[index]}:`, result.reason);
+        }
+      });
+
+      // Sort by timestamp (newest first)
+      allTransactions.sort((a, b) => {
+        const timeA = new Date(a.timestamp).getTime();
+        const timeB = new Date(b.timestamp).getTime();
+        return timeB - timeA;
+      });
+
+      return {
+        items: allTransactions,
+        next_page_params: null, // No pagination for combined results
+      };
+    } catch (error) {
+      throw this.handleError(error as AxiosError, 'Failed to fetch transactions from all chains');
+    }
+  }
+
+  /**
    * Transform Etherscan transaction to TokenTransfer format
    */
-  private transformTransaction(tx: EtherscanTransaction, userAddress: string): TokenTransfer {
+  private transformTransaction(
+    tx: EtherscanTransaction,
+    userAddress: string,
+    chainId: SupportedChainId,
+  ): TokenTransfer {
     return {
       block_number: parseInt(tx.blockNumber, 10),
       timestamp: new Date(parseInt(tx.timeStamp, 10) * 1000).toISOString(),
@@ -126,8 +193,8 @@ class EtherscanService {
       },
       token: {
         address: tx.contractAddress || '0x0000000000000000000000000000000000000000',
-        name: tx.tokenName || 'Unknown',
-        symbol: tx.tokenSymbol || 'UNKNOWN',
+        name: tx.tokenName || CHAIN_NAMES[chainId],
+        symbol: tx.tokenSymbol || CHAIN_NAMES[chainId].toUpperCase(),
         decimals: tx.tokenDecimal || '18',
       },
       total: {

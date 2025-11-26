@@ -48,7 +48,7 @@ export interface AlchemyTokenBalancesRequest {
   jsonrpc: string;
   id: number;
   method: string;
-  params: [string]; // [address]
+  params: [string] | [string, string]; // [address] or [address, 'erc20']
 }
 
 /**

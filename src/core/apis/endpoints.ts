@@ -19,7 +19,7 @@ export const MAINNET_ENDPOINTS: NetworkEndpoints = {
     base: 'https://base-mainnet.g.alchemy.com/v2',
     arbitrum: 'https://arb-mainnet.g.alchemy.com/v2',
   },
-  hyperscan: 'https://explorer.hyperliquid.xyz/api/v2',
+  hyperscan: 'https://www.hyperscan.com/api/v2',
   liquidswap: 'https://api.hyperliquid.xyz/info',
 };
 

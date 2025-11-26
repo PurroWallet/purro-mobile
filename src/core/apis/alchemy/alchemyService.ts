@@ -3,6 +3,7 @@
  * Handles EVM token balance and metadata fetching for Ethereum, Base, and Arbitrum
  */
 
+import { getAlchemyApiKey } from '@/config/env';
 import { API_TIMEOUTS, getEndpoints, RETRY_CONFIG } from '../endpoints';
 import { ApiError, calculateRetryDelay, createApiError, ErrorType, sleep } from '../errors';
 import { httpClient } from '../httpClient';
@@ -15,24 +16,34 @@ import {
 } from './types';
 
 /**
+ * Construct full Alchemy endpoint URL with API key
+ */
+function getFullEndpoint(baseEndpoint: string): string {
+  const apiKey = getAlchemyApiKey();
+  return `${baseEndpoint}/${apiKey}`;
+}
+
+/**
  * Fetch token balances with retry logic
  */
 export async function fetchTokenBalances(
   endpoint: string,
   address: string,
 ): Promise<TokenBalance[]> {
+  const fullEndpoint = getFullEndpoint(endpoint);
+
   const request: AlchemyTokenBalancesRequest = {
     jsonrpc: '2.0',
     id: 1,
     method: 'alchemy_getTokenBalances',
-    params: [address],
+    params: [address, 'erc20'] as [string, string],
   };
 
   let lastError: ApiError | null = null;
 
   for (let attempt = 0; attempt < RETRY_CONFIG.MAX_RETRIES; attempt++) {
     try {
-      const response = await httpClient.post<AlchemyTokenBalancesResponse>(endpoint, request, {
+      const response = await httpClient.post<AlchemyTokenBalancesResponse>(fullEndpoint, request, {
         timeout: API_TIMEOUTS.DEFAULT,
         headers: {
           'Content-Type': 'application/json',
@@ -85,6 +96,8 @@ export async function fetchTokenMetadata(
   endpoint: string,
   contractAddress: string,
 ): Promise<TokenMetadata> {
+  const fullEndpoint = getFullEndpoint(endpoint);
+
   const request = {
     jsonrpc: '2.0',
     id: 1,
@@ -93,7 +106,7 @@ export async function fetchTokenMetadata(
   };
 
   try {
-    const response = await httpClient.post(endpoint, request, {
+    const response = await httpClient.post(fullEndpoint, request, {
       timeout: API_TIMEOUTS.METADATA,
       headers: {
         'Content-Type': 'application/json',

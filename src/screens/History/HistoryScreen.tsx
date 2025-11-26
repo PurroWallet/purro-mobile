@@ -15,13 +15,14 @@ const HistoryScreen: React.FC = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-primary">
-      {/* Header */}
-      <View className="px-4 py-3 bg-primary">
-        <Text className="text-3xl font-bold text-text-primary">{t('home.nav.history')}</Text>
-      </View>
+      <View className="flex-1">
+        <View className="px-4 py-3 bg-primary">
+          <Text className="text-3xl font-bold text-text-primary">{t('home.nav.history')}</Text>
+        </View>
 
-      {/* Transaction List */}
-      <TransactionList onTransactionPress={handleTransactionPress} />
+        {/* Transaction List */}
+        <TransactionList onTransactionPress={handleTransactionPress} />
+      </View>
     </SafeAreaView>
   );
 };

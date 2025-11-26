@@ -169,7 +169,6 @@ const App: React.FC = () => {
                       gestureEnabled: false,
                     }}
                   />
-
                   {/* Auth Flow */}
                   <Stack.Screen
                     name="Unlock"

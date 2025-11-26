@@ -24,8 +24,8 @@ type Props = {
 
 interface Account {
   address: string;
-  type: string;
-  brandName: string;
+  type?: string;
+  brandName?: string;
   aliasName?: string;
 }
 
@@ -49,29 +49,34 @@ const AccountListScreen: React.FC<Props> = ({
   const { selectedNetworks, toggleNetwork, isNetworkSelected, isAllSelected, selectAllNetworks } =
     useNetworkStore();
 
+  // Format address for display
+  const formattedAddress = currentAccount?.address
+    ? `${currentAccount.address.slice(0, 6)}...${currentAccount.address.slice(-4)}`
+    : '0x0000...0000';
+
   const networks: Network[] = [
     {
       id: 'hyperliquid',
       name: 'Hyperliquid',
-      address: '0xe835...dE81',
+      address: formattedAddress,
       logo: NetworkLogos.hyperliquid,
     },
     {
       id: 'ethereum',
       name: 'Ethereum',
-      address: '0xe835...dE81',
+      address: formattedAddress,
       logo: NetworkLogos.ethereum,
     },
     {
       id: 'arbitrum',
       name: 'Arbitrum',
-      address: '0xe835...dE81',
+      address: formattedAddress,
       logo: NetworkLogos.arbitrum,
     },
     {
       id: 'base',
       name: 'Base',
-      address: '0xe835...dE81',
+      address: formattedAddress,
       logo: NetworkLogos.base,
     },
   ];
@@ -128,6 +133,8 @@ const AccountListScreen: React.FC<Props> = ({
     </View>
   );
 
+  console.log({ 123: currentAccount?.address, accounts });
+
   return (
     <BaseScreen
       showAccountInfo={true}
@@ -141,6 +148,54 @@ const AccountListScreen: React.FC<Props> = ({
       }}
     >
       <BottomSheetScrollView className="w-full" contentContainerClassName="pb-5">
+        {/* Your Accounts Section */}
+        <View className="mb-6">
+          <Text className="mb-4 text-lg font-semibold text-text-primary">Your Accounts</Text>
+          <View className="gap-2 pb-2">
+            {accounts.map((account, index) => {
+              const isSelected = currentAccount?.address === account.address;
+              return (
+                <TouchableOpacity
+                  key={account.address}
+                  onPress={() => handleAccountPress(account)}
+                  className={`flex-row items-center justify-between rounded-xl px-4 py-4 ${
+                    isSelected
+                      ? 'bg-brand-primary/20 border border-brand-primary'
+                      : 'bg-background-secondary/60'
+                  }`}
+                >
+                  <View className="flex-row items-center gap-4">
+                    <Image
+                      source={DefaultIcon}
+                      className="h-10 w-10 rounded-full"
+                      resizeMode="cover"
+                    />
+                    <View>
+                      <Text
+                        className={`text-lg ${
+                          isSelected ? 'text-brand-primary font-semibold' : 'text-text-primary'
+                        }`}
+                      >
+                        {account.aliasName || `Account ${index + 1}`}
+                      </Text>
+                      <Text className="text-sm text-text-secondary">
+                        {formatAddress(account.address)}
+                      </Text>
+                    </View>
+                  </View>
+                  <TouchableOpacity
+                    onPress={() => handleEditAccount(account)}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    className="h-8 w-8 items-center justify-center"
+                  >
+                    <Icon name="Edit2" size={16} />
+                  </TouchableOpacity>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </View>
+
         {/* Networks Section */}
         <View className="rounded-2xl bg-background-secondary/60 px-5 py-4">
           {/* Select All Option */}
@@ -196,54 +251,6 @@ const AccountListScreen: React.FC<Props> = ({
               </View>
             );
           })}
-        </View>
-
-        {/* Your Accounts Section */}
-        <View className="mt-6">
-          <Text className="mb-4 text-lg font-semibold text-text-primary">Your Accounts</Text>
-          <View className="gap-2 pb-2">
-            {accounts.map((account, index) => {
-              const isSelected = currentAccount?.address === account.address;
-              return (
-                <TouchableOpacity
-                  key={account.address}
-                  onPress={() => handleAccountPress(account)}
-                  className={`flex-row items-center justify-between rounded-xl px-4 py-4 ${
-                    isSelected
-                      ? 'bg-brand-primary/20 border border-brand-primary'
-                      : 'bg-background-secondary/60'
-                  }`}
-                >
-                  <View className="flex-row items-center gap-4">
-                    <Image
-                      source={DefaultIcon}
-                      className="h-10 w-10 rounded-full"
-                      resizeMode="cover"
-                    />
-                    <View>
-                      <Text
-                        className={`text-lg ${
-                          isSelected ? 'text-brand-primary font-semibold' : 'text-text-primary'
-                        }`}
-                      >
-                        {account.aliasName || `Account ${index + 1}`}
-                      </Text>
-                      <Text className="text-sm text-text-secondary">
-                        {formatAddress(account.address)}
-                      </Text>
-                    </View>
-                  </View>
-                  <TouchableOpacity
-                    onPress={() => handleEditAccount(account)}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                    className="h-8 w-8 items-center justify-center"
-                  >
-                    <Icon name="Edit2" size={16} />
-                  </TouchableOpacity>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
         </View>
       </BottomSheetScrollView>
     </BaseScreen>

@@ -6,7 +6,7 @@ export interface WalletAccount {
   address: string;
   type?: string;
   brandName?: string;
-  alianName?: string;
+  aliasName?: string;
 }
 
 const CURRENT_ACCOUNT_QUERY_KEY = ['wallet', 'currentAccount'];

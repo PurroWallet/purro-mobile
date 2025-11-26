@@ -10,8 +10,10 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { SvgUri } from 'react-native-svg';
 import DefaultIcon from '@/assets/common/icon.png';
 import { Icon } from '@/components/Icon';
+import { hyperliquidService } from '@/core/apis/hyperliquid';
 import { useSearchScreen } from '../hooks/useSearchScreen';
 
 const SearchScreen = () => {
@@ -67,10 +69,34 @@ const SearchScreen = () => {
       </View>
 
       {isLoading && tokens.length === 0 ? (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#3B82F6" />
-          <Text className="text-text-secondary text-sm mt-4">Loading tokens...</Text>
-        </View>
+        <ScrollView className="flex-1 px-6" showsVerticalScrollIndicator={false}>
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((index) => (
+            <View
+              key={`skeleton-${index}`}
+              className="flex-row items-center justify-between py-4 border-b border-border-secondary"
+            >
+              {/* Left side: Icon + Info */}
+              <View className="flex-row items-center flex-1">
+                {/* Icon skeleton */}
+                <View className="w-12 h-12 rounded-full bg-background-secondary" />
+
+                {/* Text info skeleton */}
+                <View className="flex-1 ml-4">
+                  <View className="flex-row items-center mb-2">
+                    <View className="h-5 w-20 bg-background-secondary rounded" />
+                  </View>
+                  <View className="h-4 w-32 bg-background-secondary rounded" />
+                </View>
+              </View>
+
+              {/* Right side: Stats skeleton */}
+              <View className="items-end">
+                <View className="h-5 w-16 bg-background-secondary rounded mb-2" />
+                <View className="h-3 w-24 bg-background-secondary rounded" />
+              </View>
+            </View>
+          ))}
+        </ScrollView>
       ) : (
         <ScrollView
           className="flex-1 px-6"
@@ -85,39 +111,57 @@ const SearchScreen = () => {
           }}
           scrollEventThrottle={400}
         >
-          {tokens.map((token) => (
-            <TouchableOpacity
-              key={token.id}
-              className="flex-row items-center justify-between py-4 border-b border-border-secondary"
-            >
-              <View className="flex-row items-center flex-1">
-                <RNImage
-                  source={token.icon ? { uri: token.icon } : DefaultIcon}
-                  className="w-12 h-12 rounded-full"
-                  resizeMode="cover"
-                />
+          {tokens.map((token) => {
+            const iconUrl = token.icon || hyperliquidService.getSpotTokenImage(token.symbol);
+            const isSvg = iconUrl.endsWith('.svg');
 
-                <View className="flex-1 ml-4">
-                  <View className="flex-row items-center mb-1">
-                    <Text className="text-text-primary text-lg font-semibold">{token.symbol}</Text>
-                    {token.verified && (
-                      <View className="ml-2">
-                        <Icon name="badge-check" size={16} color="#3B82F6" />
-                      </View>
+            return (
+              <TouchableOpacity
+                key={token.id}
+                className="flex-row items-center justify-between py-4 border-b border-border-secondary"
+              >
+                <View className="flex-row items-center flex-1">
+                  <View className="w-12 h-12 items-center justify-center">
+                    {isSvg ? (
+                      <SvgUri
+                        width="48"
+                        height="48"
+                        uri={iconUrl}
+                        onError={() => console.log('Failed to load SVG:', iconUrl)}
+                      />
+                    ) : (
+                      <RNImage
+                        source={DefaultIcon}
+                        className="w-12 h-12 rounded-full"
+                        resizeMode="cover"
+                      />
                     )}
                   </View>
-                  <Text className="text-text-secondary text-sm">{token.name}</Text>
-                </View>
-              </View>
 
-              <View className="items-end">
-                <Text className="text-text-primary text-lg font-semibold mb-1">
-                  {formatNumber(token.transfers24h)}
-                </Text>
-                <Text className="text-text-secondary text-xs">24h Transfers</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
+                  <View className="flex-1 ml-4">
+                    <View className="flex-row items-center mb-1">
+                      <Text className="text-text-primary text-lg font-semibold">
+                        {token.symbol}
+                      </Text>
+                      {token.verified && (
+                        <View className="ml-2">
+                          <Icon name="badge-check" size={16} color="#3B82F6" />
+                        </View>
+                      )}
+                    </View>
+                    <Text className="text-text-secondary text-sm">{token.name}</Text>
+                  </View>
+                </View>
+
+                <View className="items-end">
+                  <Text className="text-text-primary text-lg font-semibold mb-1">
+                    {formatNumber(token.transfers24h)}
+                  </Text>
+                  <Text className="text-text-secondary text-xs">24h Transfers</Text>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
 
           {tokens.length === 0 && !isLoading && (
             <View className="items-center justify-center py-20">

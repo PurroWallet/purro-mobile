@@ -5,6 +5,7 @@ import { Alert } from 'react-native';
 import type { AccountBottomSheetRef } from '@/components/AccountBottomSheet';
 import { apisKeychain, apisLock, apisWallet } from '@/core/apis';
 import type { ChainTokenData, TokenWithMetadata } from '@/core/apis/alchemy/types';
+import type { AccountMetrics, FormattedPosition } from '@/core/apis/hyperliquid';
 import { useCurrentAccount } from '@/core/hooks/wallet/useCurrentAccount';
 import { useTokens } from '@/core/hooks/wallet/useTokens';
 import { tokenService } from '@/core/services';
@@ -14,12 +15,14 @@ import type { NavigationProp, RootStackParamList } from '@/types/navigation';
 import { useTranslation } from '@/utils/i18n';
 import type { ReceiveTokenSheetRef } from '../components/ReceiveTokenSheet';
 import type { SentTokenSheetRef } from '../components/SendTokenSheet';
+import { useHyperliquid } from './useHyperliquid';
+import { useHyperliquidSpot } from './useHyperliquidSpot';
 
 export interface Account {
   address: string;
   type?: string;
   brandName?: string;
-  alianName?: string;
+  aliasName?: string;
 }
 
 export interface PerpPosition {
@@ -43,8 +46,8 @@ export interface UseHomeScreenResult {
   accountBottomSheetRef: RefObject<AccountBottomSheetRef | null>;
   sentTokenSheetRef: RefObject<SentTokenSheetRef | null>;
   receiveTokenSheetRef: RefObject<ReceiveTokenSheetRef | null>;
-  selectedTab: 'EVM' | 'Spot' | 'Perpetuals';
-  onSelectTab: (tab: 'EVM' | 'Spot' | 'Perpetuals') => void;
+  selectedTab: 'EVM' | 'Spot' | 'Perpetuals' | 'HYPE_LIQUID';
+  onSelectTab: (tab: 'EVM' | 'Spot' | 'Perpetuals' | 'HYPE_LIQUID') => void;
   currentAccount: Account | null;
   perpPositions: PerpPosition[];
   tokens: Token[];
@@ -66,6 +69,19 @@ export interface UseHomeScreenResult {
   handleTokenPress: (token: TokenWithMetadata, chain: ChainTokenData['chain']) => void;
   handleSendToken: (token: TokenWithMetadata, chain: ChainTokenData['chain']) => void;
   handleSwapToken: (token: TokenWithMetadata, chain: ChainTokenData['chain']) => void;
+  // Hyperliquid properties
+  hyperliquidMetrics: AccountMetrics | null;
+  hyperliquidPositions: FormattedPosition[];
+  isLoadingHyperliquid: boolean;
+  hyperliquidError: string | null;
+  refreshHyperliquid: () => Promise<void>;
+  handleHyperliquidTransfer: () => void;
+  // Spot properties
+  spotTokens: import('@/core/apis/hyperliquid').FormattedSpotToken[];
+  spotTotalBalance: string;
+  spotTotalTokensCount: number;
+  isLoadingSpot: boolean;
+  refreshSpot: () => Promise<void>;
 }
 
 export const useHomeScreen = (): UseHomeScreenResult => {
@@ -75,7 +91,9 @@ export const useHomeScreen = (): UseHomeScreenResult => {
   const sentTokenSheetRef = useRef<SentTokenSheetRef | null>(null);
   const receiveTokenSheetRef = useRef<ReceiveTokenSheetRef | null>(null);
   const setWalletExists = useAppStore((state) => state.setWalletExists);
-  const [selectedTab, setSelectedTab] = useState<'EVM' | 'Spot' | 'Perpetuals'>('EVM');
+  const [selectedTab, setSelectedTab] = useState<'EVM' | 'Spot' | 'Perpetuals' | 'HYPE_LIQUID'>(
+    'EVM',
+  );
   const [isLoadingTokens, setIsLoadingTokens] = useState(false);
   const [tokenBalances, setTokenBalances] = useState<TokenInfo[]>([]);
   const {
@@ -92,6 +110,25 @@ export const useHomeScreen = (): UseHomeScreenResult => {
     error: evmTokensError,
     refetch: refetchEvmTokens,
   } = useTokens(currentAccount?.address || '', false);
+
+  // Use Hyperliquid hook
+  const {
+    accountMetrics: hyperliquidMetrics,
+    positions: hyperliquidPositions,
+    isLoading: isLoadingHyperliquid,
+    error: hyperliquidError,
+    refresh: refreshHyperliquid,
+  } = useHyperliquid(currentAccount?.address, selectedTab === 'HYPE_LIQUID');
+
+  // Use Hyperliquid Spot hook
+  const {
+    tokens: spotTokens,
+    totalBalance: spotTotalBalance,
+    totalTokensCount: spotTotalTokensCount,
+    isLoading: isLoadingSpot,
+    error: spotError,
+    refresh: refreshSpot,
+  } = useHyperliquidSpot(currentAccount?.address, selectedTab === 'Spot');
 
   const perpPositions = useMemo<PerpPosition[]>(
     () => [
@@ -135,11 +172,26 @@ export const useHomeScreen = (): UseHomeScreenResult => {
     [tokenBalances],
   );
 
-  // Calculate total balance
+  // Calculate grand total from all 3 tabs (EVM + Spot + Perpetuals)
   const totalBalance = useMemo(() => {
-    const total = tokenBalances.reduce((sum, token) => sum + token.usdValue, 0);
-    return `$${total.toFixed(2)}`;
-  }, [tokenBalances]);
+    // For now, use legacy tokenBalances total as EVM total
+    // TODO: Calculate from evmTokens when price data is available
+    const evmTotal = tokenBalances.reduce((sum, token) => sum + token.usdValue, 0);
+
+    // Parse Spot balance
+    const spotTotal = parseFloat(spotTotalBalance.replace(/\$/g, '').replace(/,/g, '')) || 0;
+
+    // Parse Perpetuals balance
+    const perpsTotal = hyperliquidMetrics
+      ? parseFloat(hyperliquidMetrics.accountValue.replace(/\$/g, '').replace(/,/g, '')) || 0
+      : 0;
+
+    const grandTotal = evmTotal + spotTotal + perpsTotal;
+    return `$${grandTotal.toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
+  }, [tokenBalances, spotTotalBalance, hyperliquidMetrics]);
 
   const totalTokensCount = tokens.length;
 
@@ -224,7 +276,7 @@ export const useHomeScreen = (): UseHomeScreenResult => {
     navigation.navigate('SearchScreen');
   }
 
-  const onSelectTab = useCallback((tab: 'EVM' | 'Spot' | 'Perpetuals') => {
+  const onSelectTab = useCallback((tab: 'EVM' | 'Spot' | 'Perpetuals' | 'HYPE_LIQUID') => {
     setSelectedTab(tab);
   }, []);
 
@@ -263,6 +315,13 @@ export const useHomeScreen = (): UseHomeScreenResult => {
     await refetchEvmTokens();
   }, [refetchEvmTokens]);
 
+  // Handle Hyperliquid transfer
+  const handleHyperliquidTransfer = useCallback(() => {
+    console.log('Navigate to Hyperliquid transfer screen');
+    // TODO: Navigate to transfer screen
+    // navigation.navigate('HyperliquidTransfer');
+  }, []);
+
   return {
     accountBottomSheetRef,
     sentTokenSheetRef,
@@ -290,5 +349,18 @@ export const useHomeScreen = (): UseHomeScreenResult => {
     handleTokenPress,
     handleSendToken,
     handleSwapToken,
+    // Hyperliquid properties
+    hyperliquidMetrics,
+    hyperliquidPositions,
+    isLoadingHyperliquid,
+    hyperliquidError,
+    refreshHyperliquid,
+    handleHyperliquidTransfer,
+    // Spot properties
+    spotTokens,
+    spotTotalBalance,
+    spotTotalTokensCount,
+    isLoadingSpot,
+    refreshSpot,
   };
 };

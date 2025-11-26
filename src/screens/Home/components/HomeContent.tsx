@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   RefreshControl,
@@ -13,8 +13,10 @@ import DefaultIcon from '@/assets/common/icon.png';
 import AccountBottomSheet from '@/components/AccountBottomSheet';
 import { Icon } from '@/components/Icon';
 import { useHomeScreen } from '../hooks/useHomeScreen';
+import HyperliquidView from './HyperliquidView';
 import ReceiveTokenSheet from './ReceiveTokenSheet';
 import SentTokenSheet from './SendTokenSheet';
+import SpotTokenView from './SpotTokenView';
 import TokenList from './TokenList';
 
 const HomeContent = () => {
@@ -25,7 +27,6 @@ const HomeContent = () => {
     selectedTab,
     onSelectTab,
     currentAccount,
-    perpPositions,
     tokens,
     totalBalance,
     totalTokensCount,
@@ -44,6 +45,17 @@ const HomeContent = () => {
     handleTokenPress,
     handleSendToken,
     handleSwapToken,
+    hyperliquidMetrics,
+    hyperliquidPositions,
+    isLoadingHyperliquid,
+    hyperliquidError,
+    refreshHyperliquid,
+    handleHyperliquidTransfer,
+    spotTokens,
+    spotTotalBalance,
+    spotTotalTokensCount,
+    isLoadingSpot,
+    refreshSpot,
   } = useHomeScreen();
 
   const { t } = useTranslation();
@@ -55,7 +67,7 @@ const HomeContent = () => {
   const tabLabelMap: Record<'EVM' | 'Spot' | 'Perpetuals', string> = {
     EVM: t('home.tabs.evm'),
     Spot: t('home.tabs.spot'),
-    Perpetuals: t('home.tabs.perpetuals'),
+    Perpetuals: t('home.tabs.hyperliquid', { defaultValue: 'Hyperliquid' }),
   };
 
   const handleRefresh = async () => {
@@ -63,6 +75,10 @@ const HomeContent = () => {
     try {
       if (selectedTab === 'EVM') {
         await refreshEvmTokens();
+      } else if (selectedTab === 'HYPE_LIQUID') {
+        await refreshHyperliquid();
+      } else if (selectedTab === 'Spot') {
+        await refreshSpot();
       } else {
         await refreshTokens();
       }
@@ -84,7 +100,7 @@ const HomeContent = () => {
             <View>
               <Text className="text-text-secondary text-sm">{currentAccountDisplay}</Text>
               <Text className="text-text-primary text-2xl font-medium">
-                {currentAccount?.alianName || 'Account 1'}
+                {currentAccount?.aliasName || 'Account 1'}
               </Text>
             </View>
           </TouchableOpacity>
@@ -134,7 +150,7 @@ const HomeContent = () => {
           </TouchableOpacity>
         </View>
 
-        <View className="pb-0 px-6">
+        {/* <View className="pb-0 px-6">
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -170,9 +186,9 @@ const HomeContent = () => {
               <Icon name="chevron-right" size={24} />
             </View>
           </ScrollView>
-        </View>
+        </View> */}
 
-        <View className="px-5 pt-10 pb-10">
+        {/* <View className="px-5 pt-10 pb-10">
           <View className="flex-row justify-between items-center px-0 pb-4">
             <Text className="text-text-primary text-lg font-semibold">{t('home.perps')}</Text>
             <TouchableOpacity>
@@ -200,7 +216,7 @@ const HomeContent = () => {
               </View>
             </View>
           ))}
-        </View>
+        </View> */}
 
         <View className="px-5 pb-10">
           <View className="flex-row items-center justify-between border-b border-border-secondary pb-0 mb-4">
@@ -225,7 +241,7 @@ const HomeContent = () => {
             <Icon name="chevron-down" size={16} />
           </View>
 
-          {/* Show new TokenList for EVM tab */}
+          {/* Show appropriate view based on selected tab */}
           {selectedTab === 'EVM' ? (
             <TokenList
               tokens={evmTokens}
@@ -236,62 +252,31 @@ const HomeContent = () => {
               onSendToken={handleSendToken}
               onSwapToken={handleSwapToken}
             />
-          ) : (
-            <>
-              <View className="flex-row gap-2 mb-2">
-                <View className="flex-1 rounded-xl bg-background-secondary/60 p-5">
-                  <Text className="text-text-secondary text-base mb-3.5">
-                    {t('home.totalBalance')}
-                  </Text>
-                  <Text className="text-text-primary text-2xl font-medium">
-                    {isLoadingTokens ? '...' : totalBalance}
-                  </Text>
-                </View>
-                <View className="flex-1 rounded-xl bg-background-secondary/60 p-5">
-                  <Text className="text-text-secondary text-base mb-3.5">
-                    {t('home.totalTokens')}
-                  </Text>
-                  <Text className="text-text-primary text-2xl font-medium">{totalTokensCount}</Text>
-                </View>
-              </View>
-
-              {tokens.map((token) => (
-                <View
-                  key={token.id}
-                  className="rounded-xl bg-background-secondary px-4 py-5 flex-row items-center gap-5 mb-2"
-                >
-                  <RNImage
-                    source={DefaultIcon}
-                    className="w-12 h-12 rounded-full"
-                    resizeMode="cover"
-                  />
-                  <View className="flex-1 flex-row justify-between items-center py-5">
-                    <View className="gap-3">
-                      <Text className="text-text-primary text-xl font-medium">{token.name}</Text>
-                      <View className="flex-row gap-1.5">
-                        <Text className="text-text-primary text-sm">{token.balance}</Text>
-                        <Text className="text-text-secondary text-sm">{token.symbol}</Text>
-                      </View>
-                    </View>
-                    <Text className="text-text-primary text-xl font-medium">{token.value}</Text>
-                  </View>
-                </View>
-              ))}
-
-              <TouchableOpacity className="rounded-xl bg-background-secondary px-4 py-6 flex-row items-center justify-center gap-2">
-                <Icon name="plus" size={16} />
-                <Text className="text-text-primary text-base text-right">
-                  {t('home.addTestnetToken')}
-                </Text>
-              </TouchableOpacity>
-            </>
-          )}
+          ) : selectedTab === 'Perpetuals' ? (
+            <HyperliquidView
+              accountMetrics={hyperliquidMetrics}
+              positions={hyperliquidPositions}
+              isLoading={isLoadingHyperliquid}
+              error={hyperliquidError}
+              onTransfer={handleHyperliquidTransfer}
+            />
+          ) : selectedTab === 'Spot' ? (
+            <SpotTokenView
+              tokens={spotTokens}
+              totalBalance={spotTotalBalance}
+              totalTokensCount={spotTotalTokensCount}
+              isLoading={isLoadingSpot}
+              error={null}
+              onRefresh={refreshSpot}
+            />
+          ) : null}
         </View>
       </ScrollView>
 
       <AccountBottomSheet
         ref={accountBottomSheetRef}
         onClose={() => {}}
+        currentAccount={currentAccount}
         onAccountSelect={handleAccountSelect}
         onResetWallet={handleResetWallet}
       />

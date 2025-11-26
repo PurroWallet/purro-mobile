@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Icon } from '@/components/Icon';
 import type { NFTCollection } from '@/core/apis/hyperscan/types';
 import NFTCollectionItem from './NFTCollectionItem';
 
@@ -88,8 +89,14 @@ const NFTCollectionList: React.FC<NFTCollectionListProps> = ({
   // Render empty state
   const renderEmptyState = () => (
     <View className="flex-1 items-center justify-center py-20 px-4">
-      <Text className="text-text-secondary text-base text-center">
-        {t('nft.noCollections', { defaultValue: 'No NFT collections found' })}
+      <View className="w-24 h-24 rounded-full bg-background-secondary items-center justify-center mb-4">
+        <Icon name="image" size={48} color="#6B7280" />
+      </View>
+      <Text className="text-lg font-semibold text-text-primary mb-2 text-center">
+        {t('nft.noCollectionsTitle', { defaultValue: 'No NFTs Yet' })}
+      </Text>
+      <Text className="text-sm text-text-secondary text-center">
+        {t('nft.noCollections', { defaultValue: 'Your NFT collections will appear here' })}
       </Text>
     </View>
   );
@@ -159,7 +166,7 @@ const NFTCollectionList: React.FC<NFTCollectionListProps> = ({
       keyExtractor={(item, index) => `${item.token.address}-${index}`}
       numColumns={2}
       columnWrapperStyle={{ gap: 12, paddingHorizontal: 16 }}
-      contentContainerStyle={{ paddingTop: 16, paddingBottom: 16 }}
+      contentContainerStyle={{ paddingTop: 16, paddingBottom: 16, flexGrow: 1 }}
       showsVerticalScrollIndicator={false}
       refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />}
       onEndReached={handleLoadMore}

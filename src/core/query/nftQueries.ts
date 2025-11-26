@@ -29,8 +29,8 @@ export async function fetchNFTCollections(
   isTestnet: boolean,
   pageParam?: NextPageParams,
 ): Promise<NFTCollectionsResponse> {
-  // Configure service for correct network
-  hyperscanService.setTestnetMode(isTestnet);
+  // Always use mainnet (hyperscan.com) for NFTs
+  hyperscanService.setTestnetMode(false);
 
   // Fetch collections
   return hyperscanService.fetchNFTCollections(address, pageParam);

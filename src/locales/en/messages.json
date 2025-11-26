@@ -50,7 +50,7 @@
     "sheetSubtitle": "Choose where you want to send.",
     "options": {
       "hyperliquid": "Send on Hyperliquid DEX",
-      "hypervm": "Send on HyperVM"
+      "hypervm": "Send on HyperVM & Supported Networks"
     },
     "selectTokenTitle": "Select Token",
     "destinationLabel": "Sending via {{destination}}",
@@ -118,19 +118,45 @@
     "tabs": {
       "evm": "EVM",
       "spot": "Spot",
-      "perpetuals": "Perpetuals"
+      "perpetuals": "Perpetuals",
+      "hyperliquid": "Hyperliquid"
+    },
+    "hyperliquid": {
+      "accountValue": "Account Value",
+      "marginUsed": "Margin Used",
+      "totalPosition": "Total Position",
+      "withdrawable": "Withdrawable",
+      "transfer": "Transfer",
+      "noPositionsTitle": "No Open Positions",
+      "noPositions": "Your trading positions will appear here",
+      "openPositions": "Open Positions",
+      "leverage": "Leverage",
+      "size": "Size",
+      "entryPrice": "Entry Price",
+      "margin": "Margin",
+      "error": "Failed to load Hyperliquid data"
     },
     "nav": {
       "home": "Home",
       "swap": "Swap",
       "nft": "NFT",
       "history": "History"
-    }
+    },
+    "chains": {
+      "all": "All",
+      "ethereum": "Ethereum",
+      "base": "Base",
+      "arbitrum": "Arbitrum"
+    },
+    "noTokensTitle": "No Tokens Yet",
+    "noTokens": "Your tokens will appear here once you receive them",
+    "errorLoadingTokens": "Error loading tokens",
+    "retry": "Retry",
+    "staleDataWarning": "Showing cached data. Pull to refresh for latest."
   },
   "accountBottomSheet": {
     "yourAccounts": "Your Accounts",
     "addAccount": "Add account",
-    "account": "Account",
     "current": "Current",
     "settings": "Settings",
     "editAccount": "Edit Account",
@@ -469,5 +495,12 @@
     "qrSaved": "QR code saved",
     "selectNetwork": "Select Network",
     "receiveToken": "Receive Token"
+  },
+  "nft": {
+    "noCollectionsTitle": "No NFTs Yet",
+    "noCollections": "Your NFT collections will appear here",
+    "errorLoadingCollections": "Error loading NFT collections",
+    "retry": "Retry",
+    "staleDataWarning": "Showing cached data. Pull to refresh for latest."
   }
 }

@@ -15,13 +15,14 @@ import { useToast } from 'react-native-toast-notifications';
 import { NetworkLogos } from '@/assets';
 import { Button } from '@/components';
 import CustomBackground from '@/components/AccountBottomSheet/CustomBackground';
+import { Icon } from '@/components/Icon';
 import { useTranslation } from '@/utils/i18n';
 
 interface Account {
   address: string;
   type: string;
   brandName: string;
-  alianName?: string;
+  aliasName?: string;
 }
 
 interface Network {
@@ -167,10 +168,10 @@ const ReceiveTokenSheet = forwardRef<ReceiveTokenSheetRef, ReceiveTokenSheetProp
               <View className="w-8" />
             ) : (
               <TouchableOpacity onPress={() => setCurrentStep('selectNetwork')} className="w-8">
-                <Text className="text-2xl text-text-primary">‹</Text>
+                <Icon name="ArrowLeft" size={24} />
               </TouchableOpacity>
             )}
-            <Text className="text-lg font-semibold text-text-primary">
+            <Text className="text-xl font-semibold text-text-primary">
               {currentStep === 'selectNetwork'
                 ? t('receiveToken.selectNetwork')
                 : t('receiveToken.receiveToken')}
@@ -179,13 +180,13 @@ const ReceiveTokenSheet = forwardRef<ReceiveTokenSheetRef, ReceiveTokenSheetProp
               onPress={() => bottomSheetRef.current?.dismiss()}
               className="w-8 items-end"
             >
-              <Text className="text-2xl text-text-primary">✕</Text>
+              <Icon name="X" size={24} />
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Content */}
-        <View className="flex-1 pb-10 items-center gap-5">
+        <View className="flex-1 pb-10 pt-12 items-center gap-5">
           {currentStep === 'selectNetwork' ? (
             <>
               <Text className="text-lg text-center px-6 text-[#6A7282]">

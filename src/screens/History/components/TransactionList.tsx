@@ -1,14 +1,16 @@
 import { Filter } from 'lucide-react-native';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import type { ListRenderItem } from 'react-native';
 import {
   ActivityIndicator,
   FlatList,
   RefreshControl,
+  ScrollView,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { CHAIN_NAMES, type SupportedChainId } from '@/core/apis/etherscan';
 import type {
   TokenTransfer,
   TokenTransferGroup,
@@ -32,16 +34,38 @@ const TransactionList: React.FC<TransactionListProps> = ({ onTransactionPress })
   const { currentAccount } = useCurrentAccount();
   const [filter, setFilter] = useState<TransactionFilter>('both');
   const [showFilterMenu, setShowFilterMenu] = useState(false);
+  const [selectedChain, setSelectedChain] = useState<SupportedChainId | 'all'>('all');
 
   const {
-    transactionGroups,
+    transactionGroups: allTransactionGroups,
     isLoading,
     isFetchingNextPage,
     error,
     hasNextPage,
     fetchNextPage,
     refetch,
-  } = useTransactions(currentAccount?.address || '', filter, false);
+  } = useTransactions(currentAccount?.address || '', filter, false, 'etherscan');
+
+  // Filter transactions by selected chain
+  const transactionGroups = useMemo(() => {
+    if (selectedChain === 'all') {
+      return allTransactionGroups;
+    }
+
+    // Filter groups by chain
+    return allTransactionGroups
+      .map((group) => ({
+        ...group,
+        transactions: group.transactions.filter((tx) => {
+          // Determine chain from token name or symbol
+          const chainName = CHAIN_NAMES[selectedChain];
+          return (
+            tx.token.name.includes(chainName) || tx.token.symbol.includes(chainName.toUpperCase())
+          );
+        }),
+      }))
+      .filter((group) => group.transactions.length > 0);
+  }, [allTransactionGroups, selectedChain]);
 
   // Handle filter change
   const handleFilterChange = useCallback((newFilter: TransactionFilter) => {
@@ -83,13 +107,15 @@ const TransactionList: React.FC<TransactionListProps> = ({ onTransactionPress })
     );
   }, [isFetchingNextPage]);
 
-  // Render empty state
   const renderEmpty = useCallback(() => {
     if (isLoading) return null;
     return (
-      <View className="flex-1 items-center justify-center py-20">
-        <Text className="text-lg text-text-secondary">No transactions found</Text>
-        <Text className="text-sm text-text-secondary mt-2">
+      <View className="flex-1 items-center justify-center py-20 px-4">
+        <View className="w-24 h-24 rounded-full bg-background-secondary items-center justify-center mb-4">
+          <Filter size={48} color="#6B7280" />
+        </View>
+        <Text className="text-lg font-semibold text-text-primary mb-2">No transactions found</Text>
+        <Text className="text-sm text-text-secondary text-center">
           Your transaction history will appear here
         </Text>
       </View>
@@ -113,72 +139,109 @@ const TransactionList: React.FC<TransactionListProps> = ({ onTransactionPress })
     );
   }
 
+  // Render skeleton loading state
+  const renderSkeleton = useCallback(() => {
+    return (
+      <View className="flex-1 px-4">
+        {[1, 2, 3].map((groupIndex) => (
+          <View key={groupIndex} className="mb-6">
+            {/* Date skeleton */}
+            <View className="h-4 w-24 bg-background-secondary rounded mb-3" />
+
+            {/* Transaction items skeleton */}
+            {[1, 2, 3].map((itemIndex) => (
+              <View
+                key={itemIndex}
+                className="flex-row items-center justify-between py-4 border-b border-border-secondary"
+              >
+                {/* Left side: Icon + Info */}
+                <View className="flex-row items-center flex-1">
+                  {/* Icon skeleton */}
+                  <View className="w-12 h-12 rounded-full bg-background-secondary mr-4" />
+
+                  {/* Text info skeleton */}
+                  <View className="flex-1">
+                    <View className="h-4 w-32 bg-background-secondary rounded mb-2" />
+                    <View className="h-3 w-24 bg-background-secondary rounded" />
+                  </View>
+                </View>
+
+                {/* Right side: Amount skeleton */}
+                <View className="items-end">
+                  <View className="h-4 w-20 bg-background-secondary rounded mb-2" />
+                  <View className="h-3 w-16 bg-background-secondary rounded" />
+                </View>
+              </View>
+            ))}
+          </View>
+        ))}
+      </View>
+    );
+  }, []);
+
   // Render loading state
   if (isLoading) {
     return (
-      <View className="flex-1 items-center justify-center">
-        <ActivityIndicator size="large" color="#059288" />
-        <Text className="text-sm text-text-secondary mt-4">Loading transactions...</Text>
+      <View className="flex-1">
+        {/* Chain Filter Tabs Skeleton */}
+        <View className="px-4 py-2">
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <View className="flex-row gap-2">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <View key={i} className="h-9 w-24 bg-background-secondary rounded-lg" />
+              ))}
+            </View>
+          </ScrollView>
+        </View>
+
+        {/* Transaction List Skeleton */}
+        <ScrollView className="flex-1">{renderSkeleton()}</ScrollView>
       </View>
     );
   }
 
   return (
     <View className="flex-1">
-      {/* Filter Button */}
-      <View className="px-4 py-2 flex-row justify-end">
-        <TouchableOpacity
-          onPress={() => setShowFilterMenu(!showFilterMenu)}
-          className="flex-row items-center px-3 py-2 bg-background-secondary rounded-lg"
-          activeOpacity={0.7}
-        >
-          <Filter size={16} color="#059288" />
-          <Text className="text-sm text-text-primary ml-2 capitalize">{filter}</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Filter Menu */}
-      {showFilterMenu && (
-        <View className="px-4 pb-2">
-          <View className="bg-background-secondary rounded-lg overflow-hidden">
+      {/* Chain Filter Tabs */}
+      <View className="px-4 py-2">
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <View className="flex-row gap-2">
             <TouchableOpacity
-              onPress={() => handleFilterChange('both')}
-              className={`px-4 py-3 ${filter === 'both' ? 'bg-accent/10' : ''}`}
+              onPress={() => setSelectedChain('all')}
+              className={`px-4 py-2 rounded-lg ${
+                selectedChain === 'all' ? 'bg-accent' : 'bg-background-secondary'
+              }`}
               activeOpacity={0.7}
             >
               <Text
-                className={`text-base ${filter === 'both' ? 'text-accent font-medium' : 'text-text-primary'}`}
+                className={`text-sm font-medium ${
+                  selectedChain === 'all' ? 'text-white' : 'text-text-primary'
+                }`}
               >
-                All Transactions
+                All Chains
               </Text>
             </TouchableOpacity>
-            <View className="h-px bg-border-secondary" />
-            <TouchableOpacity
-              onPress={() => handleFilterChange('from')}
-              className={`px-4 py-3 ${filter === 'from' ? 'bg-accent/10' : ''}`}
-              activeOpacity={0.7}
-            >
-              <Text
-                className={`text-base ${filter === 'from' ? 'text-accent font-medium' : 'text-text-primary'}`}
+            {([1, 42161, 8453, 999] as SupportedChainId[]).map((chainId) => (
+              <TouchableOpacity
+                key={chainId}
+                onPress={() => setSelectedChain(chainId)}
+                className={`px-4 py-2 rounded-lg ${
+                  selectedChain === chainId ? 'bg-accent' : 'bg-background-secondary'
+                }`}
+                activeOpacity={0.7}
               >
-                Sent Only
-              </Text>
-            </TouchableOpacity>
-            <View className="h-px bg-border-secondary" />
-            <TouchableOpacity
-              onPress={() => handleFilterChange('to')}
-              className={`px-4 py-3 ${filter === 'to' ? 'bg-accent/10' : ''}`}
-              activeOpacity={0.7}
-            >
-              <Text
-                className={`text-base ${filter === 'to' ? 'text-accent font-medium' : 'text-text-primary'}`}
-              >
-                Received Only
-              </Text>
-            </TouchableOpacity>
+                <Text
+                  className={`text-sm font-medium ${
+                    selectedChain === chainId ? 'text-white' : 'text-text-primary'
+                  }`}
+                >
+                  {CHAIN_NAMES[chainId]}
+                </Text>
+              </TouchableOpacity>
+            ))}
           </View>
-        </View>
-      )}
+        </ScrollView>
+      </View>
 
       {/* Transaction List */}
       <FlatList<TokenTransferGroup>
@@ -197,6 +260,7 @@ const TransactionList: React.FC<TransactionListProps> = ({ onTransactionPress })
             colors={['#059288']}
           />
         }
+        contentContainerStyle={{ flexGrow: 1 }}
         className="flex-1"
       />
     </View>

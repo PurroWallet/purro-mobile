@@ -48,8 +48,6 @@ async function fetchTokensWithCache(
     const chainDataArray = await fetchAllEvmTokens(address, isTestnet);
     const endpoints = getEndpoints(isTestnet);
 
-    // Process each chain's data with cache-first strategy
-    // Use Promise.allSettled to handle partial failures gracefully
     const processedResults = await Promise.allSettled(
       chainDataArray.map(async (chainData) => {
         // If there was an error or no tokens, return as-is
@@ -200,12 +198,10 @@ export function useTokens(address: string, isTestnet: boolean = false): UseToken
     enabled: !!address && address.length > 0,
     staleTime: 30000, // 30 seconds - tokens are relatively stable
     gcTime: 300000, // 5 minutes - keep in cache for quick access
-    retry: 2, // Retry failed requests twice
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000), // Exponential backoff
-    // Graceful degradation: Keep showing stale data while refetching
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
     refetchOnMount: 'always',
     refetchOnWindowFocus: false,
-    // Keep previous data while fetching new data
     placeholderData: (previousData) => previousData,
   });
 

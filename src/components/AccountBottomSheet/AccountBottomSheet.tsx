@@ -8,9 +8,9 @@ import CustomBackground from './CustomBackground';
 
 interface Account {
   address: string;
-  type: string;
-  brandName: string;
-  alianName?: string;
+  type?: string;
+  brandName?: string;
+  aliasName?: string;
 }
 
 interface AccountBottomSheetProps {

@@ -57,7 +57,13 @@ async function fetchTransactionsPage(
 
   let response;
   if (dataSource === 'etherscan') {
-    response = await etherscanService.fetchTokenTransfers(address, filter, pageParam);
+    // For Etherscan, fetch from all chains at once (no pagination)
+    if (!pageParam) {
+      response = await etherscanService.fetchAllChainTransfers(address, filter);
+    } else {
+      // If pageParam exists, we've already fetched all data, return empty
+      response = { items: [], next_page_params: null };
+    }
   } else {
     hyperscanService.setTestnetMode(isTestnet);
     response = await hyperscanService.fetchTokenTransfers(address, filter, pageParam);
