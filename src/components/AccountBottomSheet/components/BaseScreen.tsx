@@ -39,7 +39,7 @@ const BaseScreen: React.FC<BaseScreenProps> = ({
     if (!title && !showAccountInfo) return null;
 
     return (
-      <View>
+      <View className="">
         {/* Header Title - for other screens */}
         {title && <SheetHeader title={title} showBackButton={showBackButton} onBack={onBack} />}
 

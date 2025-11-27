@@ -42,10 +42,6 @@ const SeedPhraseVerifyScreen: React.FC<Props> = ({ onClose }) => {
     return value?.trim().length;
   });
 
-  const updateField = (fieldName: string, value: string) => {
-    form.setValue(fieldName, value, { shouldValidate: true });
-  };
-
   const onSubmit = (values: Record<string, string>) => {
     const isValid = verificationFields.every((field) => {
       const inputWord = values[field.name]?.toLowerCase().trim();
@@ -109,36 +105,40 @@ const SeedPhraseVerifyScreen: React.FC<Props> = ({ onClose }) => {
       isScrollable={true}
       footer={renderFooter()}
     >
-      {/* Progress Indicator */}
-      <View className="items-center mb-8">
-        <View className="h-1 w-16 rounded-full bg-brand-primary" />
-        <View className="mt-2 h-1 w-16 rounded-full bg-border" />
-      </View>
-
-      {/* Subtitle */}
-      <View className="mb-8">
-        <Text className="text-center text-button text-text-secondary">
-          {t('seedPhrase.verify.subtitle')}
-        </Text>
-      </View>
-
-      {/* Verification Fields */}
-      <FormProvider {...form}>
-        <View className="w-full gap-6">
-          {verificationFields.map((field, index) => (
-            <FormInput
-              key={field.name}
-              name={field.name}
-              label={t('seedPhrase.verify.wordLabel', { number: field.position + 1 })}
-              placeholder={`Enter word ${field.position + 1}`}
-              autoCapitalize="none"
-              autoCorrect={false}
-              returnKeyType={index === verificationFields.length - 1 ? 'done' : 'next'}
-              onSubmitEditing={index === verificationFields.length - 1 ? handleContinue : undefined}
-            />
-          ))}
+      <View className="px-4">
+        {/* Progress Indicator */}
+        <View className="items-center mb-8">
+          <View className="h-1 w-16 rounded-full bg-brand-primary" />
+          <View className="mt-2 h-1 w-16 rounded-full bg-border" />
         </View>
-      </FormProvider>
+
+        {/* Subtitle */}
+        <View className="mb-8">
+          <Text className="text-center text-button text-text-secondary">
+            {t('seedPhrase.verify.subtitle')}
+          </Text>
+        </View>
+
+        {/* Verification Fields */}
+        <FormProvider {...form}>
+          <View className="w-full gap-6">
+            {verificationFields.map((field, index) => (
+              <FormInput
+                key={field.name}
+                name={field.name}
+                label={t('seedPhrase.verify.wordLabel', { number: field.position + 1 })}
+                placeholder={`Enter word ${field.position + 1}`}
+                autoCapitalize="none"
+                autoCorrect={false}
+                returnKeyType={index === verificationFields.length - 1 ? 'done' : 'next'}
+                onSubmitEditing={
+                  index === verificationFields.length - 1 ? handleContinue : undefined
+                }
+              />
+            ))}
+          </View>
+        </FormProvider>
+      </View>
     </BaseScreen>
   );
 };

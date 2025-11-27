@@ -59,6 +59,8 @@ export type RootStackParamList = {
   ImportPrivateKey: undefined;
   Unlock: undefined;
   Home: undefined;
+  Swap: undefined;
+  WebView: { url: string };
 };
 
 export type MainTabParamList = {

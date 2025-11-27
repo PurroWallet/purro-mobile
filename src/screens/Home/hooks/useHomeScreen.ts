@@ -5,7 +5,12 @@ import { Alert } from 'react-native';
 import type { AccountBottomSheetRef } from '@/components/AccountBottomSheet';
 import { apisKeychain, apisLock, apisWallet } from '@/core/apis';
 import type { ChainTokenData, TokenWithMetadata } from '@/core/apis/alchemy/types';
-import type { AccountMetrics, FormattedPosition } from '@/core/apis/hyperliquid';
+import type {
+  AccountMetrics,
+  FormattedPosition,
+  FormattedSpotToken,
+} from '@/core/apis/hyperliquid';
+import { useAllTokensMarketData } from '@/core/hooks/useTokenMarketData';
 import { useCurrentAccount } from '@/core/hooks/wallet/useCurrentAccount';
 import { useTokens } from '@/core/hooks/wallet/useTokens';
 import { tokenService } from '@/core/services';
@@ -25,23 +30,6 @@ export interface Account {
   aliasName?: string;
 }
 
-export interface PerpPosition {
-  id: string;
-  name: string;
-  multiplier: string;
-  value: string;
-  change: string;
-  changeType: 'positive' | 'negative';
-}
-
-export interface Token {
-  id: string;
-  name: string;
-  symbol: string;
-  balance: string;
-  value: string;
-}
-
 export interface UseHomeScreenResult {
   accountBottomSheetRef: RefObject<AccountBottomSheetRef | null>;
   sentTokenSheetRef: RefObject<SentTokenSheetRef | null>;
@@ -49,16 +37,14 @@ export interface UseHomeScreenResult {
   selectedTab: 'EVM' | 'Spot' | 'Perpetuals' | 'HYPE_LIQUID';
   onSelectTab: (tab: 'EVM' | 'Spot' | 'Perpetuals' | 'HYPE_LIQUID') => void;
   currentAccount: Account | null;
-  perpPositions: PerpPosition[];
-  tokens: Token[];
   totalBalance: string;
-  totalTokensCount: number;
   isLoadingTokens: boolean;
   handleAccountSelect: (account: Account) => void;
   handleResetWallet: () => Promise<void>;
   openAccountSheet: () => void;
   openSendSheet: () => void;
   openReceiveSheet: () => void;
+  openSwapScreen: () => void;
   refreshTokens: () => Promise<void>;
   navigateSearch: () => void;
   // New EVM token list properties
@@ -77,7 +63,7 @@ export interface UseHomeScreenResult {
   refreshHyperliquid: () => Promise<void>;
   handleHyperliquidTransfer: () => void;
   // Spot properties
-  spotTokens: import('@/core/apis/hyperliquid').FormattedSpotToken[];
+  spotTokens: FormattedSpotToken;
   spotTotalBalance: string;
   spotTotalTokensCount: number;
   isLoadingSpot: boolean;
@@ -111,16 +97,16 @@ export const useHomeScreen = (): UseHomeScreenResult => {
     refetch: refetchEvmTokens,
   } = useTokens(currentAccount?.address || '', false);
 
-  // Use Hyperliquid hook
+  // Use Hyperliquid hook - always fetch for total balance calculation
   const {
     accountMetrics: hyperliquidMetrics,
     positions: hyperliquidPositions,
     isLoading: isLoadingHyperliquid,
     error: hyperliquidError,
     refresh: refreshHyperliquid,
-  } = useHyperliquid(currentAccount?.address, selectedTab === 'HYPE_LIQUID');
+  } = useHyperliquid(currentAccount?.address, true);
 
-  // Use Hyperliquid Spot hook
+  // Use Hyperliquid Spot hook - always fetch for total balance calculation
   const {
     tokens: spotTokens,
     totalBalance: spotTotalBalance,
@@ -128,39 +114,12 @@ export const useHomeScreen = (): UseHomeScreenResult => {
     isLoading: isLoadingSpot,
     error: spotError,
     refresh: refreshSpot,
-  } = useHyperliquidSpot(currentAccount?.address, selectedTab === 'Spot');
+  } = useHyperliquidSpot(currentAccount?.address, true);
 
-  const perpPositions = useMemo<PerpPosition[]>(
-    () => [
-      {
-        id: '1',
-        name: 'Lilly',
-        multiplier: '20x',
-        value: '$111,638',
-        change: '-20%',
-        changeType: 'negative',
-      },
-      {
-        id: '2',
-        name: 'LIQD',
-        multiplier: '20x',
-        value: '$111,638',
-        change: '-20%',
-        changeType: 'negative',
-      },
-      {
-        id: '3',
-        name: 'LIQD',
-        multiplier: '20x',
-        value: '$111,638',
-        change: '-20%',
-        changeType: 'negative',
-      },
-    ],
-    [],
-  );
+  // Fetch all token market data for price calculations
+  const { allTokens: tokenPrices } = useAllTokensMarketData();
 
-  const tokens = useMemo<Token[]>(
+  const tokens = useMemo(
     () =>
       tokenBalances.map((token) => ({
         id: token.address,
@@ -174,9 +133,34 @@ export const useHomeScreen = (): UseHomeScreenResult => {
 
   // Calculate grand total from all 3 tabs (EVM + Spot + Perpetuals)
   const totalBalance = useMemo(() => {
-    // For now, use legacy tokenBalances total as EVM total
-    // TODO: Calculate from evmTokens when price data is available
-    const evmTotal = tokenBalances.reduce((sum, token) => sum + token.usdValue, 0);
+    // Calculate EVM total from evmTokens with price data
+    let evmTotal = 0;
+    const TOKEN_ID_MAP: Record<string, string> = {
+      ETH: 'eth-ethereum',
+      WETH: 'eth-ethereum',
+      BTC: 'btc-bitcoin',
+      WBTC: 'btc-bitcoin',
+      HYPE: 'hype-hyperliquid',
+      USDC: 'usdc-usd-coin',
+      USDT: 'usdt-tether',
+      ARB: 'arb-arbitrum',
+      BASE: 'base-base',
+    };
+
+    for (const chainData of evmTokens) {
+      for (const token of chainData.tokens) {
+        // Get token ID from symbol for price lookup
+        const symbol = token.metadata.symbol.toUpperCase();
+        const tokenId = TOKEN_ID_MAP[symbol];
+        const price = tokenId && tokenPrices[tokenId] ? tokenPrices[tokenId].price : 0;
+
+        // Calculate balance in human-readable format
+        const balanceNum = parseFloat(token.balance) / 10 ** token.metadata.decimals;
+        const usdValue = balanceNum * price;
+
+        evmTotal += usdValue;
+      }
+    }
 
     // Parse Spot balance
     const spotTotal = parseFloat(spotTotalBalance.replace(/\$/g, '').replace(/,/g, '')) || 0;
@@ -187,11 +171,23 @@ export const useHomeScreen = (): UseHomeScreenResult => {
       : 0;
 
     const grandTotal = evmTotal + spotTotal + perpsTotal;
+
+    console.log('💰 Total Balance Calculation:', {
+      evmTotal,
+      spotTotal,
+      perpsTotal,
+      grandTotal,
+      evmTokensCount: evmTokens.length,
+      spotTotalBalanceRaw: spotTotalBalance,
+      calculation: `${evmTotal} + ${spotTotal} + ${perpsTotal} = ${grandTotal}`,
+      spotTotalBalance,
+    });
+
     return `$${grandTotal.toLocaleString('en-US', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     })}`;
-  }, [tokenBalances, spotTotalBalance, hyperliquidMetrics]);
+  }, [evmTokens, spotTotalBalance, hyperliquidMetrics, tokenPrices]);
 
   const totalTokensCount = tokens.length;
 
@@ -272,6 +268,10 @@ export const useHomeScreen = (): UseHomeScreenResult => {
     receiveTokenSheetRef.current?.present();
   }, []);
 
+  const openSwapScreen = useCallback(() => {
+    navigation.navigate('Swap');
+  }, []);
+
   function navigateSearch() {
     navigation.navigate('SearchScreen');
   }
@@ -318,8 +318,6 @@ export const useHomeScreen = (): UseHomeScreenResult => {
   // Handle Hyperliquid transfer
   const handleHyperliquidTransfer = useCallback(() => {
     console.log('Navigate to Hyperliquid transfer screen');
-    // TODO: Navigate to transfer screen
-    // navigation.navigate('HyperliquidTransfer');
   }, []);
 
   return {
@@ -329,16 +327,14 @@ export const useHomeScreen = (): UseHomeScreenResult => {
     selectedTab,
     onSelectTab,
     currentAccount,
-    perpPositions,
-    tokens,
     totalBalance,
-    totalTokensCount,
     isLoadingTokens,
     handleAccountSelect,
     handleResetWallet,
     openAccountSheet,
     openSendSheet,
     openReceiveSheet,
+    openSwapScreen,
     refreshTokens: fetchTokenBalances,
     navigateSearch,
     // New EVM token list properties

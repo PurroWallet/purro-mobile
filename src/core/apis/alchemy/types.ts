@@ -29,6 +29,8 @@ export interface TokenWithMetadata {
   contractAddress: string;
   balance: string;
   metadata: TokenMetadata;
+  price?: number; // Token price in USD
+  balanceUsd?: number; // Calculated: balance * price
 }
 
 /**

@@ -68,6 +68,7 @@
     "react-native-screenshot-prevent": "^1.2.1",
     "react-native-svg": "^15.14.0",
     "react-native-toast-notifications": "^3.4.0",
+    "react-native-webview": "^13.16.0",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^4.1.12",
     "zustand": "^5.0.8"

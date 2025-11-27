@@ -2,7 +2,6 @@ import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import {
   ActivityIndicator,
-  Image as RNImage,
   ScrollView,
   Text,
   TextInput,
@@ -10,11 +9,9 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { SvgUri } from 'react-native-svg';
-import DefaultIcon from '@/assets/common/icon.png';
 import { Icon } from '@/components/Icon';
-import { hyperliquidService } from '@/core/apis/hyperliquid';
 import { useSearchScreen } from '../hooks/useSearchScreen';
+import SearchTokenItem from './SearchTokenItem';
 
 const SearchScreen = () => {
   const navigation = useNavigation();
@@ -72,7 +69,7 @@ const SearchScreen = () => {
         <ScrollView className="flex-1 px-6" showsVerticalScrollIndicator={false}>
           {[1, 2, 3, 4, 5, 6, 7, 8].map((index) => (
             <View
-              key={`skeleton-${index}`}
+              key={index}
               className="flex-row items-center justify-between py-4 border-b border-border-secondary"
             >
               {/* Left side: Icon + Info */}
@@ -111,57 +108,9 @@ const SearchScreen = () => {
           }}
           scrollEventThrottle={400}
         >
-          {tokens.map((token) => {
-            const iconUrl = token.icon || hyperliquidService.getSpotTokenImage(token.symbol);
-            const isSvg = iconUrl.endsWith('.svg');
-
-            return (
-              <TouchableOpacity
-                key={token.id}
-                className="flex-row items-center justify-between py-4 border-b border-border-secondary"
-              >
-                <View className="flex-row items-center flex-1">
-                  <View className="w-12 h-12 items-center justify-center">
-                    {isSvg ? (
-                      <SvgUri
-                        width="48"
-                        height="48"
-                        uri={iconUrl}
-                        onError={() => console.log('Failed to load SVG:', iconUrl)}
-                      />
-                    ) : (
-                      <RNImage
-                        source={DefaultIcon}
-                        className="w-12 h-12 rounded-full"
-                        resizeMode="cover"
-                      />
-                    )}
-                  </View>
-
-                  <View className="flex-1 ml-4">
-                    <View className="flex-row items-center mb-1">
-                      <Text className="text-text-primary text-lg font-semibold">
-                        {token.symbol}
-                      </Text>
-                      {token.verified && (
-                        <View className="ml-2">
-                          <Icon name="badge-check" size={16} color="#3B82F6" />
-                        </View>
-                      )}
-                    </View>
-                    <Text className="text-text-secondary text-sm">{token.name}</Text>
-                  </View>
-                </View>
-
-                <View className="items-end">
-                  <Text className="text-text-primary text-lg font-semibold mb-1">
-                    {formatNumber(token.transfers24h)}
-                  </Text>
-                  <Text className="text-text-secondary text-xs">24h Transfers</Text>
-                </View>
-              </TouchableOpacity>
-            );
-          })}
+          {tokens.map((token) => (
+            <SearchTokenItem key={token.id} token={token} formatNumber={formatNumber} />
+          ))}
 
           {tokens.length === 0 && !isLoading && (
             <View className="items-center justify-center py-20">

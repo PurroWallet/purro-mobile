@@ -27,6 +27,8 @@ export interface UseWelcomeScreenResult {
   onCreateWallet: () => Promise<void>;
   onImportWallet: () => void;
   onSocialLogin: () => Promise<void>;
+  onViewTerms: () => void;
+  onViewPrivacy: () => void;
 }
 
 export const useWelcomeScreen = (): UseWelcomeScreenResult => {
@@ -158,6 +160,14 @@ export const useWelcomeScreen = (): UseWelcomeScreenResult => {
     }
   }, [ensureTermsAccepted, navigation, t]);
 
+  const onViewTerms = useCallback(() => {
+    navigation.navigate('WebView', { url: 'https://purro.xyz/terms/' });
+  }, [navigation]);
+
+  const onViewPrivacy = useCallback(() => {
+    navigation.navigate('WebView', { url: 'https://purro.xyz/privacy/' });
+  }, [navigation]);
+
   return {
     strings,
     acceptedTerms,
@@ -166,5 +176,7 @@ export const useWelcomeScreen = (): UseWelcomeScreenResult => {
     onCreateWallet,
     onImportWallet,
     onSocialLogin,
+    onViewTerms,
+    onViewPrivacy,
   };
 };

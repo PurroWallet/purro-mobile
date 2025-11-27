@@ -13,6 +13,8 @@ interface WelcomeContentProps {
   onCreateWallet: () => void;
   onImportWallet: () => void;
   onSocialLogin: () => void;
+  onViewTerms: () => void;
+  onViewPrivacy: () => void;
 }
 
 export const WelcomeContent: React.FC<WelcomeContentProps> = ({
@@ -23,6 +25,8 @@ export const WelcomeContent: React.FC<WelcomeContentProps> = ({
   onCreateWallet,
   onImportWallet,
   onSocialLogin,
+  onViewTerms,
+  onViewPrivacy,
 }) => {
   const isActionDisabled = !acceptedTerms;
   const isSocialDisabled = !acceptedTerms || loadingProvider !== null;
@@ -45,7 +49,7 @@ export const WelcomeContent: React.FC<WelcomeContentProps> = ({
       </View>
 
       <View className="gap-5 px-5 pb-5">
-        <View className="items-center">
+        <View className="items-center gap-2">
           <Pressable className="flex-row items-center gap-2" onPress={onToggleTerms}>
             <View
               className={`h-4 w-4 items-center justify-center rounded border border-text-secondary ${acceptedTerms ? 'border-brand-primary bg-brand-primary' : 'bg-transparent'}`}
@@ -56,6 +60,16 @@ export const WelcomeContent: React.FC<WelcomeContentProps> = ({
             </View>
             <Text className="text-label text-text-secondary">{strings.termsText}</Text>
           </Pressable>
+
+          <View className="flex-row items-center gap-2">
+            <Pressable onPress={onViewTerms}>
+              <Text className="text-xs text-brand-primary underline">Terms of Service</Text>
+            </Pressable>
+            <Text className="text-xs text-text-secondary">•</Text>
+            <Pressable onPress={onViewPrivacy}>
+              <Text className="text-xs text-brand-primary underline">Privacy Policy</Text>
+            </Pressable>
+          </View>
         </View>
 
         <View className="mt-4">

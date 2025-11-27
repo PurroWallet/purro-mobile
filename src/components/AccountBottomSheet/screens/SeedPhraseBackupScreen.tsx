@@ -114,7 +114,7 @@ const SeedPhraseBackupScreen: React.FC<Props> = ({ navigation, route, onClose })
       footer={renderFooter()}
       isScrollable={true}
     >
-      <BottomSheetScrollView className="w-full px-5" contentContainerClassName="pb-10">
+      <BottomSheetScrollView className="w-full" contentContainerClassName="pb-10">
         <View className="py-2">
           <Text className="text-lg text-[#F9F9F9] mb-2">
             {t('accountBottomSheet.recoveryPhraseTitle')}

@@ -34,6 +34,7 @@ import {
   WalletSuccessScreen,
   WelcomeScreen,
 } from '@/screens';
+import WebViewScreen from '@/screens/Settings/WebViewScreen';
 import { useAppStore } from '@/stores/appStore';
 import type { RootStackParamList } from '@/types/navigation';
 
@@ -190,6 +191,7 @@ const App: React.FC = () => {
                   {/* Main App Flow */}
                   <Stack.Screen name="Home" component={MainTabNavigator} />
                   <Stack.Screen name="SearchScreen" component={SearchScreen} />
+                  <Stack.Screen name="WebView" component={WebViewScreen} />
                 </Stack.Navigator>
 
                 {/* Screenshot protection components (Rabby pattern) */}

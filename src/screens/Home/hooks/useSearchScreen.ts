@@ -5,6 +5,7 @@
 
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCurrentAccount } from '@/core/hooks/wallet/useCurrentAccount';
 import { tokenService } from '@/core/services/TokenService';
 
 export interface UseSearchScreenReturn {
@@ -25,6 +26,7 @@ export interface UseSearchScreenReturn {
 }
 
 export const useSearchScreen = (): UseSearchScreenReturn => {
+  const { currentAccount } = useCurrentAccount();
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -49,9 +51,16 @@ export const useSearchScreen = (): UseSearchScreenReturn => {
   // React Query for infinite token list
   const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, refetch } =
     useInfiniteQuery({
-      queryKey: ['tokens', 'hyperliquid', debouncedSearch],
+      queryKey: ['tokens', 'hyperliquid', debouncedSearch, currentAccount?.address],
       queryFn: async ({ pageParam = 1 }) => {
-        console.log('Fetching tokens - page:', pageParam, 'search:', debouncedSearch);
+        console.log(
+          'Fetching tokens - page:',
+          pageParam,
+          'search:',
+          debouncedSearch,
+          'account:',
+          currentAccount?.address,
+        );
 
         const response = await tokenService.fetchTokens({
           network: 'hyperliquid',
@@ -69,6 +78,7 @@ export const useSearchScreen = (): UseSearchScreenReturn => {
       },
       staleTime: 30000, // 30 seconds
       gcTime: 300000, // 5 minutes
+      enabled: !!currentAccount?.address, // Only fetch when we have an account
     });
 
   // Flatten all pages into single token array

@@ -27,16 +27,14 @@ const HomeContent = () => {
     selectedTab,
     onSelectTab,
     currentAccount,
-    tokens,
     totalBalance,
-    totalTokensCount,
     isLoadingTokens,
     handleAccountSelect,
     handleResetWallet,
     openAccountSheet,
     openSendSheet,
     openReceiveSheet,
-    refreshTokens,
+    openSwapScreen,
     navigateSearch,
     evmTokens,
     isLoadingEvmTokens,
@@ -73,15 +71,9 @@ const HomeContent = () => {
   const handleRefresh = async () => {
     setIsRefreshing(true);
     try {
-      if (selectedTab === 'EVM') {
-        await refreshEvmTokens();
-      } else if (selectedTab === 'HYPE_LIQUID') {
-        await refreshHyperliquid();
-      } else if (selectedTab === 'Spot') {
-        await refreshSpot();
-      } else {
-        await refreshTokens();
-      }
+      await refreshSpot();
+      await refreshEvmTokens();
+      await refreshHyperliquid();
     } finally {
       setIsRefreshing(false);
     }
@@ -118,7 +110,7 @@ const HomeContent = () => {
       >
         <View className="items-center pt-10 pb-0">
           <Text className="text-text-primary text-5xl font-semibold">
-            {isLoadingTokens ? t('home.loading', { defaultValue: 'Loading...' }) : totalBalance}
+            {isLoadingEvmTokens ? t('home.loading', { defaultValue: 'Loading...' }) : totalBalance}
           </Text>
         </View>
 
@@ -139,7 +131,10 @@ const HomeContent = () => {
             <Text className="text-text-primary text-sm">{t('home.receive')}</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity className="flex-1 rounded-xl bg-background-secondary py-4 items-center gap-3">
+          <TouchableOpacity
+            className="flex-1 rounded-xl bg-background-secondary py-4 items-center gap-3"
+            onPress={openSwapScreen}
+          >
             <Icon name="repeat" size={24} />
             <Text className="text-text-primary text-sm">{t('home.swap')}</Text>
           </TouchableOpacity>
@@ -149,74 +144,6 @@ const HomeContent = () => {
             <Text className="text-text-primary text-sm">{t('home.bridge')}</Text>
           </TouchableOpacity>
         </View>
-
-        {/* <View className="pb-0 px-6">
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ gap: 8 }}
-          >
-            <View className="rounded-xl bg-background-secondary/60 px-4 py-4 flex-row items-center gap-3.5 min-w-[320px]">
-              <RNImage
-                source={DefaultIcon}
-                className="w-10 h-10 rounded-full border-2 border-background-primary"
-                resizeMode="cover"
-              />
-              <View className="flex-1">
-                <Text className="text-text-primary text-lg">{t('home.createAccount')}</Text>
-                <Text className="text-text-secondary text-sm">
-                  {t('home.createAccountDescription')}
-                </Text>
-              </View>
-              <Icon name="chevron-right" size={24} />
-            </View>
-
-            <View className="rounded-xl bg-background-secondary/60 px-4 py-4 flex-row items-center gap-3.5 min-w-[320px]">
-              <RNImage
-                source={DefaultIcon}
-                className="w-10 h-10 rounded-full border-2 border-background-primary"
-                resizeMode="cover"
-              />
-              <View className="flex-1">
-                <Text className="text-text-primary text-lg">{t('home.createAccount')}</Text>
-                <Text className="text-text-secondary text-sm">
-                  {t('home.createAccountDescription')}
-                </Text>
-              </View>
-              <Icon name="chevron-right" size={24} />
-            </View>
-          </ScrollView>
-        </View> */}
-
-        {/* <View className="px-5 pt-10 pb-10">
-          <View className="flex-row justify-between items-center px-0 pb-4">
-            <Text className="text-text-primary text-lg font-semibold">{t('home.perps')}</Text>
-            <TouchableOpacity>
-              <Text className="text-brand-primary text-sm font-medium">{t('home.viewMore')}</Text>
-            </TouchableOpacity>
-          </View>
-
-          {perpPositions.map((position) => (
-            <View
-              key={position.id}
-              className="rounded-xl bg-background-secondary px-4 py-1 flex-row items-center gap-5 mb-2"
-            >
-              <RNImage source={DefaultIcon} className="w-12 h-12 rounded-full" resizeMode="cover" />
-              <View className="flex-1 flex-row justify-between items-center py-5">
-                <View className="gap-3">
-                  <Text className="text-text-primary text-xl font-medium">{position.name}</Text>
-                  <Text className="text-text-secondary text-sm">{position.multiplier}</Text>
-                </View>
-                <View className="items-end gap-3">
-                  <Text className="text-text-primary text-xl font-medium text-right">
-                    {position.value}
-                  </Text>
-                  <Text className="text-system-error text-sm">{position.change}</Text>
-                </View>
-              </View>
-            </View>
-          ))}
-        </View> */}
 
         <View className="px-5 pb-10">
           <View className="flex-row items-center justify-between border-b border-border-secondary pb-0 mb-4">

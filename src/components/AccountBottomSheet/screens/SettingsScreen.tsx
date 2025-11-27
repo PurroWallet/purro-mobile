@@ -372,21 +372,19 @@ const SettingsScreen: React.FC<Props> = ({ parentNavigation }) => {
             />
             <SettingItem
               title={t('accountBottomSheet.settingsScreen.terms.title')}
-              onPress={() =>
-                Alert.alert(
-                  t('accountBottomSheet.settingsScreen.terms.title'),
-                  t('accountBottomSheet.settingsScreen.terms.message'),
-                )
-              }
+              onPress={() => {
+                if (parentNavigation) {
+                  parentNavigation.navigate('WebView', { url: 'https://purro.xyz/terms/' });
+                }
+              }}
             />
             <SettingItem
               title={t('accountBottomSheet.settingsScreen.privacy.title')}
-              onPress={() =>
-                Alert.alert(
-                  t('accountBottomSheet.settingsScreen.privacy.title'),
-                  t('accountBottomSheet.settingsScreen.privacy.message'),
-                )
-              }
+              onPress={() => {
+                if (parentNavigation) {
+                  parentNavigation.navigate('WebView', { url: 'https://purro.xyz/privacy/' });
+                }
+              }}
             />
           </View>
         </View>

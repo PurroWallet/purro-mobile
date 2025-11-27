@@ -1,6 +1,6 @@
 /**
  * useTokens Hook
- * Manages token fetching and state for all EVM chains with cache-first strategy
+ * Manages token fetching and state for all chains (HyperLiquid + EVM) with cache-first strategy
  */
 
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -9,6 +9,23 @@ import { fetchAllEvmTokens, fetchBatchTokenMetadata } from '@/core/apis/alchemy/
 import type { ChainTokenData, TokenWithMetadata } from '@/core/apis/alchemy/types';
 import { getEndpoints } from '@/core/apis/endpoints';
 import { tokenMetadataCache } from '@/core/storage/tokenMetadataCache';
+
+interface HyperLiquidToken {
+  token: string;
+  name: string;
+  symbol: string;
+  balance: string;
+  decimals: number;
+}
+
+interface HyperLiquidResponse {
+  wallet: string;
+  tokens: HyperLiquidToken[];
+  count: number;
+  limitedCount: number;
+  limitApplied: boolean;
+  serviceStatus: string;
+}
 
 const TOKENS_QUERY_KEY_PREFIX = 'wallet_tokens';
 
@@ -29,23 +46,110 @@ const CHAIN_ID_MAP = {
 } as const;
 
 /**
+ * Fetch HyperLiquid tokens
+ */
+async function fetchHyperLiquidTokens(address: string): Promise<ChainTokenData> {
+  try {
+    console.log('🔍 useTokens - Fetching HyperLiquid tokens for:', address);
+    const response = await fetch(
+      `https://api.liqd.ag/tokens/balances?wallet=${address}&limit=200`,
+      {
+        headers: {
+          accept: '*/*',
+          'content-type': 'application/json',
+        },
+      },
+    );
+
+    console.log('📡 useTokens - HyperLiquid response status:', response.status);
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch HyperLiquid tokens: ${response.status}`);
+    }
+
+    const text = await response.text();
+    console.log('📦 useTokens - HyperLiquid raw response:', text);
+
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (parseError) {
+      console.error('❌ useTokens - Failed to parse HyperLiquid response:', parseError);
+      return {
+        chain: 'hyperliquid' as any,
+        tokens: [],
+      };
+    }
+
+    console.log('📦 useTokens - HyperLiquid parsed data:', data);
+
+    // Check if response has success and data
+    const apiResponse = data as { success: boolean; data: HyperLiquidResponse };
+    if (!apiResponse.success || !apiResponse.data) {
+      console.warn('⚠️ useTokens - HyperLiquid response unsuccessful:', data);
+      return {
+        chain: 'hyperliquid' as any,
+        tokens: [],
+      };
+    }
+
+    const responseData = apiResponse.data;
+    if (!responseData.tokens || !Array.isArray(responseData.tokens)) {
+      console.warn('⚠️ useTokens - HyperLiquid response has no tokens array:', data);
+      return {
+        chain: 'hyperliquid' as any,
+        tokens: [],
+      };
+    }
+
+    const tokens: TokenWithMetadata[] = responseData.tokens.map((token: HyperLiquidToken) => ({
+      contractAddress: token.token,
+      balance: token.balance,
+      metadata: {
+        name: token.name,
+        symbol: token.symbol,
+        decimals: token.decimals,
+        logo: undefined,
+      },
+      balanceUsd: 0,
+    }));
+
+    console.log('✅ useTokens - HyperLiquid tokens processed:', tokens.length);
+
+    return {
+      chain: 'hyperliquid' as any,
+      tokens,
+    };
+  } catch (error) {
+    console.error('❌ useTokens - Failed to fetch HyperLiquid tokens:', error);
+    return {
+      chain: 'hyperliquid' as any,
+      tokens: [],
+      error: error instanceof Error ? error.message : 'Failed to fetch HyperLiquid tokens',
+    };
+  }
+}
+
+/**
  * Fetch tokens with cache-first strategy and graceful degradation
  * 1. Check cache for metadata
- * 2. Fetch balances from API
+ * 2. Fetch balances from API (HyperLiquid + EVM chains)
  * 3. Use cached metadata where available
  * 4. Fetch missing metadata from API
  * 5. Cache newly fetched metadata
  * 6. Handle partial failures gracefully - show data from successful chains
  */
-async function fetchTokensWithCache(
-  address: string,
-  isTestnet: boolean = false,
-): Promise<ChainTokenData[]> {
+async function fetchTokens(address: string, isTestnet: boolean = false): Promise<ChainTokenData[]> {
   try {
     console.log('🔍 useTokens - Fetching tokens for address:', address);
 
-    // Fetch all token balances in parallel
-    const chainDataArray = await fetchAllEvmTokens(address, isTestnet);
+    // Fetch all token balances in parallel (HyperLiquid + EVM chains)
+    const [hyperLiquidData, ...evmChainDataArray] = await Promise.all([
+      fetchHyperLiquidTokens(address),
+      fetchAllEvmTokens(address, isTestnet),
+    ]);
+
+    const chainDataArray = evmChainDataArray.flat();
     const endpoints = getEndpoints(isTestnet);
 
     const processedResults = await Promise.allSettled(
@@ -140,7 +244,8 @@ async function fetchTokensWithCache(
     });
 
     console.log('✅ useTokens - Successfully fetched tokens for all chains');
-    return processedChainData;
+    // Add HyperLiquid data at the beginning
+    return [hyperLiquidData, ...processedChainData];
   } catch (error) {
     console.error('❌ useTokens - Failed to fetch tokens:', error);
     throw error instanceof Error ? error : new Error('Failed to fetch tokens');
@@ -194,7 +299,7 @@ export function useTokens(address: string, isTestnet: boolean = false): UseToken
 
   const query = useQuery({
     queryKey,
-    queryFn: () => fetchTokensWithCache(address, isTestnet),
+    queryFn: () => fetchTokens(address, isTestnet),
     enabled: !!address && address.length > 0,
     staleTime: 30000, // 30 seconds - tokens are relatively stable
     gcTime: 300000, // 5 minutes - keep in cache for quick access
