@@ -163,13 +163,6 @@ export class WalletController {
   }
 
   /**
-   * Export mnemonic
-   */
-  async exportMnemonic(): Promise<string> {
-    return walletService.exportMnemonic();
-  }
-
-  /**
    * Export mnemonic for specific account address
    */
   async exportMnemonicForAddress(address: string): Promise<string> {

@@ -27,7 +27,7 @@ export class WalletAPI {
   }
 
   async exportMnemonic(): Promise<string> {
-    return keyringService.exportMnemonic();
+    return keyringService.exportMnemonicForHDKeyring(0);
   }
 
   lockWallet(): void {

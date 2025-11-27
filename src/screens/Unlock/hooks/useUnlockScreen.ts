@@ -4,6 +4,7 @@ import type { UseFormReturn } from 'react-hook-form';
 import { apisKeychain, apisLock } from '@/core/apis';
 import { useBiometrics } from '@/core/hooks/biometrics';
 import { useUnlockForm } from '@/core/hooks/form/useUnlockForm';
+import { keyringService } from '@/core/services';
 import type { UnlockScreenProps } from '@/types/navigation';
 import { useTranslation } from '@/utils/i18n';
 
@@ -55,13 +56,9 @@ export const useUnlockScreen = (): UseUnlockScreenResult => {
             const passwordFromKeychain = await apisKeychain.requestGenericPassword();
 
             if (passwordFromKeychain) {
+              await keyringService.submitPassword(passwordFromKeychain);
               apisLock.markAsUnlocked();
               reset({ password: '' });
-
-              // Biometric unlock successful - keyrings will load on-demand when needed
-              console.log(
-                '🔓 UnlockScreen: Biometric unlock successful - keyrings will load on-demand',
-              );
 
               navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
               return;

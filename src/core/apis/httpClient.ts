@@ -26,7 +26,7 @@ class HttpClient {
         // Generate curl command for debugging (only in development)
         if (__DEV__) {
           const curlCommand = this.generateCurlCommand(config);
-          console.log('🔵 API Request (curl):\n', curlCommand);
+          // console.log('🔵 API Request (curl):\n', curlCommand);
         }
 
         return config;
@@ -40,11 +40,11 @@ class HttpClient {
     this.instance.interceptors.response.use(
       (response) => {
         if (__DEV__) {
-          console.log('✅ API Response:', {
-            status: response.status,
-            url: response.config.url,
-            data: response.data,
-          });
+          // console.log("✅ API Response:", {
+          //   status: response.status,
+          //   url: response.config.url,
+          //   data: response.data,
+          // });
         }
         return response;
       },

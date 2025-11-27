@@ -252,8 +252,19 @@
           "title": "Change Password",
           "message": "Password change feature coming soon."
         },
+        "changePasswordScreen": {
+          "title": "Change Password",
+          "instructions": "Enter your new password below. Make sure it's strong and secure.",
+          "newPasswordPlaceholder": "New Password",
+          "confirmPasswordPlaceholder": "Confirm New Password",
+          "submit": "Change Password",
+          "successTitle": "Password Changed",
+          "successMessage": "Your password has been successfully updated.",
+          "error": "Failed to change password. Please try again.",
+          "weakPassword": "Password must be at least 8 characters long.",
+          "mismatch": "Passwords do not match."
+        },
         "resetWallet": {
-          "title": "Reset Wallet",
           "message": "Are you sure you want to reset your wallet? This action cannot be undone. Make sure you have backed up your seed phrase.",
           "confirm": "Reset",
           "error": "Failed to reset wallet."

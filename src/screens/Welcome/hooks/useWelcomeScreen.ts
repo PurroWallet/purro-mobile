@@ -124,10 +124,18 @@ export const useWelcomeScreen = (): UseWelcomeScreenResult => {
         method: 'eth_private_key',
       });
 
-      if (privateKey && privateKey.length > 0) {
+      // Ensure private key is properly formatted with 0x prefix
+      const formattedPrivateKey =
+        privateKey && typeof privateKey === 'string'
+          ? privateKey.startsWith('0x')
+            ? privateKey
+            : `0x${privateKey}`
+          : privateKey;
+
+      if (formattedPrivateKey && formattedPrivateKey.length > 0) {
         navigation.navigate('CreatePassword', {
           mnemonic: undefined,
-          privateKey,
+          privateKey: formattedPrivateKey,
           isWeb3Auth: true,
           userInfo: result.userInfo,
         });

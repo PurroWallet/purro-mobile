@@ -245,25 +245,6 @@ export class KeyringService extends EventEmitter {
     return keyring.exportAccount(address);
   }
 
-  // Export mnemonic for HD keyring
-  async exportMnemonic(keyringIndex: number = 0): Promise<string> {
-    // If keyrings not loaded, load them now
-    if (this.keyrings.length === 0 && this.password) {
-      await this.loadKeyrings(this.password);
-    }
-
-    if (keyringIndex >= this.keyrings.length) {
-      throw new Error('Keyring not found');
-    }
-
-    const keyring = this.keyrings[keyringIndex];
-    if (keyring.type !== KEYRING_TYPE.HD) {
-      throw new Error('Not an HD keyring');
-    }
-
-    return (keyring as any).getMnemonic();
-  }
-
   // Get all HD keyrings with their accounts for seed phrase management
   async getHDKeyringsWithAccounts(): Promise<
     Array<{
@@ -468,12 +449,8 @@ export class KeyringService extends EventEmitter {
   // Update password
   public async updatePassword(oldPassword: string, newPassword: string): Promise<void> {
     await this.verifyPassword(oldPassword);
-    this.password = newPassword;
-    await this.persistKeyrings();
-  }
-
-  // Reset password
-  public async resetPassword(newPassword: string): Promise<void> {
+    // Load keyrings with old password before updating
+    await this.loadKeyrings(oldPassword);
     this.password = newPassword;
     await this.persistKeyrings();
   }
@@ -500,21 +477,6 @@ export class KeyringService extends EventEmitter {
     }
 
     this.unlocked = true;
-  }
-
-  // Dangerously reset password and keyrings
-  public async dangerouslyResetPasswordAndKeyrings(
-    oldPassword: string,
-    newPassword?: string,
-  ): Promise<void> {
-    await this.verifyPassword(oldPassword);
-    this.keyrings = [];
-    this.password = newPassword || null;
-    if (newPassword) {
-      await this.persistKeyrings();
-    } else {
-      keyringStorage.removeItem('vault');
-    }
   }
 
   // Check for duplicate accounts

@@ -225,6 +225,18 @@
           "title": "Đổi mật khẩu",
           "message": "Tính năng đổi mật khẩu sẽ ra mắt sớm."
         },
+        "changePasswordScreen": {
+          "title": "Đổi mật khẩu",
+          "instructions": "Nhập mật khẩu mới bên dưới. Đảm bảo nó mạnh và an toàn.",
+          "newPasswordPlaceholder": "Mật khẩu mới",
+          "confirmPasswordPlaceholder": "Xác nhận mật khẩu mới",
+          "submit": "Đổi mật khẩu",
+          "successTitle": "Đã đổi mật khẩu",
+          "successMessage": "Mật khẩu của bạn đã được cập nhật thành công.",
+          "error": "Không thể đổi mật khẩu. Vui lòng thử lại.",
+          "weakPassword": "Mật khẩu phải có ít nhất 8 ký tự.",
+          "mismatch": "Mật khẩu không khớp."
+        },
         "resetWallet": {
           "title": "Đặt lại ví",
           "message": "Bạn có chắc muốn đặt lại ví? Hành động này không thể hoàn tác. Hãy đảm bảo bạn đã sao lưu cụm từ khôi phục.",

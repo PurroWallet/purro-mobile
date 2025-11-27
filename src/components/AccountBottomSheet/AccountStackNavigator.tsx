@@ -8,6 +8,7 @@ import React, { useMemo } from 'react';
 import type { RootStackParamList } from '@/types/navigation';
 import AccountListScreen from './screens/AccountListScreen.tsx';
 import AddAccountScreen from './screens/AddAccountScreen.tsx';
+import ChangePasswordScreen from './screens/ChangePasswordScreen.tsx';
 import CreatePasswordScreen from './screens/CreatePasswordScreen.tsx';
 import EditAccountNameScreen from './screens/EditAccountNameScreen.tsx';
 import EditAccountScreen from './screens/EditAccountScreen.tsx';
@@ -50,9 +51,17 @@ export type AccountStackParamList = {
   };
   SeedPhraseDisplay: { mnemonic: string; isBottomSheet?: boolean };
   SeedPhraseVerify: { mnemonic: string; isBottomSheet?: boolean };
-  CreatePassword: { mnemonic?: string; isPrivateKeyImport?: boolean; isBottomSheet?: boolean };
+  CreatePassword: {
+    mnemonic?: string;
+    isPrivateKeyImport?: boolean;
+    isBottomSheet?: boolean;
+  };
   Success: { title: string; message: string; buttonText?: string };
-  PasswordVerification: { accountAddress: string; onSuccess: (password: string) => void };
+  PasswordVerification: {
+    accountAddress: string;
+    onSuccess: (password: string) => void;
+  };
+  ChangePasswordScreen: { currentPassword: string };
   Unlock: {
     mnemonic?: string;
     isImport?: boolean;
@@ -124,6 +133,7 @@ const AccountStackNavigator: React.FC<AccountStackNavigatorProps> = ({
           <Stack.Screen name="PrivateKeyDisplay">
             {(props) => (
               <PrivateKeyDisplayScreen
+                {...props}
                 privateKey={props.route.params.privateKey}
                 accountAddress={props.route.params.accountAddress}
               />
@@ -162,6 +172,7 @@ const AccountStackNavigator: React.FC<AccountStackNavigatorProps> = ({
             {(props) => <SuccessScreen {...props} onClose={onClose} />}
           </Stack.Screen>
           <Stack.Screen name="PasswordVerification" component={PasswordVerificationScreen} />
+          <Stack.Screen name="ChangePasswordScreen" component={ChangePasswordScreen} />
           <Stack.Screen name="EditAccount" component={EditAccountScreen} />
           <Stack.Screen name="EditAccountName" component={EditAccountNameScreen} />
           <Stack.Screen name="Settings">

@@ -20,18 +20,17 @@ export function useBiometricsComputed() {
   const computed = useMemo(() => {
     const { authEnabled, supportedBiometryType } = biometrics;
 
-    // Force enable for testing if on iOS (even if getSupportedBiometryType returns null)
-    const forceEnable = IS_IOS && !supportedBiometryType;
-    const effectiveSupported =
-      supportedBiometryType || (forceEnable ? BIOMETRY_TYPE.FACE_ID : null);
-    const isFaceID = effectiveSupported === BIOMETRY_TYPE.FACE_ID || forceEnable;
+    // Only use supported biometry type, don't force enable
+    const effectiveSupported = supportedBiometryType;
+    const isFaceID = effectiveSupported === BIOMETRY_TYPE.FACE_ID;
+    const isTouchID = effectiveSupported === BIOMETRY_TYPE.TOUCH_ID;
 
     return {
       isBiometricsEnabled: authEnabled && !!effectiveSupported,
       settingsAuthEnabled: authEnabled,
       couldSetupBiometrics: !!effectiveSupported,
       supportedBiometryType: effectiveSupported,
-      defaultTypeLabel: isFaceID ? 'Face ID' : IS_IOS ? 'Touch ID' : 'Fingerprint',
+      defaultTypeLabel: isFaceID ? 'Face ID' : isTouchID ? 'Touch ID' : 'Fingerprint',
       isFaceID,
     };
   }, [biometrics]);
@@ -89,18 +88,33 @@ export function useBiometrics(_options?: { autoFetch?: boolean }) {
     ) => {
       const { validatedPassword } = input;
 
+      console.log('🔐 toggleBiometrics: Called with', {
+        nextEnabled,
+        hasValidatedPassword: !!validatedPassword,
+      });
+
       try {
         if (nextEnabled && validatedPassword) {
+          console.log(
+            '🔐 toggleBiometrics: Enabling biometrics with password length:',
+            validatedPassword.length,
+          );
           // Enable biometrics
           await apisKeychain.setGenericPassword(validatedPassword, KEYCHAIN_AUTH_TYPES.BIOMETRICS);
+          console.log('🔐 toggleBiometrics: Keychain set successful, updating state');
           setBiometricsInfo((prev) => ({ ...prev, authEnabled: true }));
+          console.log('🔐 toggleBiometrics: State updated to enabled');
         } else {
+          console.log('🔐 toggleBiometrics: Disabling biometrics');
           // Disable biometrics
           await apisKeychain.resetGenericPassword();
+          console.log('🔐 toggleBiometrics: Keychain reset successful, updating state');
           setBiometricsInfo((prev) => ({ ...prev, authEnabled: false }));
+          console.log('🔐 toggleBiometrics: State updated to disabled');
         }
       } catch (error) {
-        console.error('Toggle biometrics error:', error);
+        console.error('❌ toggleBiometrics: Error occurred:', error);
+        console.error('❌ toggleBiometrics: Error details:', JSON.stringify(error));
         throw error;
       }
     },

@@ -62,7 +62,6 @@ export class Web3AuthService {
       await this.web3auth.init();
       this.initialized = true;
     } catch (error) {
-      console.error('❌ Failed to initialize Web3Auth:', error);
       throw error;
     }
   }

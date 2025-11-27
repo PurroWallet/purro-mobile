@@ -3,7 +3,7 @@ import type { NavigationProp } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { memo, useEffect, useMemo, useState } from 'react';
-import { Alert, ScrollView, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from '@/components/Icon';
 import LanguageToggle from '@/components/LanguageToggle';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -12,7 +12,6 @@ import { useBiometrics } from '@/core/hooks/biometrics';
 import { useThemeMode } from '@/core/hooks/useTheme';
 import { KEYCHAIN_AUTH_TYPES } from '@/core/services/keychain';
 import { useAppStore } from '@/stores/appStore';
-import type { ThemeMode } from '@/theme';
 import type { RootStackParamList } from '@/types/navigation';
 import { useTranslation } from '@/utils/i18n';
 import type { AccountStackParamList } from '../AccountStackNavigator';
@@ -80,7 +79,7 @@ const SettingsScreen: React.FC<Props> = ({ parentNavigation }) => {
 
   useEffect(() => {
     fetchBiometrics();
-  }, []); // Run once on mount - fetchBiometrics is from useBiometrics hook
+  }, []);
 
   const handleBiometricToggle = async (value: boolean) => {
     if (isEnablingBiometrics) return;
@@ -91,52 +90,31 @@ const SettingsScreen: React.FC<Props> = ({ parentNavigation }) => {
       if (value) {
         // Enable biometrics
         try {
-          let walletPassword = null;
-          try {
-            walletPassword = await apisKeychain.requestGenericPassword();
-          } catch {
-            // Handle error silently
-          }
+          // Navigate to password verification to get the wallet password
+          navigation.navigate('PasswordVerification', {
+            accountAddress: '',
+            onSuccess: async (verifiedPassword) => {
+              try {
+                await apisKeychain.resetGenericPassword();
+              } catch (e) {
+                // Handle error silently
+              }
 
-          if (!walletPassword) {
-            const { keyringService } = await import('@/core/services/KeyringService');
-
-            if (!keyringService.isUnlocked()) {
-              Alert.alert(
-                t('errors.generic.title'),
-                t('accountBottomSheet.settingsScreen.alerts.biometrics.unlockRequired'),
+              await apisKeychain.setGenericPassword(
+                verifiedPassword,
+                KEYCHAIN_AUTH_TYPES.BIOMETRICS,
               );
-              setIsEnablingBiometrics(false);
-              return;
-            }
-            walletPassword = keyringService.getPassword();
-          }
 
-          if (!walletPassword) {
-            Alert.alert(
-              t('errors.generic.title'),
-              t('accountBottomSheet.settingsScreen.alerts.biometrics.passwordMissing'),
-            );
-            setIsEnablingBiometrics(false);
-            return;
-          }
+              await fetchBiometrics();
 
-          try {
-            await apisKeychain.resetGenericPassword();
-          } catch {
-            // Handle error silently
-          }
-
-          await apisKeychain.setGenericPassword(walletPassword, KEYCHAIN_AUTH_TYPES.BIOMETRICS);
-
-          await fetchBiometrics();
-
-          Alert.alert(
-            t('common.success'),
-            t('accountBottomSheet.settingsScreen.alerts.biometrics.enableSuccess', {
-              method: defaultTypeLabel,
-            }),
-          );
+              // Immediately prompt for biometric verification to confirm enrollment
+              await apisKeychain.requestGenericPassword();
+              // Successfully enabled biometrics, go back to settings
+              navigation.goBack();
+            },
+          });
+          setIsEnablingBiometrics(false);
+          return;
         } catch (error) {
           Alert.alert(
             t('errors.generic.title'),
@@ -199,11 +177,15 @@ const SettingsScreen: React.FC<Props> = ({ parentNavigation }) => {
   };
 
   const handleChangePassword = () => {
-    Alert.alert(
-      t('accountBottomSheet.settingsScreen.alerts.changePassword.title'),
-      t('accountBottomSheet.settingsScreen.alerts.changePassword.message'),
-      [{ text: t('common.ok'), style: 'default' }],
-    );
+    navigation.navigate('PasswordVerification', {
+      accountAddress: '',
+      onSuccess: async (verifiedPassword) => {
+        // Navigate to change password screen with verified old password
+        navigation.navigate('ChangePasswordScreen', {
+          currentPassword: verifiedPassword,
+        });
+      },
+    });
   };
 
   const themeSubtitle = useMemo(
@@ -372,19 +354,21 @@ const SettingsScreen: React.FC<Props> = ({ parentNavigation }) => {
             />
             <SettingItem
               title={t('accountBottomSheet.settingsScreen.terms.title')}
-              onPress={() => {
-                if (parentNavigation) {
-                  parentNavigation.navigate('WebView', { url: 'https://purro.xyz/terms/' });
-                }
-              }}
+              onPress={() =>
+                Alert.alert(
+                  t('accountBottomSheet.settingsScreen.terms.title'),
+                  t('accountBottomSheet.settingsScreen.terms.message'),
+                )
+              }
             />
             <SettingItem
               title={t('accountBottomSheet.settingsScreen.privacy.title')}
-              onPress={() => {
-                if (parentNavigation) {
-                  parentNavigation.navigate('WebView', { url: 'https://purro.xyz/privacy/' });
-                }
-              }}
+              onPress={() =>
+                Alert.alert(
+                  t('accountBottomSheet.settingsScreen.privacy.title'),
+                  t('accountBottomSheet.settingsScreen.privacy.message'),
+                )
+              }
             />
           </View>
         </View>

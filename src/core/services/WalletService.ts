@@ -353,18 +353,6 @@ export class WalletService {
   }
 
   /**
-   * Export mnemonic
-   */
-  async exportMnemonic(): Promise<string> {
-    try {
-      return await this.keyringService.exportMnemonic();
-    } catch (error) {
-      console.error('Failed to export mnemonic:', error);
-      throw error;
-    }
-  }
-
-  /**
    * Export mnemonic for specific account address
    * This ensures the correct mnemonic is shown for the selected account
    */

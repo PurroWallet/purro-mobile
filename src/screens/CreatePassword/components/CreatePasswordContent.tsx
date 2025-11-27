@@ -51,7 +51,7 @@ export const CreatePasswordContent: React.FC = () => {
             </FormProvider>
           </View>
 
-          <View className="px-5 pb-5">
+          <View className="pb-5">
             <Button
               type="primary"
               title={isLoading ? strings.buttonLoading : strings.buttonSubmit}
