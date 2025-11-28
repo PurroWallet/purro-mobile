@@ -24,6 +24,7 @@ import SelectSeedPhraseScreen from './screens/SelectSeedPhraseScreen.tsx';
 import SettingsScreen from './screens/SettingsScreen.tsx';
 import SuccessScreen from './screens/SuccessScreen.tsx';
 import UnlockScreen from './screens/UnlockScreen.tsx';
+import WebViewScreen from './screens/WebViewScreen.tsx';
 
 export type AccountStackParamList = {
   AccountList: undefined;
@@ -31,6 +32,7 @@ export type AccountStackParamList = {
   EditAccount: { accountAddress: string };
   EditAccountName: { accountAddress: string; currentName: string };
   Settings: undefined;
+  WebView: { url: string; title?: string };
   ImportSeedPhrase: undefined;
   ImportPrivateKey: undefined;
   PrivateKeyDisplay: {
@@ -178,6 +180,7 @@ const AccountStackNavigator: React.FC<AccountStackNavigatorProps> = ({
           <Stack.Screen name="Settings">
             {(props) => <SettingsScreen {...props} parentNavigation={parentNavigation} />}
           </Stack.Screen>
+          <Stack.Screen name="WebView" component={WebViewScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </NavigationIndependentTree>
